@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package api.send.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "notifications/api/send/v1;send_v1";
+option java_multiple_files = true;
+option java_package = "api.send.v1";
+
+service Sender {
+	rpc SenderInfo (DummyRequest) returns (DummyReply) {
+		option (google.api.http) = {
+			get: "/v1/info"
+		};
+	};
+	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (PersonalSmsSenderReply);
+}
+
+message PersonalSmsSenderRequest {
+	string phone = 1;
+	string message = 2;
+}
+message PersonalSmsSenderReply {
+	string result = 1;
+}
+
+message DummyRequest {}
+message DummyReply {}

@@ -1,0 +1,13 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 30s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 30s
+consul:
+  address: consul:8500
+  path: app/notifications/
+vault:
+  address: vault:8200
+  token: myroot

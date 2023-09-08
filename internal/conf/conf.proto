@@ -1,0 +1,37 @@
+syntax = "proto3";
+package kratos.api;
+
+option go_package = "iam/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Consul consul = 2;
+  Vault vault = 3;
+}
+
+message Server {
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  HTTP http = 1;
+  GRPC grpc = 2;
+}
+
+message Consul {
+  string address = 1;
+  string path = 2;
+}
+
+message Vault {
+  string address = 1;
+  string token = 2;
+}

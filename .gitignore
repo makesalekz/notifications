@@ -39,3 +39,4 @@ bin/
 # Local env
 .env
 .docker
+credentials.json

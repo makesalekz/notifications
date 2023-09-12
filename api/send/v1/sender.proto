@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.send.v1;
 
 import "google/api/annotations.proto";
+import "errors/errors.proto";
 
 option go_package = "notifications/api/send/v1;send_v1";
 option java_multiple_files = true;
@@ -14,7 +15,17 @@ service Sender {
 			get: "/v1/info"
 		};
 	};
+	rpc CreateFcmDevice (FcmDeviceRequest) returns (FcmDeviceReply);
+	rpc DeleteFcmDevice (FcmDeviceRequest) returns (FcmDeviceReply);
 	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (PersonalSmsSenderReply);
+	rpc PersonalFcmSender (PersonalFcmSenderRequest) returns (PersonalFcmSenderReply);
+}
+
+message FcmDeviceRequest {
+	string token = 1;
+}
+message FcmDeviceReply {
+	string result = 1;
 }
 
 message PersonalSmsSenderRequest {
@@ -25,5 +36,31 @@ message PersonalSmsSenderReply {
 	string result = 1;
 }
 
+message PersonalFcmSenderRequest {
+	string user_id = 1;
+	string title = 2;
+	string body = 3;
+	string image = 4;
+	map<string, string> data = 5;
+}
+message PersonalFcmSenderReply {
+	string result = 1;
+}
+
 message DummyRequest {}
 message DummyReply {}
+
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+  
+  UNAUTHORIZED = 10 [(errors.code) = 401];
+  
+  DEVICE_NOT_FOUND = 20 [(errors.code) = 404];
+}

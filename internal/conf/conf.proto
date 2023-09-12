@@ -9,6 +9,7 @@ message Bootstrap {
   Server server = 1;
   Consul consul = 2;
   Vault vault = 3;
+  Db db = 4;
 }
 
 message Server {
@@ -34,4 +35,8 @@ message Consul {
 message Vault {
   string address = 1;
   string token = 2;
+}
+
+message Db {
+  string address = 1;
 }

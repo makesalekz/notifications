@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"notifications/ent/device"
 	"notifications/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -37,6 +38,26 @@ func (du *DeviceUpdate) SetUserID(i int64) *DeviceUpdate {
 // AddUserID adds i to the "user_id" field.
 func (du *DeviceUpdate) AddUserID(i int64) *DeviceUpdate {
 	du.mutation.AddUserID(i)
+	return du
+}
+
+// SetToken sets the "token" field.
+func (du *DeviceUpdate) SetToken(s string) *DeviceUpdate {
+	du.mutation.SetToken(s)
+	return du
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (du *DeviceUpdate) SetCreatedAt(t time.Time) *DeviceUpdate {
+	du.mutation.SetCreatedAt(t)
+	return du
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (du *DeviceUpdate) SetNillableCreatedAt(t *time.Time) *DeviceUpdate {
+	if t != nil {
+		du.SetCreatedAt(*t)
+	}
 	return du
 }
 
@@ -100,6 +121,12 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := du.mutation.AddedUserID(); ok {
 		_spec.AddField(device.FieldUserID, field.TypeInt64, value)
 	}
+	if value, ok := du.mutation.Token(); ok {
+		_spec.SetField(device.FieldToken, field.TypeString, value)
+	}
+	if value, ok := du.mutation.CreatedAt(); ok {
+		_spec.SetField(device.FieldCreatedAt, field.TypeTime, value)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, du.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{device.Label}
@@ -130,6 +157,26 @@ func (duo *DeviceUpdateOne) SetUserID(i int64) *DeviceUpdateOne {
 // AddUserID adds i to the "user_id" field.
 func (duo *DeviceUpdateOne) AddUserID(i int64) *DeviceUpdateOne {
 	duo.mutation.AddUserID(i)
+	return duo
+}
+
+// SetToken sets the "token" field.
+func (duo *DeviceUpdateOne) SetToken(s string) *DeviceUpdateOne {
+	duo.mutation.SetToken(s)
+	return duo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (duo *DeviceUpdateOne) SetCreatedAt(t time.Time) *DeviceUpdateOne {
+	duo.mutation.SetCreatedAt(t)
+	return duo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (duo *DeviceUpdateOne) SetNillableCreatedAt(t *time.Time) *DeviceUpdateOne {
+	if t != nil {
+		duo.SetCreatedAt(*t)
+	}
 	return duo
 }
 
@@ -222,6 +269,12 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 	}
 	if value, ok := duo.mutation.AddedUserID(); ok {
 		_spec.AddField(device.FieldUserID, field.TypeInt64, value)
+	}
+	if value, ok := duo.mutation.Token(); ok {
+		_spec.SetField(device.FieldToken, field.TypeString, value)
+	}
+	if value, ok := duo.mutation.CreatedAt(); ok {
+		_spec.SetField(device.FieldCreatedAt, field.TypeTime, value)
 	}
 	_node = &Device{config: duo.config}
 	_spec.Assign = _node.assignValues

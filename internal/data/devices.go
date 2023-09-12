@@ -22,7 +22,7 @@ type devicesRepo struct {
 }
 
 // NewUsersRepo .
-func NewUsersRepo(d *Data, logger log.Logger) DevicesRepo {
+func NewDevicesRepo(d *Data, logger log.Logger) DevicesRepo {
 	return &devicesRepo{
 		db: d.db,
 	}

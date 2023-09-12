@@ -5,6 +5,7 @@ package ent
 import (
 	"notifications/ent/device"
 	"notifications/ent/schema"
+	"time"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -17,4 +18,8 @@ func init() {
 	deviceDescUserID := deviceFields[0].Descriptor()
 	// device.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
 	device.UserIDValidator = deviceDescUserID.Validators[0].(func(int64) error)
+	// deviceDescCreatedAt is the schema descriptor for created_at field.
+	deviceDescCreatedAt := deviceFields[2].Descriptor()
+	// device.DefaultCreatedAt holds the default value on creation for the created_at field.
+	device.DefaultCreatedAt = deviceDescCreatedAt.Default.(func() time.Time)
 }

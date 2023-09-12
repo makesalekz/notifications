@@ -38,6 +38,14 @@ func (dc *DeviceCreate) SetCreatedAt(t time.Time) *DeviceCreate {
 	return dc
 }
 
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (dc *DeviceCreate) SetNillableCreatedAt(t *time.Time) *DeviceCreate {
+	if t != nil {
+		dc.SetCreatedAt(*t)
+	}
+	return dc
+}
+
 // Mutation returns the DeviceMutation object of the builder.
 func (dc *DeviceCreate) Mutation() *DeviceMutation {
 	return dc.mutation
@@ -45,6 +53,7 @@ func (dc *DeviceCreate) Mutation() *DeviceMutation {
 
 // Save creates the Device in the database.
 func (dc *DeviceCreate) Save(ctx context.Context) (*Device, error) {
+	dc.defaults()
 	return withHooks(ctx, dc.sqlSave, dc.mutation, dc.hooks)
 }
 
@@ -67,6 +76,14 @@ func (dc *DeviceCreate) Exec(ctx context.Context) error {
 func (dc *DeviceCreate) ExecX(ctx context.Context) {
 	if err := dc.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (dc *DeviceCreate) defaults() {
+	if _, ok := dc.mutation.CreatedAt(); !ok {
+		v := device.DefaultCreatedAt()
+		dc.mutation.SetCreatedAt(v)
 	}
 }
 
@@ -141,6 +158,7 @@ func (dcb *DeviceCreateBulk) Save(ctx context.Context) ([]*Device, error) {
 	for i := range dcb.builders {
 		func(i int, root context.Context) {
 			builder := dcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DeviceMutation)
 				if !ok {

@@ -25,6 +25,10 @@ import (
 
 // wireApp init kratos application.
 func wireApp(bootstrap *conf.Bootstrap, client *api.Client, logger log.Logger) (*kratos.App, func(), error) {
+	jwtProcessor, err := biz.NewJwtProcessor()
+	if err != nil {
+		return nil, nil, err
+	}
 	config, err := data.NewConfig(client, bootstrap)
 	if err != nil {
 		return nil, nil, err
@@ -33,10 +37,21 @@ func wireApp(bootstrap *conf.Bootstrap, client *api.Client, logger log.Logger) (
 	if err != nil {
 		return nil, nil, err
 	}
-	senderService := service.NewSenderService(logger, smsUsecase)
+	dataData, cleanup, err := data.NewData(bootstrap, logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	devicesRepo := data.NewDevicesRepo(dataData, logger)
+	fcmUsecase, err := biz.NewFcmUsecase(config, logger, devicesRepo)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	senderService := service.NewSenderService(logger, jwtProcessor, smsUsecase, fcmUsecase)
 	grpcServer := server.NewGRPCServer(bootstrap, senderService, logger)
 	httpServer := server.NewHTTPServer(bootstrap, senderService, logger)
 	app := newApp(logger, client, grpcServer, httpServer)
 	return app, func() {
+		cleanup()
 	}, nil
 }

@@ -1,19 +1,41 @@
 version: '3.5'
 
 services:
+  db:
+    container_name: ${SERVICE_NAME}_db
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./.docker/data/postgres:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT}:5432'
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    networks:
+      - backend
   service:
     build:
       context: ./
       dockerfile: Dockerfile
     container_name: ${SERVICE_NAME}_service
     ports:
-      - '8003:8000'
-      - '9003:9000'
+      - '${HTTP_PORT}:8000'
+      - '${GRPC_PORT}:9000'
     networks:
       - backend
     volumes:
       - ./configs:/data/conf
     restart: unless-stopped
+    depends_on:
+      - db
+    profiles:
+      - build
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/data/conf/credentials.json
+      - FIREBASE_CONFIG=/data/conf/firebase.json
 
 networks:
   backend:

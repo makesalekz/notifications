@@ -13,6 +13,8 @@ ifeq ($(GOHOSTOS), windows)
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 	API_PROTO_FILES=$(shell find api -name *.proto)
+	GOOGLE_APPLICATION_CREDENTIALS=$(shell pwd)/$(shell find configs -name credentials.json)
+	FIREBASE_CONFIG=$(shell pwd)/$(shell find configs -name firebase.json)
 endif
 
 .PHONY: init
@@ -25,6 +27,16 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/google/wire/cmd/wire@latest
 
+.PHONY: run
+# run
+run:	
+	kratos run
+
+.PHONY: start
+# start
+start:	
+	docker-compose up -d
+
 .PHONY: config
 # generate internal proto
 config:
@@ -34,7 +46,7 @@ config:
 	       $(INTERNAL_PROTO_FILES)
 
 .PHONY: errors
-# generate internal proto
+# generate errors proto
 errors:
 	protoc --proto_path=. \
 			--proto_path=./third_party \

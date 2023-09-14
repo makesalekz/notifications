@@ -39,4 +39,5 @@ bin/
 # Local env
 .env
 .docker
-credentials.json
+*credentials.json
+*firebase.json

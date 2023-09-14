@@ -1,51 +1,69 @@
-# Kratos Project Template
+# LDAP
 
-## Install Kratos
-```
-go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
-```
-## Create a service
-```
-# Create a template project
-kratos new server
+## Proto files
 
-cd server
-# Add a proto template
+### Add a proto template
+
+```bash
 kratos proto add api/server/server.proto
-# Generate the proto code
+```
+
+### Generate the proto code
+
+```bash
 kratos proto client api/server/server.proto
-# Generate the source code of service by proto file
+```
+
+### Generate the source code of service by proto file
+
+```bash
 kratos proto server api/server/server.proto -t internal/service
 
 go generate ./...
-go build -o ./bin/ ./...
-./bin/server -conf ./configs
 ```
+
 ## Generate other auxiliary files by Makefile
-```
-# Download and update dependencies
+
+### Download and update dependencies
+
+```bash
 make init
-# Generate API files (include: pb.go, http, grpc, validate, swagger) by proto file
+```
+
+### Generate API files (include: pb.go, http, grpc, validate, swagger) by proto file
+
+```bash
 make api
-# Generate all files
+```
+
+### Generate all files
+
+```bash
 make all
 ```
-## Automated Initialization (wire)
-```
-# install wire
-go get github.com/google/wire/cmd/wire
 
-# generate wire
-cd cmd/server
-wire
-```
+## Run
 
-## Docker
+Add credentials.json, firebase.json to configs/
+
+### Run debug
+
 ```bash
-# build
-docker build -t <your-docker-image-name> .
-
-# run
-docker run --rm -p 8000:8000 -p 9000:9000 -v </path/to/your/configs>:/data/conf <your-docker-image-name>
+make run
 ```
 
+### Build & Run
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS={path-to-credentials.json}
+export FIREBASE_CONFIG={path-to-firebase.json}
+
+go build -o ./bin/ ./...
+./bin/media -conf ./configs
+```
+
+## Run in Docker
+
+```bash
+docker compose up -d
+```

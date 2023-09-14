@@ -10,30 +10,30 @@ option java_multiple_files = true;
 option java_package = "api.send.v1";
 
 service Sender {
-	rpc SenderInfo (DummyRequest) returns (DummyReply) {
+	rpc CreateFcmDevice (FcmDeviceRequest) returns (EmptyReply) {
 		option (google.api.http) = {
-			get: "/v1/info"
+			post: "/v1/notifications/fcm/devices"
+			body: "*"
 		};
 	};
-	rpc CreateFcmDevice (FcmDeviceRequest) returns (FcmDeviceReply);
-	rpc DeleteFcmDevice (FcmDeviceRequest) returns (FcmDeviceReply);
-	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (PersonalSmsSenderReply);
-	rpc PersonalFcmSender (PersonalFcmSenderRequest) returns (PersonalFcmSenderReply);
+	rpc DeleteFcmDevice (FcmDeviceRequest) returns (EmptyReply) {
+		option (google.api.http) = {
+			delete: "/v1/notifications/fcm/devices"
+		};
+	};
+	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (EmptyReply);
+	rpc PersonalFcmSender (PersonalFcmSenderRequest) returns (EmptyReply);
 }
+
+message EmptyReply {}
 
 message FcmDeviceRequest {
 	string token = 1;
-}
-message FcmDeviceReply {
-	string result = 1;
 }
 
 message PersonalSmsSenderRequest {
 	string phone = 1;
 	string message = 2;
-}
-message PersonalSmsSenderReply {
-	string result = 1;
 }
 
 message PersonalFcmSenderRequest {
@@ -43,12 +43,6 @@ message PersonalFcmSenderRequest {
 	string image = 4;
 	map<string, string> data = 5;
 }
-message PersonalFcmSenderReply {
-	string result = 1;
-}
-
-message DummyRequest {}
-message DummyReply {}
 
 enum ErrorReason {
   // Set default error code.
@@ -61,6 +55,8 @@ enum ErrorReason {
   DATABASE_QUERY = 3;
   
   UNAUTHORIZED = 10 [(errors.code) = 401];
+  FCM_FAILED = 11;
+  SMS_FAILED = 12;
   
   DEVICE_NOT_FOUND = 20 [(errors.code) = 404];
 }

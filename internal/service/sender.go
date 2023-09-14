@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	v1 "notifications/api/send/v1"
@@ -30,7 +29,7 @@ func NewSenderService(logger log.Logger, jwt *biz.JwtProcessor, sms *biz.SmsUsec
 	}
 }
 
-func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*v1.FcmDeviceReply, error) {
+func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*v1.EmptyReply, error) {
 	userId, ok := s.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
@@ -39,47 +38,42 @@ func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 	err := s.fcm.RegisterDevice(ctx, userId, req.Token)
 
 	if err != nil {
-		s.log.Errorf("fcm.CreateDevice: ", err)
-		return nil, errors.InternalServer("internal", "internal error")
+		s.log.Errorf("fcm.RegisterDevice: %v", err)
+		return nil, errors.InternalServer("internal", "Internal error")
 	}
 
-	return &v1.FcmDeviceReply{Result: "success"}, nil
+	return &v1.EmptyReply{}, nil
 }
 
-func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*v1.FcmDeviceReply, error) {
+func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*v1.EmptyReply, error) {
 	userId, ok := s.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
 	}
 
 	err := s.fcm.UnregisterDevice(ctx, userId, req.Token)
-
 	if err != nil {
-		s.log.Errorf("fcm.CreateDevice: ", err)
-		return nil, errors.InternalServer("internal", "internal error")
+		s.log.Errorf("fcm.UnregisterDevice: %v", err)
+		return nil, errors.InternalServer("internal", "Internal error")
 	}
 
-	return &v1.FcmDeviceReply{Result: "success"}, nil
+	return &v1.EmptyReply{}, nil
 }
 
-func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalSmsSenderRequest) (*v1.PersonalSmsSenderReply, error) {
+func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalSmsSenderRequest) (*v1.EmptyReply, error) {
 	err := s.sms.SendSms(ctx, &biz.Sms{
 		Phone:   req.Phone,
 		Message: req.Message,
 	})
 	if err != nil {
-		s.log.Errorf("sms.AuthUserByPhone: ", err)
-		return &v1.PersonalSmsSenderReply{
-			Result: fmt.Sprintf("error: %v", err),
-		}, nil
+		s.log.Errorf("sms.SendSms: %v", err)
+		return nil, v1.ErrorSmsFailed("Internal error")
 	}
 
-	return &v1.PersonalSmsSenderReply{
-		Result: "success",
-	}, nil
+	return &v1.EmptyReply{}, nil
 }
 
-func (s *SenderService) PersonalFcmSender(ctx context.Context, req *v1.PersonalFcmSenderRequest) (*v1.PersonalFcmSenderReply, error) {
+func (s *SenderService) PersonalFcmSender(ctx context.Context, req *v1.PersonalFcmSenderRequest) (*v1.EmptyReply, error) {
 	userId, ok := strconv.ParseInt(req.UserId, 10, 64)
 	if ok != nil {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
@@ -92,13 +86,9 @@ func (s *SenderService) PersonalFcmSender(ctx context.Context, req *v1.PersonalF
 		Data:  req.Data,
 	})
 	if err != nil {
-		s.log.Errorf("sms.SendMessage: ", err)
-		return &v1.PersonalFcmSenderReply{
-			Result: fmt.Sprintf("error: %v", err),
-		}, nil
+		s.log.Errorf("fcm.SendMessage: %v", err)
+		return nil, v1.ErrorFcmFailed("Internal error")
 	}
 
-	return &v1.PersonalFcmSenderReply{
-		Result: "success",
-	}, nil
+	return &v1.EmptyReply{}, nil
 }

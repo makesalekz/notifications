@@ -73,6 +73,30 @@ func ErrorUnauthorized(format string, args ...interface{}) *errors.Error {
 	return errors.New(401, ErrorReason_UNAUTHORIZED.String(), fmt.Sprintf(format, args...))
 }
 
+func IsFcmFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_FCM_FAILED.String() && e.Code == 500
+}
+
+func ErrorFcmFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, ErrorReason_FCM_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
+func IsSmsFailed(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_SMS_FAILED.String() && e.Code == 500
+}
+
+func ErrorSmsFailed(format string, args ...interface{}) *errors.Error {
+	return errors.New(500, ErrorReason_SMS_FAILED.String(), fmt.Sprintf(format, args...))
+}
+
 func IsDeviceNotFound(err error) bool {
 	if err == nil {
 		return false

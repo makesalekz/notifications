@@ -6,22 +6,49 @@ info:
     title: Sender API
     version: 0.0.1
 paths:
-    /v1/info:
-        get:
+    /v1/notifications/fcm/devices:
+        post:
             tags:
                 - Sender
-            operationId: Sender_SenderInfo
+            operationId: Sender_CreateFcmDevice
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.send.v1.FcmDeviceRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.send.v1.DummyReply'
+                                $ref: '#/components/schemas/api.send.v1.EmptyReply'
+        delete:
+            tags:
+                - Sender
+            operationId: Sender_DeleteFcmDevice
+            parameters:
+                - name: token
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.send.v1.EmptyReply'
 components:
     schemas:
-        api.send.v1.DummyReply:
+        api.send.v1.EmptyReply:
             type: object
             properties: {}
+        api.send.v1.FcmDeviceRequest:
+            type: object
+            properties:
+                token:
+                    type: string
 tags:
     - name: Sender

@@ -50,7 +50,7 @@ func (uc *SmsUsecase) SendSms(ctx context.Context, sms *Sms) error {
 
 	result, err := uc.client.Send(sms.Message, []string{sms.Phone})
 
-	uc.log.Infof("SMS sent with result: %s, %s", result, err)
+	uc.log.Debugf("SMS sent with result: %s", result)
 
 	return err
 }

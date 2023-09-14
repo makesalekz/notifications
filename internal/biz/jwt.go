@@ -35,7 +35,7 @@ func (j *JwtProcessor) GetUserIdFromContext(ctx context.Context) (int64, bool) {
 		return 0, false
 	}
 
-	claims, ok := token.(jwtv4.RegisteredClaims)
+	claims, ok := token.(*jwtv4.RegisteredClaims)
 	if !ok {
 		return 0, false
 	}

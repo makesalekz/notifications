@@ -49,7 +49,7 @@ func wireApp(bootstrap *conf.Bootstrap, client *api.Client, logger log.Logger) (
 	}
 	senderService := service.NewSenderService(logger, jwtProcessor, smsUsecase, fcmUsecase)
 	grpcServer := server.NewGRPCServer(bootstrap, senderService, logger)
-	httpServer := server.NewHTTPServer(bootstrap, senderService, logger)
+	httpServer := server.NewHTTPServer(bootstrap, logger, jwtProcessor, senderService)
 	app := newApp(logger, client, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

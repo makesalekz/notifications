@@ -19,38 +19,64 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationSenderSenderInfo = "/api.send.v1.Sender/SenderInfo"
+const OperationSenderCreateFcmDevice = "/api.send.v1.Sender/CreateFcmDevice"
+const OperationSenderDeleteFcmDevice = "/api.send.v1.Sender/DeleteFcmDevice"
 
 type SenderHTTPServer interface {
-	SenderInfo(context.Context, *DummyRequest) (*DummyReply, error)
+	CreateFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
+	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
 }
 
 func RegisterSenderHTTPServer(s *http.Server, srv SenderHTTPServer) {
 	r := s.Route("/")
-	r.GET("/v1/info", _Sender_SenderInfo0_HTTP_Handler(srv))
+	r.POST("/v1/notifications/fcm/devices", _Sender_CreateFcmDevice0_HTTP_Handler(srv))
+	r.DELETE("/v1/notifications/fcm/devices", _Sender_DeleteFcmDevice0_HTTP_Handler(srv))
 }
 
-func _Sender_SenderInfo0_HTTP_Handler(srv SenderHTTPServer) func(ctx http.Context) error {
+func _Sender_CreateFcmDevice0_HTTP_Handler(srv SenderHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in DummyRequest
+		var in FcmDeviceRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationSenderSenderInfo)
+		http.SetOperation(ctx, OperationSenderCreateFcmDevice)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SenderInfo(ctx, req.(*DummyRequest))
+			return srv.CreateFcmDevice(ctx, req.(*FcmDeviceRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*DummyReply)
+		reply := out.(*EmptyReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _Sender_DeleteFcmDevice0_HTTP_Handler(srv SenderHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in FcmDeviceRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationSenderDeleteFcmDevice)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteFcmDevice(ctx, req.(*FcmDeviceRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*EmptyReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type SenderHTTPClient interface {
-	SenderInfo(ctx context.Context, req *DummyRequest, opts ...http.CallOption) (rsp *DummyReply, err error)
+	CreateFcmDevice(ctx context.Context, req *FcmDeviceRequest, opts ...http.CallOption) (rsp *EmptyReply, err error)
+	DeleteFcmDevice(ctx context.Context, req *FcmDeviceRequest, opts ...http.CallOption) (rsp *EmptyReply, err error)
 }
 
 type SenderHTTPClientImpl struct {
@@ -61,13 +87,26 @@ func NewSenderHTTPClient(client *http.Client) SenderHTTPClient {
 	return &SenderHTTPClientImpl{client}
 }
 
-func (c *SenderHTTPClientImpl) SenderInfo(ctx context.Context, in *DummyRequest, opts ...http.CallOption) (*DummyReply, error) {
-	var out DummyReply
-	pattern := "/v1/info"
-	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationSenderSenderInfo))
+func (c *SenderHTTPClientImpl) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...http.CallOption) (*EmptyReply, error) {
+	var out EmptyReply
+	pattern := "/v1/notifications/fcm/devices"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationSenderCreateFcmDevice))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *SenderHTTPClientImpl) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...http.CallOption) (*EmptyReply, error) {
+	var out EmptyReply
+	pattern := "/v1/notifications/fcm/devices"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationSenderDeleteFcmDevice))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

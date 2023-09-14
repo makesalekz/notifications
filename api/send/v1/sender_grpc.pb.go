@@ -19,7 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Sender_SenderInfo_FullMethodName        = "/api.send.v1.Sender/SenderInfo"
 	Sender_CreateFcmDevice_FullMethodName   = "/api.send.v1.Sender/CreateFcmDevice"
 	Sender_DeleteFcmDevice_FullMethodName   = "/api.send.v1.Sender/DeleteFcmDevice"
 	Sender_PersonalSmsSender_FullMethodName = "/api.send.v1.Sender/PersonalSmsSender"
@@ -30,11 +29,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SenderClient interface {
-	SenderInfo(ctx context.Context, in *DummyRequest, opts ...grpc.CallOption) (*DummyReply, error)
-	CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*FcmDeviceReply, error)
-	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*FcmDeviceReply, error)
-	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*PersonalSmsSenderReply, error)
-	PersonalFcmSender(ctx context.Context, in *PersonalFcmSenderRequest, opts ...grpc.CallOption) (*PersonalFcmSenderReply, error)
+	CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	PersonalFcmSender(ctx context.Context, in *PersonalFcmSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 }
 
 type senderClient struct {
@@ -45,17 +43,8 @@ func NewSenderClient(cc grpc.ClientConnInterface) SenderClient {
 	return &senderClient{cc}
 }
 
-func (c *senderClient) SenderInfo(ctx context.Context, in *DummyRequest, opts ...grpc.CallOption) (*DummyReply, error) {
-	out := new(DummyReply)
-	err := c.cc.Invoke(ctx, Sender_SenderInfo_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*FcmDeviceReply, error) {
-	out := new(FcmDeviceReply)
+func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_CreateFcmDevice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +52,8 @@ func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest
 	return out, nil
 }
 
-func (c *senderClient) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*FcmDeviceReply, error) {
-	out := new(FcmDeviceReply)
+func (c *senderClient) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_DeleteFcmDevice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,8 +61,8 @@ func (c *senderClient) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest
 	return out, nil
 }
 
-func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*PersonalSmsSenderReply, error) {
-	out := new(PersonalSmsSenderReply)
+func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_PersonalSmsSender_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,8 +70,8 @@ func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSen
 	return out, nil
 }
 
-func (c *senderClient) PersonalFcmSender(ctx context.Context, in *PersonalFcmSenderRequest, opts ...grpc.CallOption) (*PersonalFcmSenderReply, error) {
-	out := new(PersonalFcmSenderReply)
+func (c *senderClient) PersonalFcmSender(ctx context.Context, in *PersonalFcmSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_PersonalFcmSender_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -94,11 +83,10 @@ func (c *senderClient) PersonalFcmSender(ctx context.Context, in *PersonalFcmSen
 // All implementations must embed UnimplementedSenderServer
 // for forward compatibility
 type SenderServer interface {
-	SenderInfo(context.Context, *DummyRequest) (*DummyReply, error)
-	CreateFcmDevice(context.Context, *FcmDeviceRequest) (*FcmDeviceReply, error)
-	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*FcmDeviceReply, error)
-	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*PersonalSmsSenderReply, error)
-	PersonalFcmSender(context.Context, *PersonalFcmSenderRequest) (*PersonalFcmSenderReply, error)
+	CreateFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
+	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
+	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*EmptyReply, error)
+	PersonalFcmSender(context.Context, *PersonalFcmSenderRequest) (*EmptyReply, error)
 	mustEmbedUnimplementedSenderServer()
 }
 
@@ -106,19 +94,16 @@ type SenderServer interface {
 type UnimplementedSenderServer struct {
 }
 
-func (UnimplementedSenderServer) SenderInfo(context.Context, *DummyRequest) (*DummyReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SenderInfo not implemented")
-}
-func (UnimplementedSenderServer) CreateFcmDevice(context.Context, *FcmDeviceRequest) (*FcmDeviceReply, error) {
+func (UnimplementedSenderServer) CreateFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFcmDevice not implemented")
 }
-func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*FcmDeviceReply, error) {
+func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFcmDevice not implemented")
 }
-func (UnimplementedSenderServer) PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*PersonalSmsSenderReply, error) {
+func (UnimplementedSenderServer) PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PersonalSmsSender not implemented")
 }
-func (UnimplementedSenderServer) PersonalFcmSender(context.Context, *PersonalFcmSenderRequest) (*PersonalFcmSenderReply, error) {
+func (UnimplementedSenderServer) PersonalFcmSender(context.Context, *PersonalFcmSenderRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PersonalFcmSender not implemented")
 }
 func (UnimplementedSenderServer) mustEmbedUnimplementedSenderServer() {}
@@ -132,24 +117,6 @@ type UnsafeSenderServer interface {
 
 func RegisterSenderServer(s grpc.ServiceRegistrar, srv SenderServer) {
 	s.RegisterService(&Sender_ServiceDesc, srv)
-}
-
-func _Sender_SenderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DummyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SenderServer).SenderInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Sender_SenderInfo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SenderServer).SenderInfo(ctx, req.(*DummyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Sender_CreateFcmDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -231,10 +198,6 @@ var Sender_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "api.send.v1.Sender",
 	HandlerType: (*SenderServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "SenderInfo",
-			Handler:    _Sender_SenderInfo_Handler,
-		},
 		{
 			MethodName: "CreateFcmDevice",
 			Handler:    _Sender_CreateFcmDevice_Handler,

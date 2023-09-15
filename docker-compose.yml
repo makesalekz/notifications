@@ -34,10 +34,19 @@ services:
     profiles:
       - build
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/data/conf/credentials.json
-      - FIREBASE_CONFIG=/data/conf/firebase.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/credentials
+      - FIREBASE_CONFIG=/run/secrets/firebase
+    secrets:
+      - credentials
+      - firebase
 
 networks:
   backend:
     name: backend
     external: true
+
+secrets:
+  credentials:
+    environment: 'GOOGLE_APPLICATION_CREDENTIALS_FILE'
+  firebase:
+    environment: 'FIREBASE_CONFIG_FILE'

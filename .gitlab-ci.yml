@@ -1,0 +1,27 @@
+stages:
+  - build
+  - deploy
+
+include:
+  - project: 'deploy/common-cicd'
+    file: '/common-project.yml'
+    ref: 'main'
+
+docker-build:
+  rules:
+    - if: '$ENVIRONMENT_CODE == "dev"'
+      variables:
+        DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
+    - if: '$ENVIRONMENT_CODE == "stage"'
+      variables:
+        DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
+  extends: .docker-service-build
+  before_script:
+    - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec -it vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
+    - export FIREBASE_CONFIG_FILE=$(docker exec -it vault vault kv get -mount=secret -field=data app/notifications/firebase)
+  after_script:
+    - echo ${ENVIRONMENT_CODE} http://${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}
+  variables:
+    DOCKER_RUN_ENV: |
+      GOOGLE_APPLICATION_CREDENTIALS=/data/conf/credentials.json
+      FIREBASE_CONFIG=/data/conf/firebase.json

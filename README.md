@@ -78,7 +78,7 @@ app/notifications/SMSC_ENDPOINT = <URL: string>
 
 ### Vault
 
-TODO: DB creds, JWT token
+TODO: DB creds, JWT token, GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CONFIG
 
 ```txt
 secret/data/app/notifications/smsc = {

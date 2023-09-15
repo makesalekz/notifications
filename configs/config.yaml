@@ -9,7 +9,7 @@ consul:
   address: consul:8500
   path: app/notifications/
 vault:
-  address: vault:8200
+  address: http://vault:8200
   token: myroot
 db:
   address: host=notifications_db port=54403 user=me dbname=api password=password sslmode=disable

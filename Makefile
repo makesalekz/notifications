@@ -30,7 +30,9 @@ init:
 .PHONY: run
 # run
 run:	
-	kratos run
+	export GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) && \
+		export FIREBASE_CONFIG=$(FIREBASE_CONFIG) && \
+		kratos run
 
 .PHONY: start
 # start

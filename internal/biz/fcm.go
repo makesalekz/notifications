@@ -6,7 +6,6 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
-	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
@@ -24,7 +23,7 @@ type FcmUsecase struct {
 	devicesRepo data.DevicesRepo
 }
 
-func NewFcmUsecase(c config.Config, logger log.Logger, devicesRepo data.DevicesRepo) (*FcmUsecase, error) {
+func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo) (*FcmUsecase, error) {
 	app, err := firebase.NewApp(context.Background(), nil)
 	if err != nil {
 		return nil, err

@@ -67,3 +67,22 @@ go build -o ./bin/ ./...
 ```bash
 docker compose up -d
 ```
+
+## Configuration
+
+### Consul
+
+```txt
+app/notifications/SMSC_ENDPOINT = <URL: string>
+```
+
+### Vault
+
+TODO: DB creds, JWT token
+
+```txt
+secret/data/app/notifications/smsc = {
+    login: string,
+    password: string
+}
+```

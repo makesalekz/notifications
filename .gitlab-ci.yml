@@ -19,6 +19,7 @@ docker-build:
   before_script:
     - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec -it vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
     - export FIREBASE_CONFIG_FILE=$(docker exec -it vault vault kv get -mount=secret -field=data app/notifications/firebase)
+    - export JWT_SECRET=$(docker exec -it vault vault kv get -mount=secret -field=data app/global/jwt)
   after_script:
     - echo ${ENVIRONMENT_CODE} http://${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}
   variables:

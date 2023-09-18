@@ -57,6 +57,7 @@ make run
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS={path-to-credentials.json}
 export FIREBASE_CONFIG={path-to-firebase.json}
+export JWT_SECRET={JWT_SECRET}
 
 go build -o ./bin/ ./...
 ./bin/media -conf ./configs

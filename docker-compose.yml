@@ -36,6 +36,7 @@ services:
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/credentials
       - FIREBASE_CONFIG=/run/secrets/firebase
+      - JWT_SECRET=${JWT_SECRET}
     secrets:
       - credentials
       - firebase

@@ -8,18 +8,20 @@ include:
     ref: 'main'
 
 docker-build:
-  rules:
-    - if: '$ENVIRONMENT_CODE == "dev"'
-      variables:
-        DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
-    - if: '$ENVIRONMENT_CODE == "stage"'
-      variables:
-        DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
-  extends: .docker-service-build
-  before_script:
-    - !reference [before_script]
+  tags:
+    - ${RUNNER_TAG}
+  stage: build
+  variables:
+    DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
+    ENV_ARGS: -e GOOGLE_APPLICATION_CREDENTIALS_FILE -e FIREBASE_CONFIG_FILE -e JWT_SECRET
+  script:
     - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
     - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
     - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
+    - echo "build docker $DOCKER_RUN_ARGS"
+    - docker build ${DOCKER_BUILD_ARGS} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
+    - tag_sha_latest_and_push
+    - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
+    - docker run -d --rm --hostname ${CI_PROJECT_NAME} ${ENV_ARGS} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
   after_script:
     - echo ${ENVIRONMENT_CODE} http://${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}

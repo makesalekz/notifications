@@ -4,8 +4,14 @@ stages:
 
 include:
   - project: 'deploy/common-cicd'
+    file: '/before-script.yml'
+    ref: 'main'
+  - project: 'deploy/common-cicd'
     file: '/common-project.yml'
     ref: 'main'
+
+.pre-build
+  extends: .before-script
 
 docker-build:
   rules:
@@ -17,7 +23,7 @@ docker-build:
         DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
   extends: .docker-service-build
   before_script:
-    - !reference ['.before-script', 'before_script']
+    - !reference ['.pre-build', 'before_script']
     - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
     - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
     - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)

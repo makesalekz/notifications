@@ -10,7 +10,7 @@ include:
     file: '/common-project.yml'
     ref: 'main'
 
-.pre-build
+.pre-build:
   extends: .before-script
 
 docker-build:

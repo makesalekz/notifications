@@ -15,7 +15,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
     networks:
-      - backend
+      - ${NETWORK}
   service:
     build:
       context: ./
@@ -25,7 +25,7 @@ services:
       - '${HTTP_PORT}:8000'
       - '${GRPC_PORT}:9000'
     networks:
-      - backend
+      - ${NETWORK}
     volumes:
       - ./configs:/data/conf
     restart: unless-stopped
@@ -43,7 +43,7 @@ services:
 
 networks:
   backend:
-    name: backend
+    name: ${NETWORK}
     external: true
 
 secrets:

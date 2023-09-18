@@ -17,8 +17,6 @@ docker-build:
         DOCKER_RUN_ARGS: -p 8003:8000 --volume ./configs:/data/conf
   extends: .docker-service-build
   before_script:
-    - *common_scripts
-    - docker_login
     - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
     - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
     - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)

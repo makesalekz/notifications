@@ -22,7 +22,7 @@ docker-build:
     - docker build ${DOCKER_BUILD_ARGS} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
     - tag_sha_latest_and_push
     - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
-    - .env.stage > .env
+    - cp .env.stage .env
     - docker compose up -d
     - docker run -d --rm --hostname ${CI_PROJECT_NAME} ${ENV_ARGS} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
   after_script:

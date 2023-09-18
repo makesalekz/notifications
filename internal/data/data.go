@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	_ "github.com/lib/pq"
 )
 
 // ProviderSet is data providers.

@@ -7,7 +7,6 @@ import (
 	"notifications/ent/device"
 
 	"github.com/go-kratos/kratos/v2/log"
-	_ "github.com/lib/pq"
 )
 
 // DevicesRepo

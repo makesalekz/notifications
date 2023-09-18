@@ -25,9 +25,8 @@ docker-build:
     - tag_sha_latest_and_push
     - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
     - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db || true
-    - mkdir -p .docker/data
-    - chmod 777 .docker/data
-    - docker run -d --rm --hostname ${CI_PROJECT_NAME}_db ${PG_ARGS} --network ${ENVIRONMENT_CODE} -p 5432:5432 --volume ${CI_PROJECT_DIR}/.docker/data:/var/lib/postgresql/data --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db postgres:latest
+    - docker volume create ${CI_PROJECT_NAME}_db || true
+    - docker run -d --rm --hostname ${CI_PROJECT_NAME}_db ${PG_ARGS} --network ${ENVIRONMENT_CODE} -p 5432:5432 --volume ${CI_PROJECT_NAME}_db:/var/lib/postgresql/data --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db postgres:latest
     - docker run -d --rm --hostname ${CI_PROJECT_NAME} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} -p ${HTTP_PORT}:8000 -p ${GRPC_PORT}:9000 --volume ./configs:/data/conf --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
   after_script:
     - echo ${ENVIRONMENT_CODE} http://${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}

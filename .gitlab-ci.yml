@@ -23,7 +23,7 @@ docker-build:
     - echo "build docker $DOCKER_RUN_ARGS"
     - docker build ${DOCKER_BUILD_ARGS} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
     - tag_sha_latest_and_push
-    - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
+    - docker service rm ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
     # database
     - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db || true
     - docker volume create ${CI_PROJECT_NAME}_db || true
@@ -33,8 +33,8 @@ docker-build:
     - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${ENVIRONMENT_CODE} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
     # secrets
     - docker secret rm ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS ${CI_PROJECT_NAME}_FIREBASE_CONFIG || true
-    - $(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount) | docker secret create ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS -
-    - $(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase) | docker secret create ${CI_PROJECT_NAME}_FIREBASE_CONFIG -
+    - echo $(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount) | docker secret create ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS -
+    - echo $(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase) | docker secret create ${CI_PROJECT_NAME}_FIREBASE_CONFIG -
     - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
     # service
     - docker service create --hostname ${CI_PROJECT_NAME} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} -p ${HTTP_PORT}:8000 -p ${GRPC_PORT}:9000 --mount type=volume,source=./configs,destination=/data/conf ${SECRETS_ARGS} --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}

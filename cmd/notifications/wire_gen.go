@@ -25,7 +25,7 @@ import (
 
 // wireApp init kratos application.
 func wireApp(bootstrap *conf.Bootstrap, client *api.Client, logger log.Logger) (*kratos.App, func(), error) {
-	jwtProcessor, err := biz.NewJwtProcessor()
+	jwtProcessor, err := data.NewJwtProcessor()
 	if err != nil {
 		return nil, nil, err
 	}

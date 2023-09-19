@@ -30,9 +30,11 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 
-	if err := client.Schema.Create(context.Background()); err != nil {
-		l.Errorf("failed creating schema resources: %v", err)
-		return nil, nil, err
+	if c.Db.Automigrate {
+		if err := client.Schema.Create(context.Background()); err != nil {
+			l.Errorf("failed creating schema resources: %v", err)
+			return nil, nil, err
+		}
 	}
 
 	l.Info("Connected to postgres")

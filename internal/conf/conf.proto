@@ -39,4 +39,5 @@ message Vault {
 
 message Db {
   string address = 1;
+  bool automigrate = 2;
 }

@@ -15,7 +15,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
     networks:
-      - ${NETWORK}
+      - backend
   service:
     image: ${REGISTRY_IMAGE}
     container_name: ${SERVICE_NAME}_service
@@ -23,7 +23,7 @@ services:
       - '${HTTP_PORT}:8000'
       - '${GRPC_PORT}:9000'
     networks:
-      - ${NETWORK}
+      - backend
     volumes:
       - ./configs:/data/conf
     restart: unless-stopped
@@ -47,7 +47,7 @@ services:
       - '${HTTP_PORT}:8000'
       - '${GRPC_PORT}:9000'
     networks:
-      - ${NETWORK}
+      - backend
     volumes:
       - ./configs:/data/conf
     restart: unless-stopped
@@ -67,6 +67,7 @@ volumes:
 networks:
   backend:
     name: ${NETWORK}
+    driver: bridge
     external: true
 
 secrets:

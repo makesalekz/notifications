@@ -13,6 +13,7 @@ docker-build:
   stage: build
   variables:
     SERVICE_NAME: ${CI_PROJECT_NAME}
+    DB_PORT: 5432
     DB_NAME: api
     DB_USER: me
     DB_PASS: password
@@ -27,6 +28,13 @@ docker-build:
   script:
     - docker build ${DOCKER_BUILD_ARGS} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
     - tag_sha_latest_and_push
+    # secrets
+    # - docker secret rm ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS ${CI_PROJECT_NAME}_FIREBASE_CONFIG || true
+    # - echo $(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount) | docker secret create ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS -
+    # - echo $(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase) | docker secret create ${CI_PROJECT_NAME}_FIREBASE_CONFIG -
+    - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
+    - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
+    - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
     - docker compose down
     #- docker service rm ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
     # database
@@ -37,13 +45,6 @@ docker-build:
     - docker compose up -d
     - docker pull arigaio/atlas
     - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${ENVIRONMENT_CODE} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
-    # secrets
-    # - docker secret rm ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS ${CI_PROJECT_NAME}_FIREBASE_CONFIG || true
-    # - echo $(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount) | docker secret create ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS -
-    # - echo $(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase) | docker secret create ${CI_PROJECT_NAME}_FIREBASE_CONFIG -
-    - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
-    - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
-    - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
     # service
     - docker compose --profile=${ENVIRONMENT_CODE} up -d
     # needs to reconfigure the network:

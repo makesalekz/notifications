@@ -42,6 +42,14 @@ make api
 make all
 ```
 
+### Generate migrations
+
+[Install Atlas](https://entgo.io/docs/versioned-migrations#generating-migrations)
+
+```bash
+make migrations
+```
+
 ## Run
 
 Add credentials.json, firebase.json to configs/

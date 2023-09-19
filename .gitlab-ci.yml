@@ -34,7 +34,7 @@ docker-build:
     - docker compose up -d
     # migrations up
     - docker pull arigaio/atlas
-    - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${ENVIRONMENT_CODE} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
+    - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${NETWORK} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
     # service up
     - docker compose --profile=${ENVIRONMENT_CODE} up -d
   after_script:

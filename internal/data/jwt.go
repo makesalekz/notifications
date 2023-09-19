@@ -1,11 +1,10 @@
-package biz
+package data
 
 import (
 	"context"
-	sender_v1 "notifications/api/send/v1"
+	"fmt"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwtv4 "github.com/golang-jwt/jwt/v4"
@@ -17,17 +16,14 @@ type JwtProcessor struct {
 
 // NewJwtProcessor .
 func NewJwtProcessor() (*JwtProcessor, error) {
-	for _, e := range os.Environ() {
-		pair := strings.Split(e, "=")
-		if pair[0] == "JWT_SECRET" {
-			jwtSecret := []byte(pair[1])
-			return &JwtProcessor{
-				jwtSecret: jwtSecret,
-			}, nil
-		}
+	secret := os.Getenv("JWT_SECRET")
+	if secret != "" {
+		return &JwtProcessor{
+			jwtSecret: []byte(secret),
+		}, nil
 	}
 
-	return nil, sender_v1.ErrorInternal("JWT_SECRET not found")
+	return nil, fmt.Errorf("JWT_SECRET not found")
 }
 
 func (j *JwtProcessor) GetSecret() []byte {

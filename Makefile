@@ -15,6 +15,7 @@ else
 	API_PROTO_FILES=$(shell find api -name *.proto)
 	GOOGLE_APPLICATION_CREDENTIALS=$(shell pwd)/$(shell find configs -name credentials.json)
 	FIREBASE_CONFIG=$(shell pwd)/$(shell find configs -name firebase.json)
+	JWT_SECRET=$(shell cat $(shell find configs -name jwt.key))
 endif
 
 .PHONY: init
@@ -31,8 +32,9 @@ init:
 # run
 run:	
 	export GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) && \
-		export FIREBASE_CONFIG=$(FIREBASE_CONFIG) && \
-		kratos run
+	export FIREBASE_CONFIG=$(FIREBASE_CONFIG) && \
+	export JWT_SECRET=$(JWT_SECRET) && \
+	kratos run
 
 .PHONY: start
 # start
@@ -55,6 +57,19 @@ errors:
 			--go_out=paths=source_relative:. \
 			--go-errors_out=paths=source_relative:. \
 			$(API_PROTO_FILES)
+
+.PHONY: ent
+# generate ent
+ent:
+	go generate ./ent
+
+.PHONY: migrations
+# generate migrations
+migrations:
+	atlas migrate diff init \
+		--dir "file://ent/migrate/migrations" \
+		--to "ent://ent/schema" \
+		--dev-url "docker://postgres/15/test?search_path=public"
 
 .PHONY: api
 # generate api proto

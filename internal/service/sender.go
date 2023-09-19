@@ -6,6 +6,7 @@ import (
 
 	v1 "notifications/api/send/v1"
 	"notifications/internal/biz"
+	"notifications/internal/data"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -15,12 +16,12 @@ type SenderService struct {
 	v1.UnimplementedSenderServer
 
 	log *log.Helper
-	jwt *biz.JwtProcessor
+	jwt *data.JwtProcessor
 	sms *biz.SmsUsecase
 	fcm *biz.FcmUsecase
 }
 
-func NewSenderService(logger log.Logger, jwt *biz.JwtProcessor, sms *biz.SmsUsecase, fcm *biz.FcmUsecase) *SenderService {
+func NewSenderService(logger log.Logger, jwt *data.JwtProcessor, sms *biz.SmsUsecase, fcm *biz.FcmUsecase) *SenderService {
 	return &SenderService{
 		log: log.NewHelper(logger),
 		jwt: jwt,

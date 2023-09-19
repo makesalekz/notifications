@@ -2,8 +2,8 @@ package server
 
 import (
 	send_v1 "notifications/api/send/v1"
-	"notifications/internal/biz"
 	"notifications/internal/conf"
+	"notifications/internal/data"
 	"notifications/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -14,12 +14,12 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Bootstrap, logger log.Logger, jwtBiz *biz.JwtProcessor, senderService *service.SenderService) *http.Server {
+func NewHTTPServer(c *conf.Bootstrap, logger log.Logger, jwtp *data.JwtProcessor, senderService *service.SenderService) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
 			jwt.Server(func(token *jwtv4.Token) (interface{}, error) {
-				return jwtBiz.GetSecret(), nil
+				return jwtp.GetSecret(), nil
 			}, jwt.WithSigningMethod(jwtv4.SigningMethodHS256), jwt.WithClaims(func() jwtv4.Claims { return &jwtv4.RegisteredClaims{} })),
 		),
 	}

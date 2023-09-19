@@ -15,20 +15,28 @@ docker-build:
     HTTP_PORT: 8003
     GRPC_PORT: 9003
     PG_ARGS: -e PGDATA=/var/lib/postgresql/data/pgdata -e POSTGRES_DB=api -e POSTGRES_USER=me -e POSTGRES_PASSWORD=password
-    DOCKER_RUN_ARGS: -e GOOGLE_APPLICATION_CREDENTIALS_FILE -e FIREBASE_CONFIG_FILE -e JWT_SECRET
+    DOCKER_RUN_ARGS: -e GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/credentials.json -e FIREBASE_CONFIG=/run/secrets/firebase.json -e JWT_SECRET
+    SECRETS_ARGS: --secret source=${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS,target=credentials.json --secret source=${CI_PROJECT_NAME}_FIREBASE_CONFIG,target=firebase.json
   script:
-    - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
-    - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
-    - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
+    # - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
+    # - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
     - echo "build docker $DOCKER_RUN_ARGS"
     - docker build ${DOCKER_BUILD_ARGS} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
     - tag_sha_latest_and_push
     - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} || true
+    # database
     - docker stop ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db || true
     - docker volume create ${CI_PROJECT_NAME}_db || true
     - docker run -d --rm --hostname ${CI_PROJECT_NAME}_db ${PG_ARGS} --network ${ENVIRONMENT_CODE} --volume ${CI_PROJECT_NAME}_db:/var/lib/postgresql/data --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db postgres:latest
+    # migrations
     - docker pull arigaio/atlas
     - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${ENVIRONMENT_CODE} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
-    - docker run -d --hostname ${CI_PROJECT_NAME} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} -p ${HTTP_PORT}:8000 -p ${GRPC_PORT}:9000 --volume ./configs:/data/conf --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
+    # secrets
+    - docker secret rm ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS ${CI_PROJECT_NAME}_FIREBASE_CONFIG || true
+    - $(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount) | docker secret create ${CI_PROJECT_NAME}_GOOGLE_APPLICATION_CREDENTIALS -
+    - $(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase) | docker secret create ${CI_PROJECT_NAME}_FIREBASE_CONFIG -
+    - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
+    # service
+    - docker service create --hostname ${CI_PROJECT_NAME} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} -p ${HTTP_PORT}:8000 -p ${GRPC_PORT}:9000 --mount type=volume,source=./configs,destination=/data/conf ${SECRETS_ARGS} --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
   after_script:
     - echo ${ENVIRONMENT_CODE} http://${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}

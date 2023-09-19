@@ -28,7 +28,7 @@ docker-build:
     - docker volume create ${CI_PROJECT_NAME}_db || true
     - docker run -d --rm --hostname ${CI_PROJECT_NAME}_db ${PG_ARGS} --network ${ENVIRONMENT_CODE} --volume ${CI_PROJECT_NAME}_db:/var/lib/postgresql/data --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}-db postgres:latest
     - docker pull arigaio/atlas
-    - docker run --rm --net=host -v $(pwd)/ent/migrate/migrations:/migrations --network ${ENVIRONMENT_CODE} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
+    - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${ENVIRONMENT_CODE} arigaio/atlas migrate apply --url "postgres://me:password@${CI_PROJECT_NAME}_db:5432/api?search_path=public&sslmode=disable"
     - docker run -d --rm --hostname ${CI_PROJECT_NAME} ${DOCKER_RUN_ARGS} --network ${ENVIRONMENT_CODE} -p ${HTTP_PORT}:8000 -p ${GRPC_PORT}:9000 --volume ./configs:/data/conf --name ${CI_PROJECT_NAME}-${ENVIRONMENT_CODE} ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
   after_script:
     - echo ${ENVIRONMENT_CODE} http://${CI_PROJECT_NAME}-${ENVIRONMENT_CODE}

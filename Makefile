@@ -15,7 +15,6 @@ else
 	API_PROTO_FILES=$(shell find api -name *.proto)
 	GOOGLE_APPLICATION_CREDENTIALS=$(shell pwd)/$(shell find configs -name credentials.json)
 	FIREBASE_CONFIG=$(shell pwd)/$(shell find configs -name firebase.json)
-	JWT_SECRET=$(shell cat $(shell find configs -name jwt.key))
 endif
 
 .PHONY: init
@@ -30,16 +29,24 @@ init:
 
 .PHONY: run
 # run
-run:	
-	export GOOGLE_APPLICATION_CREDENTIALS=$(GOOGLE_APPLICATION_CREDENTIALS) && \
-	export FIREBASE_CONFIG=$(FIREBASE_CONFIG) && \
-	export JWT_SECRET=$(JWT_SECRET) && \
+run:
+	set -a && source .env && set +a && \
 	kratos run
 
 .PHONY: start
 # start
-start:	
-	docker-compose up -d
+start:
+	set -a && source .env && set +a && \
+	export REGISTRY_IMAGE=busybox && \
+	docker compose build dev-service && \
+	docker compose --profile=dev up -d dev-service
+
+.PHONY: stop
+# stop
+stop:
+	set -a && source .env && set +a && \
+	export REGISTRY_IMAGE=busybox && \
+	docker compose --profile=dev down
 
 .PHONY: config
 # generate internal proto

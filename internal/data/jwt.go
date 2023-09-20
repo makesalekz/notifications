@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
@@ -15,15 +14,15 @@ type JwtProcessor struct {
 }
 
 // NewJwtProcessor .
-func NewJwtProcessor() (*JwtProcessor, error) {
-	secret := os.Getenv("JWT_SECRET")
-	if secret != "" {
-		return &JwtProcessor{
-			jwtSecret: []byte(secret),
-		}, nil
+func NewJwtProcessor(c *Config) (*JwtProcessor, error) {
+	secret, err := c.ReadGlobalSecretsFor(context.Background(), "jwt")
+	if err != nil {
+		return nil, fmt.Errorf("JWT_SECRET not found, error: %w", err)
 	}
 
-	return nil, fmt.Errorf("JWT_SECRET not found")
+	return &JwtProcessor{
+		jwtSecret: []byte(secret["data"].(string)),
+	}, nil
 }
 
 func (j *JwtProcessor) GetSecret() []byte {

@@ -9,7 +9,6 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/hashicorp/consul/api"
 	"notifications/internal/biz"
 	"notifications/internal/conf"
 	"notifications/internal/data"
@@ -24,12 +23,12 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(bootstrap *conf.Bootstrap, client *api.Client, logger log.Logger) (*kratos.App, func(), error) {
-	jwtProcessor, err := data.NewJwtProcessor()
+func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(), error) {
+	config, err := data.NewConfig(bootstrap)
 	if err != nil {
 		return nil, nil, err
 	}
-	config, err := data.NewConfig(client, bootstrap)
+	jwtProcessor, err := data.NewJwtProcessor(config)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -50,7 +49,7 @@ func wireApp(bootstrap *conf.Bootstrap, client *api.Client, logger log.Logger) (
 	senderService := service.NewSenderService(logger, jwtProcessor, smsUsecase, fcmUsecase)
 	grpcServer := server.NewGRPCServer(bootstrap, senderService, logger)
 	httpServer := server.NewHTTPServer(bootstrap, logger, jwtProcessor, senderService)
-	app := newApp(logger, client, grpcServer, httpServer)
+	app := newApp(logger, config, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
 	}, nil

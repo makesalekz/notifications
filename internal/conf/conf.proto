@@ -8,8 +8,7 @@ import "google/protobuf/duration.proto";
 message Bootstrap {
   Server server = 1;
   Consul consul = 2;
-  Vault vault = 3;
-  Db db = 4;
+  Db db = 3;
 }
 
 message Server {
@@ -29,12 +28,6 @@ message Server {
 
 message Consul {
   string address = 1;
-  string path = 2;
-}
-
-message Vault {
-  string address = 1;
-  string token = 2;
 }
 
 message Db {

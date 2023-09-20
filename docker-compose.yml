@@ -19,9 +19,6 @@ services:
   service:
     image: ${REGISTRY_IMAGE}
     container_name: ${SERVICE_NAME}_service
-    ports:
-      - '8000:8000'
-      - '9000:9000'
     networks:
       - backend
     volumes:
@@ -32,12 +29,17 @@ services:
     profiles:
       - stage
     environment:
+      - SERVICE_NAME=${SERVICE_NAME}
       - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/credentials
       - FIREBASE_CONFIG=/run/secrets/firebase
-      - JWT_SECRET=${JWT_SECRET}
+      - CONSUL_ADDRESS=${CONSUL_ADDRESS}
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
+      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
+      - VAULT_SECRET_ID_PATH=/run/secrets/vault_secret_id
     secrets:
       - credentials
       - firebase
+      - vault_secret_id
   dev-service:
     build:
       context: ./
@@ -51,17 +53,20 @@ services:
     volumes:
       - ./configs:/data/conf
     restart: unless-stopped
-    depends_on:
-      - db
     profiles:
       - dev
     environment:
+      - AUTOMIGRATE=true
+      - SERVICE_NAME=${SERVICE_NAME}
       - GOOGLE_APPLICATION_CREDENTIALS=/data/conf/credentials.json
       - FIREBASE_CONFIG=/data/conf/firebase.json
-      - JWT_SECRET=${JWT_SECRET}
+      - CONSUL_ADDRESS=http://consul:8500
+      - VAULT_ADDRESS=http://vault:8200
+      - VAULT_TOKEN=myroot
 
 volumes:
-  notifications_db:
+  dbvol:
+    name: ${SERVICE_NAME}_db
     external: true
 
 networks:
@@ -75,3 +80,5 @@ secrets:
     environment: 'GOOGLE_APPLICATION_CREDENTIALS_FILE'
   firebase:
     environment: 'FIREBASE_CONFIG_FILE'
+  vault_secret_id:
+    environment: 'VAULT_SECRET_ID'

@@ -17,14 +17,14 @@ type Sms struct {
 // SmsUsecase is a Greeter usecase.
 type SmsUsecase struct {
 	client *smsc.Client
-	conf   *data.Config
+	config *data.Config
 	log    *log.Helper
 }
 
 func NewSmsUsecase(c *data.Config, logger log.Logger) (*SmsUsecase, error) {
 	return &SmsUsecase{
-		conf: c,
-		log:  log.NewHelper(logger),
+		config: c,
+		log:    log.NewHelper(logger),
 	}, nil
 }
 
@@ -33,11 +33,11 @@ func (uc *SmsUsecase) getClient(ctx context.Context) (*smsc.Client, error) {
 		return uc.client, nil
 	}
 
-	endpoint, err := uc.conf.Value("SMSC_ENDPOINT").String()
+	endpoint, err := uc.config.Value("SMSC_ENDPOINT").String()
 	if err != nil {
 		return nil, err
 	}
-	smscCredentials, err := uc.conf.ReadSecretsFor(context.Background(), "smsc")
+	smscCredentials, err := uc.config.ReadSecretsFor(context.Background(), "smsc")
 	if err != nil {
 		return nil, err
 	}

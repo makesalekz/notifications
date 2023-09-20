@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"os"
 
 	"notifications/ent"
 	"notifications/internal/conf"
@@ -30,7 +31,8 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 
-	if c.Db.Automigrate {
+	automigrate := os.Getenv("AUTOMIGRATE")
+	if automigrate != "" {
 		if err := client.Schema.Create(context.Background()); err != nil {
 			l.Errorf("failed creating schema resources: %v", err)
 			return nil, nil, err

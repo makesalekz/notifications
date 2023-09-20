@@ -13,13 +13,13 @@ docker-build:
   stage: build
   variables:
     SERVICE_NAME: ${CI_PROJECT_NAME}
-    DB_PORT: 5432
+    DB_PORT: 54403
     DB_NAME: api
     DB_USER: me
     DB_PASS: password
-    DB_VOLUME: ${CI_PROJECT_NAME}_db
+    DB_VOLUME: dbvol
     NETWORK: ${ENVIRONMENT_CODE}
-    REGISTRY_IMAGE: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+    REGISTRY_IMAGE: ${CI_REGISTRY_IMAGE}:${ENVIRONMENT_CODE}
   script:
     # build and push to registry
     - docker build ${DOCKER_BUILD_ARGS} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} .
@@ -27,7 +27,11 @@ docker-build:
     # set environment
     - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
     - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
-    - export JWT_SECRET=$(docker exec vault vault kv get -mount=secret -field=data app/global/jwt)
+    - export CONSUL_ADDRESS=http://consul:8500
+    - export VAULT_ADDRESS=http://vault:8200
+    - export VAULT_ROLE_ID=$(docker exec vault vault read -field=role_id auth/approle/role/app-${CI_PROJECT_NAME}/role-id)
+    - export VAULT_SECRET_ID=$(docker exec vault vault write -field=secret_id -f auth/approle/role/app-${CI_PROJECT_NAME}/secret-id)
+    - docker exec vault vault write auth/approle/role/app-${CI_PROJECT_NAME} policies="app_${CI_PROJECT_NAME}"
     - docker compose down
     # database up
     - docker volume create ${CI_PROJECT_NAME}_db || true

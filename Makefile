@@ -13,8 +13,6 @@ ifeq ($(GOHOSTOS), windows)
 else
 	INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 	API_PROTO_FILES=$(shell find api -name *.proto)
-	GOOGLE_APPLICATION_CREDENTIALS=$(shell pwd)/$(shell find configs -name credentials.json)
-	FIREBASE_CONFIG=$(shell pwd)/$(shell find configs -name firebase.json)
 endif
 
 .PHONY: init
@@ -32,6 +30,13 @@ init:
 run:
 	set -a && source .env && set +a && \
 	kratos run
+
+.PHONY: db
+# db
+db:
+	set -a && source .env && set +a && \
+	export REGISTRY_IMAGE=busybox && \
+	docker compose up -d
 
 .PHONY: start
 # start
@@ -105,6 +110,7 @@ generate:
 # generate all
 all:
 	make api;
+	make errors;
 	make config;
 	make generate;
 

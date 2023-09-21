@@ -34,10 +34,10 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs/config.local.yaml", "config path, eg: -conf config.yaml")
 }
 
-func newApp(logger log.Logger, config *data.Config, gs *grpc.Server, hs *http.Server) *kratos.App {
+func newApp(logger log.Logger, c *data.Config, gs *grpc.Server, hs *http.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
-		kratos.Name(config.GetAppName()),
+		kratos.Name(c.GetAppName()),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
@@ -46,7 +46,7 @@ func newApp(logger log.Logger, config *data.Config, gs *grpc.Server, hs *http.Se
 			hs,
 		),
 		// with registrar
-		kratos.Registrar(config.GetRegistry()),
+		kratos.Registrar(c.GetRegistry()),
 	)
 }
 

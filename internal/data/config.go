@@ -3,8 +3,9 @@ package data
 import (
 	"context"
 	"fmt"
-	"notifications/internal/conf"
 	"os"
+
+	"notifications/internal/conf"
 
 	"github.com/go-kratos/consul/registry"
 	"github.com/go-kratos/kratos/contrib/config/consul/v2"

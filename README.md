@@ -1,4 +1,4 @@
-# LDAP
+# notifications
 
 ## Proto files
 
@@ -65,7 +65,6 @@ make run
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS={path-to-credentials.json}
 export FIREBASE_CONFIG={path-to-firebase.json}
-export JWT_SECRET={JWT_SECRET}
 
 go build -o ./bin/ ./...
 ./bin/media -conf ./configs
@@ -74,7 +73,13 @@ go build -o ./bin/ ./...
 ## Run in Docker
 
 ```bash
-docker compose up -d
+make start
+```
+
+To stop docker:
+
+```bash
+make stop
 ```
 
 ## Configuration
@@ -87,11 +92,24 @@ app/notifications/SMSC_ENDPOINT = <URL: string>
 
 ### Vault
 
-TODO: DB creds, JWT token, GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CONFIG
+TODO: DB creds
+
+To save JWT secret in Vault terminal (write command, ENTER, paste secret, CTRL+D):
+
+```bash
+export VAULT_TOKEN=myroot
+vault kv put -mount=secret app/global/jwt data=-
+```
 
 ```txt
 secret/data/app/notifications/smsc = {
     login: string,
     password: string
+}
+secret/data/app/notifications/gserviceaccount = {
+    data: string
+}
+secret/data/app/notifications/firebase = {
+    data: string
 }
 ```

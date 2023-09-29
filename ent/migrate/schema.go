@@ -21,9 +21,27 @@ var (
 		Columns:    DevicesColumns,
 		PrimaryKey: []*schema.Column{DevicesColumns[0]},
 	}
+	// NotificationsColumns holds the columns for the "notifications" table.
+	NotificationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "user_id", Type: field.TypeInt64},
+		{Name: "type", Type: field.TypeString, Default: "COMMON"},
+		{Name: "title", Type: field.TypeString},
+		{Name: "text", Type: field.TypeString},
+		{Name: "event_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "contact_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// NotificationsTable holds the schema information for the "notifications" table.
+	NotificationsTable = &schema.Table{
+		Name:       "notifications",
+		Columns:    NotificationsColumns,
+		PrimaryKey: []*schema.Column{NotificationsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		DevicesTable,
+		NotificationsTable,
 	}
 )
 

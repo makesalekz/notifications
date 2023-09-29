@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"notifications/ent/device"
+	"notifications/ent/notification"
 	"reflect"
 	"sync"
 
@@ -73,7 +74,8 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			device.Table: device.ValidColumn,
+			device.Table:       device.ValidColumn,
+			notification.Table: notification.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

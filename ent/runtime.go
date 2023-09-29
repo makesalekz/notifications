@@ -4,6 +4,8 @@ package ent
 
 import (
 	"notifications/ent/device"
+	"notifications/ent/enum"
+	"notifications/ent/notification"
 	"notifications/ent/schema"
 	"time"
 )
@@ -22,4 +24,26 @@ func init() {
 	deviceDescCreatedAt := deviceFields[2].Descriptor()
 	// device.DefaultCreatedAt holds the default value on creation for the created_at field.
 	device.DefaultCreatedAt = deviceDescCreatedAt.Default.(func() time.Time)
+	notificationFields := schema.Notification{}.Fields()
+	_ = notificationFields
+	// notificationDescUserID is the schema descriptor for user_id field.
+	notificationDescUserID := notificationFields[0].Descriptor()
+	// notification.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
+	notification.UserIDValidator = notificationDescUserID.Validators[0].(func(int64) error)
+	// notificationDescType is the schema descriptor for type field.
+	notificationDescType := notificationFields[1].Descriptor()
+	// notification.DefaultType holds the default value on creation for the type field.
+	notification.DefaultType = enum.NotificationType(notificationDescType.Default.(string))
+	// notificationDescTitle is the schema descriptor for title field.
+	notificationDescTitle := notificationFields[2].Descriptor()
+	// notification.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	notification.TitleValidator = notificationDescTitle.Validators[0].(func(string) error)
+	// notificationDescText is the schema descriptor for text field.
+	notificationDescText := notificationFields[3].Descriptor()
+	// notification.TextValidator is a validator for the "text" field. It is called by the builders before save.
+	notification.TextValidator = notificationDescText.Validators[0].(func(string) error)
+	// notificationDescCreatedAt is the schema descriptor for created_at field.
+	notificationDescCreatedAt := notificationFields[6].Descriptor()
+	// notification.DefaultCreatedAt holds the default value on creation for the created_at field.
+	notification.DefaultCreatedAt = notificationDescCreatedAt.Default.(func() time.Time)
 }

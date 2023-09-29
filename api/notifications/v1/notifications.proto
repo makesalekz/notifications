@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package api.notifications.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "notifications/api/notifications/v1;notifications_v1";
+option java_multiple_files = true;
+option java_package = "api.notifications.v1";
+
+service Notifications {
+	rpc CreateNotifications (CreateNotificationsRequest) returns (CreateNotificationsReply);
+	rpc ListNotifications (ListNotificationsRequest) returns (ListNotificationsReply) {
+		option (google.api.http) = {
+			post: "/v1/notifications/list"
+			body: "*"
+		};
+	};
+}
+
+message CreateNotificationsRequest {
+	repeated NotificationDto notifications = 1;
+}
+
+message CreateNotificationsReply {
+	int32 created = 1;
+}
+
+message ListNotificationsRequest {
+	int64 userId = 1;
+	int64 fromId = 2;
+	int64 toId = 3;
+	int32 limit = 4;
+}
+
+message ListNotificationsReply {
+	repeated Notification notifications = 1;
+	optional int64 nextFromId = 2;
+	optional int64 nextToId = 3;
+}
+
+message Notification {
+	int64 id = 1;
+	string type = 2;
+	string title = 3;
+	string text = 4;
+	int64 eventId = 5;
+	int64 contactId = 6;
+	string createdAt = 7;
+}
+
+message NotificationDto {
+	int64 userId = 1;
+	string title = 2;
+	string text = 3;
+	int64 eventId = 4;
+	int64 contactId = 5;
+}

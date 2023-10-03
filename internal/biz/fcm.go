@@ -67,7 +67,7 @@ func (uc *FcmUsecase) SendMessage(ctx context.Context, userId int64, msg FCMMess
 
 	uc.log.Infof("Send push to %v", devices)
 
-	result, err := uc.client.SendMulticast(ctx, &messaging.MulticastMessage{
+	result, err := uc.client.SendEachForMulticast(ctx, &messaging.MulticastMessage{
 		Notification: &messaging.Notification{
 			Title:    msg.Title,
 			Body:     msg.Body,

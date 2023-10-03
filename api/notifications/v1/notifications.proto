@@ -27,10 +27,9 @@ message CreateNotificationsReply {
 }
 
 message ListNotificationsRequest {
-	int64 userId = 1;
-	int64 fromId = 2;
-	int64 toId = 3;
-	int32 limit = 4;
+	int64 fromId = 1;
+	int64 toId = 2;
+	int32 limit = 3;
 }
 
 message ListNotificationsReply {

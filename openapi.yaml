@@ -76,9 +76,6 @@ components:
         api.notifications.v1.ListNotificationsRequest:
             type: object
             properties:
-                userId:
-                    type: integer
-                    format: int64
                 fromId:
                     type: integer
                     format: int64

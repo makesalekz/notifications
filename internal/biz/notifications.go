@@ -45,12 +45,12 @@ func NewNotificationsUsecase(
 	}, nil
 }
 
-func (d *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error) {
-	return d.notificationsRepo.CreateNotifications(ctx, data)
+func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error) {
+	return uc.notificationsRepo.CreateNotifications(ctx, data)
 }
 
-func (d *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto) (*NotificationsList, error) {
-	userId, ok := d.jwt.GetUserIdFromContext(ctx)
+func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto) (*NotificationsList, error) {
+	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, send_v1.ErrorUnauthorized("Unauthorized")
 	}
@@ -60,7 +60,7 @@ func (d *NotificationsUsecase) ListNotifications(ctx context.Context, filter *da
 		filter.Ascending = true
 	}
 
-	notifications, err := d.notificationsRepo.ListNotifications(ctx, filter)
+	notifications, err := uc.notificationsRepo.ListNotifications(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

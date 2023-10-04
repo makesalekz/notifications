@@ -41,11 +41,7 @@ func newApp(logger log.Logger, c *data.Config, gs *grpc.Server, hs *http.Server)
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
-		kratos.Server(
-			gs,
-			hs,
-		),
-		// with registrar
+		kratos.Server(gs, hs),
 		kratos.Registrar(c.GetRegistry()),
 	)
 }

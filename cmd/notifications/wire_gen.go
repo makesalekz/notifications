@@ -41,8 +41,15 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)
-	fcmUsecase, err := biz.NewFcmUsecase(config, logger, devicesRepo)
+	natsClient, cleanup2, err := data.NewNatsClient(config)
 	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	queueManager := biz.NewQueueManager(config, natsClient, logger)
+	fcmUsecase, err := biz.NewFcmUsecase(config, logger, devicesRepo, queueManager)
+	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -50,6 +57,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	notificationsRepo := data.NewNotificationsRepo(dataData)
 	notificationsUsecase, err := biz.NewNotificationsUsecase(logger, config, jwtProcessor, notificationsRepo)
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -58,6 +66,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor, senderService, notificationsService)
 	app := newApp(logger, config, grpcServer, httpServer)
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

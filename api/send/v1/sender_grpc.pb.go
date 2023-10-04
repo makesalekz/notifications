@@ -22,7 +22,6 @@ const (
 	Sender_CreateFcmDevice_FullMethodName   = "/api.send.v1.Sender/CreateFcmDevice"
 	Sender_DeleteFcmDevice_FullMethodName   = "/api.send.v1.Sender/DeleteFcmDevice"
 	Sender_PersonalSmsSender_FullMethodName = "/api.send.v1.Sender/PersonalSmsSender"
-	Sender_PersonalFcmSender_FullMethodName = "/api.send.v1.Sender/PersonalFcmSender"
 )
 
 // SenderClient is the client API for Sender service.
@@ -32,7 +31,6 @@ type SenderClient interface {
 	CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error)
-	PersonalFcmSender(ctx context.Context, in *PersonalFcmSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 }
 
 type senderClient struct {
@@ -70,15 +68,6 @@ func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSen
 	return out, nil
 }
 
-func (c *senderClient) PersonalFcmSender(ctx context.Context, in *PersonalFcmSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
-	out := new(EmptyReply)
-	err := c.cc.Invoke(ctx, Sender_PersonalFcmSender_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // SenderServer is the server API for Sender service.
 // All implementations must embed UnimplementedSenderServer
 // for forward compatibility
@@ -86,7 +75,6 @@ type SenderServer interface {
 	CreateFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
 	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
 	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*EmptyReply, error)
-	PersonalFcmSender(context.Context, *PersonalFcmSenderRequest) (*EmptyReply, error)
 	mustEmbedUnimplementedSenderServer()
 }
 
@@ -102,9 +90,6 @@ func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequ
 }
 func (UnimplementedSenderServer) PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PersonalSmsSender not implemented")
-}
-func (UnimplementedSenderServer) PersonalFcmSender(context.Context, *PersonalFcmSenderRequest) (*EmptyReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PersonalFcmSender not implemented")
 }
 func (UnimplementedSenderServer) mustEmbedUnimplementedSenderServer() {}
 
@@ -173,24 +158,6 @@ func _Sender_PersonalSmsSender_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Sender_PersonalFcmSender_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PersonalFcmSenderRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SenderServer).PersonalFcmSender(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Sender_PersonalFcmSender_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SenderServer).PersonalFcmSender(ctx, req.(*PersonalFcmSenderRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Sender_ServiceDesc is the grpc.ServiceDesc for Sender service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -209,10 +176,6 @@ var Sender_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PersonalSmsSender",
 			Handler:    _Sender_PersonalSmsSender_Handler,
-		},
-		{
-			MethodName: "PersonalFcmSender",
-			Handler:    _Sender_PersonalFcmSender_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

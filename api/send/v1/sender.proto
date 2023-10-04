@@ -22,7 +22,6 @@ service Sender {
 		};
 	};
 	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (EmptyReply);
-	rpc PersonalFcmSender (PersonalFcmSenderRequest) returns (EmptyReply);
 }
 
 message EmptyReply {}
@@ -34,14 +33,6 @@ message FcmDeviceRequest {
 message PersonalSmsSenderRequest {
 	string phone = 1;
 	string message = 2;
-}
-
-message PersonalFcmSenderRequest {
-	string user_id = 1;
-	string title = 2;
-	string body = 3;
-	string image = 4;
-	map<string, string> data = 5;
 }
 
 enum ErrorReason {
@@ -59,4 +50,5 @@ enum ErrorReason {
   SMS_FAILED = 12;
   
   DEVICE_NOT_FOUND = 20 [(errors.code) = 404];
+  INVALID_REQUEST = 21 [(errors.code) = 400];
 }

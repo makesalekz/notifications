@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strconv"
 
 	v1 "notifications/api/send/v1"
 	"notifications/internal/biz"
@@ -69,26 +68,6 @@ func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalS
 	if err != nil {
 		s.log.Errorf("sms.SendSms: %v", err)
 		return nil, v1.ErrorSmsFailed("Internal error")
-	}
-
-	return &v1.EmptyReply{}, nil
-}
-
-func (s *SenderService) PersonalFcmSender(ctx context.Context, req *v1.PersonalFcmSenderRequest) (*v1.EmptyReply, error) {
-	userId, ok := strconv.ParseInt(req.UserId, 10, 64)
-	if ok != nil {
-		return nil, v1.ErrorUnauthorized("Unauthorized")
-	}
-
-	err := s.fcm.SendMessage(ctx, userId, biz.FCMMessage{
-		Title: req.Title,
-		Body:  req.Body,
-		Image: req.Image,
-		Data:  req.Data,
-	})
-	if err != nil {
-		s.log.Errorf("fcm.SendMessage: %v", err)
-		return nil, v1.ErrorFcmFailed("Internal error")
 	}
 
 	return &v1.EmptyReply{}, nil

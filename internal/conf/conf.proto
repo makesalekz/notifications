@@ -7,8 +7,8 @@ import "google/protobuf/duration.proto";
 
 message Bootstrap {
   Server server = 1;
-  Consul consul = 2;
-  Db db = 3;
+  string db = 2;
+  string nats = 3;
 }
 
 message Server {
@@ -24,13 +24,4 @@ message Server {
   }
   HTTP http = 1;
   GRPC grpc = 2;
-}
-
-message Consul {
-  string address = 1;
-}
-
-message Db {
-  string address = 1;
-  bool automigrate = 2;
 }

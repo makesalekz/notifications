@@ -108,3 +108,15 @@ func IsDeviceNotFound(err error) bool {
 func ErrorDeviceNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, ErrorReason_DEVICE_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
+
+func IsInvalidRequest(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == ErrorReason_INVALID_REQUEST.String() && e.Code == 400
+}
+
+func ErrorInvalidRequest(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, ErrorReason_INVALID_REQUEST.String(), fmt.Sprintf(format, args...))
+}

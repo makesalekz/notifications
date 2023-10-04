@@ -13,7 +13,7 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewConfig, NewJwtProcessor, NewDevicesRepo, NewNotificationsRepo)
+var ProviderSet = wire.NewSet(NewData, NewConfig, NewJwtProcessor, NewNatsClient, NewDevicesRepo, NewNotificationsRepo)
 
 // Data .
 type Data struct {
@@ -25,7 +25,7 @@ type Data struct {
 func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(logger)
 
-	client, err := ent.Open("postgres", c.Db.Address, ent.Debug(), ent.Log(l.Info))
+	client, err := ent.Open("postgres", c.Db)
 	if err != nil {
 		l.Fatalf("failed opening connection to postgres: %v", err)
 		return nil, nil, err

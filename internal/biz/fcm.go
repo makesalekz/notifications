@@ -2,28 +2,24 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"notifications/internal/data"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/nats-io/nats.go"
 )
-
-type FCMMessage struct {
-	Title string            `json:"title"`
-	Body  string            `json:"body"`
-	Image string            `json:"image"`
-	Data  map[string]string `json:"data"`
-}
 
 // SmsUsecase is a Greeter usecase.
 type FcmUsecase struct {
 	client      *messaging.Client
 	log         *log.Helper
 	devicesRepo data.DevicesRepo
+	queue       *Queue
 }
 
-func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo) (*FcmUsecase, error) {
+func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
 	app, err := firebase.NewApp(context.Background(), nil)
 	if err != nil {
 		return nil, err
@@ -35,11 +31,26 @@ func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRe
 		return nil, err
 	}
 
-	return &FcmUsecase{
+	uc := &FcmUsecase{
 		client:      client,
 		log:         log.NewHelper(logger),
 		devicesRepo: devicesRepo,
-	}, nil
+	}
+
+	uc.queue = qm.Create("fcm", uc.sendNotifications)
+
+	return uc, nil
+}
+
+func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nats.Msg) bool {
+	notification := Notification{}
+	err := json.Unmarshal(m.Data, &notification)
+	if err != nil {
+		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+		return true
+	}
+
+	return uc.sendMessage(ctx, notification)
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, userId int64, token string) error {
@@ -54,10 +65,38 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, userId int64, token 
 	return err
 }
 
-func (uc *FcmUsecase) SendMessage(ctx context.Context, userId int64, msg FCMMessage) error {
-	devices, err := uc.devicesRepo.GetDevicesForUser(ctx, userId)
+func (uc *FcmUsecase) sendMessage(ctx context.Context, msg Notification) bool {
+	message := &messaging.MulticastMessage{}
+	empty := true
+
+	if len(msg.Data) > 0 {
+		message.Data = msg.Data
+		empty = false
+	}
+
+	if msg.Title != "" || msg.Body != "" || msg.Image != "" {
+		message.Notification = &messaging.Notification{
+			Title:    msg.Title,
+			Body:     msg.Body,
+			ImageURL: msg.Image,
+		}
+		empty = false
+	}
+
+	if empty {
+		uc.log.Error("sendMessage: Empty message")
+		return true
+	}
+
+	devices, err := uc.devicesRepo.GetDevicesForUsers(ctx, msg.UsersIds)
 	if err != nil {
-		return err
+		uc.log.Warnf("sendMessage: devicesRepo.GetDevicesForUsers: %s", err.Error())
+		return false
+	}
+
+	if len(devices) == 0 {
+		uc.log.Debug("sendMessage: No devices found")
+		return true
 	}
 
 	tokens := make([]string, len(devices))
@@ -65,19 +104,12 @@ func (uc *FcmUsecase) SendMessage(ctx context.Context, userId int64, msg FCMMess
 		tokens[i] = device.Token
 	}
 
-	uc.log.Infof("Send push to %v", devices)
+	message.Tokens = tokens
 
-	result, err := uc.client.SendEachForMulticast(ctx, &messaging.MulticastMessage{
-		Notification: &messaging.Notification{
-			Title:    msg.Title,
-			Body:     msg.Body,
-			ImageURL: msg.Image,
-		},
-		Data:   msg.Data,
-		Tokens: tokens,
-	})
+	_, err = uc.client.SendEachForMulticast(ctx, message)
+	if err != nil {
+		uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+	}
 
-	uc.log.Infof("Push sent with result: %s, %s", result, err)
-
-	return err
+	return err == nil
 }

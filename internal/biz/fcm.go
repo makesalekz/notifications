@@ -16,7 +16,7 @@ type FcmUsecase struct {
 	client      *messaging.Client
 	log         *log.Helper
 	devicesRepo data.DevicesRepo
-	queue       *Queue
+	qm          *QueueManager
 }
 
 func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
@@ -35,9 +35,10 @@ func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRe
 		client:      client,
 		log:         log.NewHelper(logger),
 		devicesRepo: devicesRepo,
+		qm:          qm,
 	}
 
-	uc.queue = qm.Create("fcm", uc.sendNotifications)
+	qm.AddConsumer(QueueFCM, uc.sendNotifications)
 
 	return uc, nil
 }
@@ -49,6 +50,8 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nats.Msg) bool {
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		return true
 	}
+
+	uc.log.Debugf("sendNotifications: %v", notification)
 
 	return uc.sendMessage(ctx, notification)
 }

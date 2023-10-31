@@ -4,8 +4,7 @@ import (
 	"context"
 	_ "embed"
 
-	notifications_v1 "notifications/api/notifications/v1"
-	send_v1 "notifications/api/send/v1"
+	v1 "notifications/api/notifications/v1"
 	"notifications/ent"
 	"notifications/internal/conf"
 	"notifications/internal/data"
@@ -45,14 +44,14 @@ func NewNotificationsUsecase(
 	}, nil
 }
 
-func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error) {
+func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
 	return uc.notificationsRepo.CreateNotifications(ctx, data)
 }
 
 func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto) (*NotificationsList, error) {
 	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
 	if !ok {
-		return nil, send_v1.ErrorUnauthorized("Unauthorized")
+		return nil, v1.ErrorUnauthorized("Unauthorized")
 	}
 	filter.UserId = userId
 

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	v1 "notifications/api/send/v1"
+	v1 "notifications/api/notifications/v1"
 	"notifications/internal/biz"
 	"notifications/internal/data"
 

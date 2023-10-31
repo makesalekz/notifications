@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package api.notifications.v1;
+
+import "errors/errors.proto";
+
+option go_package = "notifications/api/notifications/v1;notifications_v1";
+option java_multiple_files = true;
+option java_package = "api.notifications.v1";
+
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+  
+  UNAUTHORIZED = 10 [(errors.code) = 401];
+  FCM_FAILED = 11;
+  SMS_FAILED = 12;
+  
+  DEVICE_NOT_FOUND = 20 [(errors.code) = 404];
+  INVALID_REQUEST = 21 [(errors.code) = 400];
+}

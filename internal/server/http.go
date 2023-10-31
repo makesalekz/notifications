@@ -1,8 +1,7 @@
 package server
 
 import (
-	notifications_v1 "notifications/api/notifications/v1"
-	send_v1 "notifications/api/send/v1"
+	v1 "notifications/api/notifications/v1"
 	"notifications/internal/conf"
 	"notifications/internal/data"
 	"notifications/internal/service"
@@ -34,8 +33,8 @@ func NewHTTPServer(c *conf.Bootstrap, jwtp *data.JwtProcessor, senderService *se
 	}
 	srv := http.NewServer(opts...)
 
-	notifications_v1.RegisterNotificationsHTTPServer(srv, notificationsService)
-	send_v1.RegisterSenderHTTPServer(srv, senderService)
+	v1.RegisterNotificationsHTTPServer(srv, notificationsService)
+	v1.RegisterSenderHTTPServer(srv, senderService)
 
 	return srv
 }

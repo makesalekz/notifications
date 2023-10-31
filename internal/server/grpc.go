@@ -1,8 +1,7 @@
 package server
 
 import (
-	notifications_v1 "notifications/api/notifications/v1"
-	send_v1 "notifications/api/send/v1"
+	v1 "notifications/api/notifications/v1"
 	"notifications/internal/conf"
 	"notifications/internal/data"
 	"notifications/internal/service"
@@ -34,8 +33,8 @@ func NewGRPCServer(c *conf.Bootstrap, jwtp *data.JwtProcessor, senderService *se
 	}
 	srv := grpc.NewServer(opts...)
 
-	notifications_v1.RegisterNotificationsServer(srv, notificationsService)
-	send_v1.RegisterSenderServer(srv, senderService)
+	v1.RegisterNotificationsServer(srv, notificationsService)
+	v1.RegisterSenderServer(srv, senderService)
 
 	return srv
 }

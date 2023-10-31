@@ -40,5 +40,6 @@ bin/
 # Local env
 .env
 .docker
+*.local.yaml
 *credentials.json
 *firebase.json

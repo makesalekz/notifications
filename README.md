@@ -92,8 +92,6 @@ app/notifications/SMSC_ENDPOINT = <URL: string>
 
 ### Vault
 
-TODO: DB creds
-
 To save JWT secret in Vault terminal (write command, ENTER, paste secret, CTRL+D):
 
 ```bash

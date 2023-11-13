@@ -3,10 +3,10 @@
 package device
 
 import (
-	"notifications/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

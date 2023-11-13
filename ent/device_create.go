@@ -6,11 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"notifications/ent/device"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/device"
 )
 
 // DeviceCreate is the builder for creating a Device entity.

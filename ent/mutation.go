@@ -6,15 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"notifications/ent/device"
-	"notifications/ent/enum"
-	"notifications/ent/notification"
-	"notifications/ent/predicate"
 	"sync"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 const (

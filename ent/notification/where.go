@@ -3,11 +3,11 @@
 package notification
 
 import (
-	"notifications/ent/enum"
-	"notifications/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

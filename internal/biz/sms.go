@@ -3,10 +3,10 @@ package biz
 import (
 	"context"
 	"fmt"
-	"notifications/internal/data"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/koorgoo/smsc"
+	"gitlab.calendaria.team/services/notifications/internal/data"
 )
 
 type Sms struct {

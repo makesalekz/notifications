@@ -3,12 +3,12 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"notifications/internal/data"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/nats-io/nats.go"
+	"gitlab.calendaria.team/services/notifications/internal/data"
 )
 
 // SmsUsecase is a Greeter usecase.

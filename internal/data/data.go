@@ -4,11 +4,11 @@ import (
 	"context"
 	"os"
 
-	"notifications/ent"
-	"notifications/internal/conf"
-
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/internal/conf"
+
 	_ "github.com/lib/pq"
 )
 

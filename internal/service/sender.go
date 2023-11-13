@@ -3,12 +3,11 @@ package service
 import (
 	"context"
 
-	v1 "notifications/api/notifications/v1"
-	"notifications/internal/biz"
-	"notifications/internal/data"
-
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/internal/biz"
+	"gitlab.calendaria.team/services/notifications/internal/data"
 )
 
 type SenderService struct {

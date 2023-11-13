@@ -3,10 +3,10 @@ package data
 import (
 	"context"
 
-	notifications_v1 "notifications/api/notifications/v1"
-	"notifications/ent"
-	"notifications/ent/enum"
-	"notifications/ent/notification"
+	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
 
 	_ "github.com/lib/pq"
 )

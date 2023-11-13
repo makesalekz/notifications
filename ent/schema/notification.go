@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"notifications/ent/enum"
 	"time"
+
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"

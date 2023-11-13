@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
-	v1 "notifications/api/notifications/v1"
-	"notifications/ent"
-	"notifications/internal/biz"
-	"notifications/internal/data"
-
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/internal/biz"
+	"gitlab.calendaria.team/services/notifications/internal/data"
 )
 
 type NotificationsService struct {

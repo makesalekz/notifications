@@ -3,11 +3,12 @@
 package ent
 
 import (
-	"notifications/ent/device"
-	"notifications/ent/enum"
-	"notifications/ent/notification"
-	"notifications/ent/schema"
 	"time"
+
+	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/schema"
 )
 
 // The init function reads all schema descriptors with runtime code

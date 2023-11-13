@@ -15,7 +15,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.notifications.v1.FcmDeviceRequest'
+                            $ref: '#/components/schemas/notifications.v1.FcmDeviceRequest'
                 required: true
             responses:
                 "200":
@@ -23,7 +23,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.notifications.v1.EmptyReply'
+                                $ref: '#/components/schemas/notifications.v1.EmptyReply'
         delete:
             tags:
                 - Sender
@@ -39,7 +39,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.notifications.v1.EmptyReply'
+                                $ref: '#/components/schemas/notifications.v1.EmptyReply'
     /v1/notifications/list:
         post:
             tags:
@@ -49,7 +49,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.notifications.v1.ListNotificationsRequest'
+                            $ref: '#/components/schemas/notifications.v1.ListNotificationsRequest'
                 required: true
             responses:
                 "200":
@@ -57,29 +57,29 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.notifications.v1.ListNotificationsReply'
+                                $ref: '#/components/schemas/notifications.v1.ListNotificationsReply'
 components:
     schemas:
-        api.notifications.v1.EmptyReply:
+        notifications.v1.EmptyReply:
             type: object
             properties: {}
-        api.notifications.v1.FcmDeviceRequest:
+        notifications.v1.FcmDeviceRequest:
             type: object
             properties:
                 token:
                     type: string
-        api.notifications.v1.ListNotificationsReply:
+        notifications.v1.ListNotificationsReply:
             type: object
             properties:
                 notifications:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.notifications.v1.Notification'
+                        $ref: '#/components/schemas/notifications.v1.Notification'
                 nextFromId:
                     type: string
                 nextToId:
                     type: string
-        api.notifications.v1.ListNotificationsRequest:
+        notifications.v1.ListNotificationsRequest:
             type: object
             properties:
                 fromId:
@@ -89,7 +89,7 @@ components:
                 limit:
                     type: integer
                     format: int32
-        api.notifications.v1.Notification:
+        notifications.v1.Notification:
             type: object
             properties:
                 id:

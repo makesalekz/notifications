@@ -4,12 +4,12 @@ package ent
 
 import (
 	"fmt"
-	"notifications/ent/device"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/device"
 )
 
 // Device is the model entity for the Device schema.

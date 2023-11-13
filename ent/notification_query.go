@@ -6,12 +6,12 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"notifications/ent/notification"
-	"notifications/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 // NotificationQuery is the builder for querying Notification entities.

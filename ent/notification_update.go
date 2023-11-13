@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"notifications/ent/enum"
-	"notifications/ent/notification"
-	"notifications/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 // NotificationUpdate is the builder for updating Notification entities.

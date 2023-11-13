@@ -1,12 +1,12 @@
 syntax = "proto3";
 
-package api.notifications.v1;
+package notifications.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "notifications/api/notifications/v1;notifications_v1";
+option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;
-option java_package = "api.notifications.v1";
+option java_package = "notifications.v1";
 
 service Notifications {
 	rpc CreateNotifications (CreateNotificationsRequest) returns (CreateNotificationsReply);

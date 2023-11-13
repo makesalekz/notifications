@@ -6,12 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"notifications/ent/enum"
-	"notifications/ent/notification"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
 )
 
 // NotificationCreate is the builder for creating a Notification entity.

@@ -8,14 +8,13 @@ import (
 	"fmt"
 	"log"
 
-	"notifications/ent/migrate"
-
-	"notifications/ent/device"
-	"notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
 )
 
 // Client is the client that holds all ent builders.

@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	"notifications/internal/conf"
-	"notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/internal/conf"
+	"gitlab.calendaria.team/services/notifications/internal/data"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"

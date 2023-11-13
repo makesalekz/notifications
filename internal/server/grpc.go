@@ -1,15 +1,14 @@
 package server
 
 import (
-	v1 "notifications/api/notifications/v1"
-	"notifications/internal/conf"
-	"notifications/internal/data"
-	"notifications/internal/service"
-
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	jwtv4 "github.com/golang-jwt/jwt/v4"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/internal/conf"
+	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/internal/service"
 )
 
 // NewGRPCServer new a gRPC server.

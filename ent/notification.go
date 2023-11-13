@@ -4,13 +4,13 @@ package ent
 
 import (
 	"fmt"
-	"notifications/ent/enum"
-	"notifications/ent/notification"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
 )
 
 // Notification is the model entity for the Notification schema.

@@ -6,12 +6,12 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"notifications/ent/device"
-	"notifications/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 // DeviceQuery is the builder for querying Device entities.

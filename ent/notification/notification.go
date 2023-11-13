@@ -3,10 +3,10 @@
 package notification
 
 import (
-	"notifications/ent/enum"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 )
 
 const (

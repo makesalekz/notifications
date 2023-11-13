@@ -3,10 +3,9 @@ package data
 import (
 	"context"
 
-	"notifications/ent"
-	"notifications/ent/device"
-
 	"github.com/go-kratos/kratos/v2/log"
+	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/ent/device"
 )
 
 // DevicesRepo

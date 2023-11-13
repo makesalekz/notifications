@@ -6,11 +6,11 @@
 package main
 
 import (
-	"notifications/internal/biz"
-	"notifications/internal/conf"
-	"notifications/internal/data"
-	"notifications/internal/server"
-	"notifications/internal/service"
+	"gitlab.calendaria.team/services/notifications/internal/biz"
+	"gitlab.calendaria.team/services/notifications/internal/conf"
+	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/internal/server"
+	"gitlab.calendaria.team/services/notifications/internal/service"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"

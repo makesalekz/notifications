@@ -6,14 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"notifications/ent/device"
-	"notifications/ent/notification"
 	"reflect"
 	"sync"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/notification"
 )
 
 // ent aliases to avoid import conflicts in user's code.

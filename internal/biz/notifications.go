@@ -2,15 +2,13 @@ package biz
 
 import (
 	"context"
-	_ "embed"
-
-	v1 "notifications/api/notifications/v1"
-	"notifications/ent"
-	"notifications/internal/conf"
-	"notifications/internal/data"
 
 	consul "github.com/go-kratos/consul/registry"
 	"github.com/go-kratos/kratos/v2/log"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/internal/conf"
+	"gitlab.calendaria.team/services/notifications/internal/data"
 )
 
 type NotificationsList struct {

@@ -5,7 +5,8 @@ package hook
 import (
 	"context"
 	"fmt"
-	"notifications/ent"
+
+	"gitlab.calendaria.team/services/notifications/ent"
 )
 
 // The DeviceFunc type is an adapter to allow the use of ordinary

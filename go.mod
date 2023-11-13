@@ -1,4 +1,4 @@
-module notifications
+module gitlab.calendaria.team/services/notifications
 
 go 1.19
 

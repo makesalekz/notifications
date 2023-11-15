@@ -24,4 +24,5 @@ enum ErrorReason {
   
   DEVICE_NOT_FOUND = 20 [(errors.code) = 404];
   INVALID_REQUEST = 21 [(errors.code) = 400];
+  NOTIFICATION_NOT_FOUND = 22 [(errors.code) = 404];
 }

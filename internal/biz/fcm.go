@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"os"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
@@ -20,19 +21,23 @@ type FcmUsecase struct {
 }
 
 func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
-	app, err := firebase.NewApp(context.Background(), nil)
-	if err != nil {
-		return nil, err
+	uc := &FcmUsecase{}
+
+	if os.Getenv("DEBUG") == "" {
+		app, err := firebase.NewApp(context.Background(), nil)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx := context.Background()
+		client, err := app.Messaging(ctx)
+		if err != nil {
+			return nil, err
+		}
+		uc.client = client
 	}
 
-	ctx := context.Background()
-	client, err := app.Messaging(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	uc := &FcmUsecase{
-		client:      client,
+	uc = &FcmUsecase{
 		log:         log.NewHelper(logger),
 		devicesRepo: devicesRepo,
 		qm:          qm,
@@ -109,9 +114,11 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg Notification) bool {
 
 	message.Tokens = tokens
 
-	_, err = uc.client.SendEachForMulticast(ctx, message)
-	if err != nil {
-		uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+	if uc.client != nil {
+		_, err = uc.client.SendEachForMulticast(ctx, message)
+		if err != nil {
+			uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+		}
 	}
 
 	return err == nil

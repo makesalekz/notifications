@@ -21,6 +21,18 @@ func (f DeviceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeviceMutation", m)
 }
 
+// The LastReadNotificationFunc type is an adapter to allow the use of ordinary
+// function as LastReadNotification mutator.
+type LastReadNotificationFunc func(context.Context, *ent.LastReadNotificationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LastReadNotificationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LastReadNotificationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LastReadNotificationMutation", m)
+}
+
 // The NotificationFunc type is an adapter to allow the use of ordinary
 // function as Notification mutator.
 type NotificationFunc func(context.Context, *ent.NotificationMutation) (ent.Value, error)

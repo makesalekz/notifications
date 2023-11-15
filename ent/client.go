@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 )
 
@@ -24,6 +25,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
+	// LastReadNotification is the client for interacting with the LastReadNotification builders.
+	LastReadNotification *LastReadNotificationClient
 	// Notification is the client for interacting with the Notification builders.
 	Notification *NotificationClient
 }
@@ -40,6 +43,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Device = NewDeviceClient(c.config)
+	c.LastReadNotification = NewLastReadNotificationClient(c.config)
 	c.Notification = NewNotificationClient(c.config)
 }
 
@@ -121,10 +125,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:          ctx,
-		config:       cfg,
-		Device:       NewDeviceClient(cfg),
-		Notification: NewNotificationClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		Device:               NewDeviceClient(cfg),
+		LastReadNotification: NewLastReadNotificationClient(cfg),
+		Notification:         NewNotificationClient(cfg),
 	}, nil
 }
 
@@ -142,10 +147,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:          ctx,
-		config:       cfg,
-		Device:       NewDeviceClient(cfg),
-		Notification: NewNotificationClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		Device:               NewDeviceClient(cfg),
+		LastReadNotification: NewLastReadNotificationClient(cfg),
+		Notification:         NewNotificationClient(cfg),
 	}, nil
 }
 
@@ -175,6 +181,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Device.Use(hooks...)
+	c.LastReadNotification.Use(hooks...)
 	c.Notification.Use(hooks...)
 }
 
@@ -182,6 +189,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Device.Intercept(interceptors...)
+	c.LastReadNotification.Intercept(interceptors...)
 	c.Notification.Intercept(interceptors...)
 }
 
@@ -190,6 +198,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *DeviceMutation:
 		return c.Device.mutate(ctx, m)
+	case *LastReadNotificationMutation:
+		return c.LastReadNotification.mutate(ctx, m)
 	case *NotificationMutation:
 		return c.Notification.mutate(ctx, m)
 	default:
@@ -315,6 +325,124 @@ func (c *DeviceClient) mutate(ctx context.Context, m *DeviceMutation) (Value, er
 	}
 }
 
+// LastReadNotificationClient is a client for the LastReadNotification schema.
+type LastReadNotificationClient struct {
+	config
+}
+
+// NewLastReadNotificationClient returns a client for the LastReadNotification from the given config.
+func NewLastReadNotificationClient(c config) *LastReadNotificationClient {
+	return &LastReadNotificationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `lastreadnotification.Hooks(f(g(h())))`.
+func (c *LastReadNotificationClient) Use(hooks ...Hook) {
+	c.hooks.LastReadNotification = append(c.hooks.LastReadNotification, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `lastreadnotification.Intercept(f(g(h())))`.
+func (c *LastReadNotificationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.LastReadNotification = append(c.inters.LastReadNotification, interceptors...)
+}
+
+// Create returns a builder for creating a LastReadNotification entity.
+func (c *LastReadNotificationClient) Create() *LastReadNotificationCreate {
+	mutation := newLastReadNotificationMutation(c.config, OpCreate)
+	return &LastReadNotificationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of LastReadNotification entities.
+func (c *LastReadNotificationClient) CreateBulk(builders ...*LastReadNotificationCreate) *LastReadNotificationCreateBulk {
+	return &LastReadNotificationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for LastReadNotification.
+func (c *LastReadNotificationClient) Update() *LastReadNotificationUpdate {
+	mutation := newLastReadNotificationMutation(c.config, OpUpdate)
+	return &LastReadNotificationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LastReadNotificationClient) UpdateOne(lrn *LastReadNotification) *LastReadNotificationUpdateOne {
+	mutation := newLastReadNotificationMutation(c.config, OpUpdateOne, withLastReadNotification(lrn))
+	return &LastReadNotificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *LastReadNotificationClient) UpdateOneID(id int64) *LastReadNotificationUpdateOne {
+	mutation := newLastReadNotificationMutation(c.config, OpUpdateOne, withLastReadNotificationID(id))
+	return &LastReadNotificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for LastReadNotification.
+func (c *LastReadNotificationClient) Delete() *LastReadNotificationDelete {
+	mutation := newLastReadNotificationMutation(c.config, OpDelete)
+	return &LastReadNotificationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *LastReadNotificationClient) DeleteOne(lrn *LastReadNotification) *LastReadNotificationDeleteOne {
+	return c.DeleteOneID(lrn.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *LastReadNotificationClient) DeleteOneID(id int64) *LastReadNotificationDeleteOne {
+	builder := c.Delete().Where(lastreadnotification.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &LastReadNotificationDeleteOne{builder}
+}
+
+// Query returns a query builder for LastReadNotification.
+func (c *LastReadNotificationClient) Query() *LastReadNotificationQuery {
+	return &LastReadNotificationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeLastReadNotification},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a LastReadNotification entity by its id.
+func (c *LastReadNotificationClient) Get(ctx context.Context, id int64) (*LastReadNotification, error) {
+	return c.Query().Where(lastreadnotification.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LastReadNotificationClient) GetX(ctx context.Context, id int64) *LastReadNotification {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *LastReadNotificationClient) Hooks() []Hook {
+	return c.hooks.LastReadNotification
+}
+
+// Interceptors returns the client interceptors.
+func (c *LastReadNotificationClient) Interceptors() []Interceptor {
+	return c.inters.LastReadNotification
+}
+
+func (c *LastReadNotificationClient) mutate(ctx context.Context, m *LastReadNotificationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LastReadNotificationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LastReadNotificationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LastReadNotificationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LastReadNotificationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown LastReadNotification mutation op: %q", m.Op())
+	}
+}
+
 // NotificationClient is a client for the Notification schema.
 type NotificationClient struct {
 	config
@@ -436,9 +564,9 @@ func (c *NotificationClient) mutate(ctx context.Context, m *NotificationMutation
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Device, Notification []ent.Hook
+		Device, LastReadNotification, Notification []ent.Hook
 	}
 	inters struct {
-		Device, Notification []ent.Interceptor
+		Device, LastReadNotification, Notification []ent.Interceptor
 	}
 )

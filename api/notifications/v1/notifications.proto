@@ -3,6 +3,8 @@ syntax = "proto3";
 package notifications.v1;
 
 import "google/api/annotations.proto";
+import "api/notifications/v1/models.proto";
+import "utils/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;
@@ -13,6 +15,17 @@ service Notifications {
 	rpc ListNotifications (ListNotificationsRequest) returns (ListNotificationsReply) {
 		option (google.api.http) = {
 			post: "/v1/notifications/list"
+			body: "*"
+		};
+	};
+	rpc GetNotificationsCounters(utils.v1.EmptyRequest) returns (NotificationCountersReply){
+		option (google.api.http) = {
+			get: "/v1/notifications/counters"
+		};
+	};
+	rpc DoActionOnNotification(DoActionOnNotificationRequest) returns (utils.v1.EmptyReply){
+		option (google.api.http) = {
+			post: "/v1/notifications/{notificationId}/action"
 			body: "*"
 		};
 	};
@@ -27,31 +40,20 @@ message CreateNotificationsReply {
 }
 
 message ListNotificationsRequest {
-	int64 fromId = 1;
-	int64 toId = 2;
-	int32 limit = 3;
+	string type = 1;
+	utils.v1.PaginateRequest paginate = 2;
 }
 
 message ListNotificationsReply {
 	repeated Notification notifications = 1;
-	optional int64 nextFromId = 2;
-	optional int64 nextToId = 3;
+	utils.v1.PaginateReply paginate = 2;
 }
 
-message Notification {
-	int64 id = 1;
-	string type = 2;
-	string title = 3;
-	string text = 4;
-	int64 eventId = 5;
-	int64 contactId = 6;
-	string createdAt = 7;
+message NotificationCountersReply {
+	map<string,int32> unreadCount = 1;
 }
 
-message NotificationDto {
-	int64 userId = 1;
-	string title = 2;
-	string text = 3;
-	int64 eventId = 4;
-	int64 contactId = 5;
+message DoActionOnNotificationRequest {
+	int64 notificationId = 1;
+	string action = 2;
 }

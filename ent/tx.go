@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Device is the client for interacting with the Device builders.
 	Device *DeviceClient
+	// LastReadNotification is the client for interacting with the LastReadNotification builders.
+	LastReadNotification *LastReadNotificationClient
 	// Notification is the client for interacting with the Notification builders.
 	Notification *NotificationClient
 
@@ -148,6 +150,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Device = NewDeviceClient(tx.config)
+	tx.LastReadNotification = NewLastReadNotificationClient(tx.config)
 	tx.Notification = NewNotificationClient(tx.config)
 }
 

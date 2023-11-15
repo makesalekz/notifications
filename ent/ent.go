@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.calendaria.team/services/notifications/ent/device"
+	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 )
 
@@ -74,8 +75,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			device.Table:       device.ValidColumn,
-			notification.Table: notification.ValidColumn,
+			device.Table:               device.ValidColumn,
+			lastreadnotification.Table: lastreadnotification.ValidColumn,
+			notification.Table:         notification.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

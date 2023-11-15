@@ -21,6 +21,7 @@ type NotificationQuery struct {
 	order      []notification.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Notification
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -342,6 +343,9 @@ func (nq *NotificationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
+	if len(nq.modifiers) > 0 {
+		_spec.Modifiers = nq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -356,6 +360,9 @@ func (nq *NotificationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 
 func (nq *NotificationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := nq.querySpec()
+	if len(nq.modifiers) > 0 {
+		_spec.Modifiers = nq.modifiers
+	}
 	_spec.Node.Columns = nq.ctx.Fields
 	if len(nq.ctx.Fields) > 0 {
 		_spec.Unique = nq.ctx.Unique != nil && *nq.ctx.Unique
@@ -418,6 +425,9 @@ func (nq *NotificationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if nq.ctx.Unique != nil && *nq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range nq.modifiers {
+		m(selector)
+	}
 	for _, p := range nq.predicates {
 		p(selector)
 	}
@@ -433,6 +443,12 @@ func (nq *NotificationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (nq *NotificationQuery) Modify(modifiers ...func(s *sql.Selector)) *NotificationSelect {
+	nq.modifiers = append(nq.modifiers, modifiers...)
+	return nq.Select()
 }
 
 // NotificationGroupBy is the group-by builder for Notification entities.
@@ -523,4 +539,10 @@ func (ns *NotificationSelect) sqlScan(ctx context.Context, root *NotificationQue
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ns *NotificationSelect) Modify(modifiers ...func(s *sql.Selector)) *NotificationSelect {
+	ns.modifiers = append(ns.modifiers, modifiers...)
+	return ns
 }

@@ -123,13 +123,9 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
 	}
-	var notificationType string
-
 	filter.UserId = userId
 
-	if paginate.FromId == 0 {
-		paginate.Descending = true
-	}
+	var notificationType string
 
 	if enum.NotificationType(filter.Type).IsValid() {
 		notificationType = filter.Type
@@ -151,10 +147,16 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 
 	paginateReply := &v1.PaginateReply{Total: &total}
 
-	if len(notifications) == int(paginate.Limit) {
+	if paginate.FromId == 0 && len(notifications) == int(paginate.Limit) {
+		paginateReply.ToId = &notifications[0].ID
 		if paginate.Descending {
 			paginateReply.ToId = &notifications[len(notifications)-1].ID
-		} else {
+		}
+	}
+
+	if paginate.ToId == 0 || paginate.FromId != 0 {
+		paginateReply.FromId = &notifications[len(notifications)-1].ID
+		if paginate.Descending {
 			paginateReply.FromId = &notifications[0].ID
 		}
 	}

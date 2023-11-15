@@ -94,8 +94,10 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		query.Where(notification.Type(enum.NotificationType(filter.Type)))
 	}
 
+	desc := true
 	if paginate.FromId != 0 {
 		query.Where(notification.IDGT(paginate.FromId))
+		desc = false
 	}
 
 	if paginate.ToId != 0 {
@@ -106,7 +108,7 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		paginate.Limit = 100
 	}
 
-	if paginate.Descending {
+	if desc {
 		query = query.Order(ent.Desc(notification.FieldID))
 	} else {
 		query = query.Order(ent.Asc(notification.FieldID))
@@ -117,7 +119,7 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		return nil, err
 	}
 
-	if !paginate.Descending && len(notifications) > 1 {
+	if desc != paginate.Descending && len(notifications) > 1 {
 		reverse(notifications)
 	}
 

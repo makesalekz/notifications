@@ -13,7 +13,7 @@ message PaginateRequest {
 	int32 limit = 1;
 	int64 fromId = 2;
 	int64 toId = 3;
-    bool asc = 4;
+    bool ascending = 4;
 }   
 
 message PaginateReply {
@@ -38,9 +38,4 @@ message NotificationDto {
 	string text = 3;
 	int64 eventId = 4;
 	int64 contactId = 5;
-}
-
-message NotificationCounters {
-    int32 totalUnread = 1;
-    map<string,int32> unreadCount = 2;
 }

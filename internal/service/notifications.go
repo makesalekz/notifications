@@ -65,10 +65,10 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 			Type: req.Type,
 		},
 		&v1.PaginateRequest{
-			FromId: req.GetPaginate().GetFromId(),
-			ToId:   req.GetPaginate().GetToId(),
-			Limit:  req.GetPaginate().GetLimit(),
-			Asc:    req.GetPaginate().GetAsc(),
+			FromId:    req.GetPaginate().GetFromId(),
+			ToId:      req.GetPaginate().GetToId(),
+			Limit:     req.GetPaginate().GetLimit(),
+			Ascending: req.GetPaginate().GetAscending(),
 		},
 	)
 	if err != nil {
@@ -88,10 +88,7 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 	}
 
 	return &v1.NotificationCountersReply{
-		Counters: &v1.NotificationCounters{
-			TotalUnread: reply.TotalUnread,
-			UnreadCount: reply.UnreadCounters,
-		},
+		UnreadCount: *reply,
 	}, err
 }
 

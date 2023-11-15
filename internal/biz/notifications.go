@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 )
@@ -20,10 +21,7 @@ type NotificationsList struct {
 	Paginate      *v1.PaginateReply
 }
 
-type NotificationsCounters struct {
-	TotalUnread    int32
-	UnreadCounters map[string]int32
-}
+type NotificationsCounters map[string]int32
 
 // NotificationsUsecase is a Greeter usecase.
 type NotificationsUsecase struct {
@@ -117,10 +115,7 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*N
 		totalUnread += int32(counter.Count)
 	}
 
-	return &NotificationsCounters{
-		UnreadCounters: replyCounter,
-		TotalUnread:    totalUnread,
-	}, nil
+	return (*NotificationsCounters)(&replyCounter), nil
 }
 
 func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto, paginate *v1.PaginateRequest) (*NotificationsList, error) {
@@ -128,12 +123,17 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
 	}
+	var notificationType string
+
 	filter.UserId = userId
 
 	if paginate.FromId != 0 {
-		paginate.Asc = true
+		paginate.Ascending = true
 	}
 
+	if enum.NotificationType(filter.Type).IsValid() {
+		notificationType = filter.Type
+	}
 	notifications, err := uc.notificationsRepo.ListNotifications(ctx, filter, paginate)
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 
 	notificationItems := uc.createNotifications(notifications)
 
-	total, err := uc.notificationsRepo.CountNotifications(ctx, userId)
+	total, err := uc.notificationsRepo.CountNotifications(ctx, userId, notificationType)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return nil, v1.ErrorDatabaseQuery("can't get notification count")
@@ -152,7 +152,7 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 	paginateReply := &v1.PaginateReply{Total: &total}
 
 	if len(notifications) == int(paginate.Limit) {
-		if paginate.Asc {
+		if paginate.Ascending {
 			paginateReply.FromId = &notifications[0].ID
 		} else {
 			paginateReply.ToId = &notifications[len(notifications)-1].ID

@@ -49,7 +49,7 @@ message ListNotificationsReply {
 }
 
 message NotificationCountersReply {
-	NotificationCounters counters = 1;
+	map<string,int32> unreadCount = 1;
 }
 
 message DoActionOnNotificationRequest {

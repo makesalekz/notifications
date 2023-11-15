@@ -32,7 +32,7 @@ type Counter struct {
 type NotificationsRepo interface {
 	CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error)
 	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *v1.PaginateRequest) ([]*ent.Notification, error)
-	CountNotifications(ctx context.Context, userId int64) (int32, error)
+	CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
 	GetLastReadNotification(ctx context.Context, userId int64) (*ent.LastReadNotification, error)
 	CountUnreadNotifications(ctx context.Context, userId, lastReadId int64) ([]Counter, error)
@@ -106,7 +106,7 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		paginate.Limit = 100
 	}
 
-	if paginate.Asc {
+	if paginate.Ascending {
 		query = query.Order(ent.Asc(notification.FieldID))
 	} else {
 		query = query.Order(ent.Desc(notification.FieldID))
@@ -117,17 +117,20 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		return nil, err
 	}
 
-	if paginate.Asc && len(notifications) > 1 {
+	if paginate.Ascending && len(notifications) > 1 {
 		reverse(notifications)
 	}
 
 	return notifications, nil
 }
 
-func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64) (int32, error) {
+func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error) {
 	query := r.db.Notification.Query()
 	if userId > 0 {
 		query.Where(notification.UserID(userId))
+	}
+	if enum.NotificationType(notificationType).IsValid() {
+		query.Where(notification.Type(enum.NotificationType(notificationType)))
 	}
 
 	count, err := query.Count(ctx)

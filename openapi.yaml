@@ -144,22 +144,14 @@ components:
                     type: string
                 createdAt:
                     type: string
-        notifications.v1.NotificationCounters:
+        notifications.v1.NotificationCountersReply:
             type: object
             properties:
-                totalUnread:
-                    type: integer
-                    format: int32
                 unreadCount:
                     type: object
                     additionalProperties:
                         type: integer
                         format: int32
-        notifications.v1.NotificationCountersReply:
-            type: object
-            properties:
-                counters:
-                    $ref: '#/components/schemas/notifications.v1.NotificationCounters'
         notifications.v1.PaginateReply:
             type: object
             properties:
@@ -180,7 +172,7 @@ components:
                     type: string
                 toId:
                     type: string
-                asc:
+                ascending:
                     type: boolean
 tags:
     - name: Notifications

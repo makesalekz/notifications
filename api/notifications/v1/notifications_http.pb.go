@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -24,8 +25,8 @@ const OperationNotificationsGetNotificationsCounters = "/notifications.v1.Notifi
 const OperationNotificationsListNotifications = "/notifications.v1.Notifications/ListNotifications"
 
 type NotificationsHTTPServer interface {
-	DoActionOnNotification(context.Context, *DoActionOnNotificationRequest) (*EmptyReply, error)
-	GetNotificationsCounters(context.Context, *EmptyRequest) (*NotificationCountersReply, error)
+	DoActionOnNotification(context.Context, *DoActionOnNotificationRequest) (*v1.EmptyReply, error)
+	GetNotificationsCounters(context.Context, *v1.EmptyRequest) (*NotificationCountersReply, error)
 	ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsReply, error)
 }
 
@@ -60,13 +61,13 @@ func _Notifications_ListNotifications0_HTTP_Handler(srv NotificationsHTTPServer)
 
 func _Notifications_GetNotificationsCounters0_HTTP_Handler(srv NotificationsHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in EmptyRequest
+		var in v1.EmptyRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationNotificationsGetNotificationsCounters)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetNotificationsCounters(ctx, req.(*EmptyRequest))
+			return srv.GetNotificationsCounters(ctx, req.(*v1.EmptyRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -97,14 +98,14 @@ func _Notifications_DoActionOnNotification0_HTTP_Handler(srv NotificationsHTTPSe
 		if err != nil {
 			return err
 		}
-		reply := out.(*EmptyReply)
+		reply := out.(*v1.EmptyReply)
 		return ctx.Result(200, reply)
 	}
 }
 
 type NotificationsHTTPClient interface {
-	DoActionOnNotification(ctx context.Context, req *DoActionOnNotificationRequest, opts ...http.CallOption) (rsp *EmptyReply, err error)
-	GetNotificationsCounters(ctx context.Context, req *EmptyRequest, opts ...http.CallOption) (rsp *NotificationCountersReply, err error)
+	DoActionOnNotification(ctx context.Context, req *DoActionOnNotificationRequest, opts ...http.CallOption) (rsp *v1.EmptyReply, err error)
+	GetNotificationsCounters(ctx context.Context, req *v1.EmptyRequest, opts ...http.CallOption) (rsp *NotificationCountersReply, err error)
 	ListNotifications(ctx context.Context, req *ListNotificationsRequest, opts ...http.CallOption) (rsp *ListNotificationsReply, err error)
 }
 
@@ -116,8 +117,8 @@ func NewNotificationsHTTPClient(client *http.Client) NotificationsHTTPClient {
 	return &NotificationsHTTPClientImpl{client}
 }
 
-func (c *NotificationsHTTPClientImpl) DoActionOnNotification(ctx context.Context, in *DoActionOnNotificationRequest, opts ...http.CallOption) (*EmptyReply, error) {
-	var out EmptyReply
+func (c *NotificationsHTTPClientImpl) DoActionOnNotification(ctx context.Context, in *DoActionOnNotificationRequest, opts ...http.CallOption) (*v1.EmptyReply, error) {
+	var out v1.EmptyReply
 	pattern := "/v1/notifications/{notificationId}/action"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationNotificationsDoActionOnNotification))
@@ -129,7 +130,7 @@ func (c *NotificationsHTTPClientImpl) DoActionOnNotification(ctx context.Context
 	return &out, err
 }
 
-func (c *NotificationsHTTPClientImpl) GetNotificationsCounters(ctx context.Context, in *EmptyRequest, opts ...http.CallOption) (*NotificationCountersReply, error) {
+func (c *NotificationsHTTPClientImpl) GetNotificationsCounters(ctx context.Context, in *v1.EmptyRequest, opts ...http.CallOption) (*NotificationCountersReply, error) {
 	var out NotificationCountersReply
 	pattern := "/v1/notifications/counters"
 	path := binding.EncodeURL(pattern, in, true)

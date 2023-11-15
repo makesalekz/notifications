@@ -35,7 +35,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/notifications.v1.EmptyReply'
+                                $ref: '#/components/schemas/utils.v1.EmptyReply'
         delete:
             tags:
                 - Sender
@@ -51,7 +51,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/notifications.v1.EmptyReply'
+                                $ref: '#/components/schemas/utils.v1.EmptyReply'
     /v1/notifications/list:
         post:
             tags:
@@ -93,7 +93,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/notifications.v1.EmptyReply'
+                                $ref: '#/components/schemas/utils.v1.EmptyReply'
 components:
     schemas:
         notifications.v1.DoActionOnNotificationRequest:
@@ -103,9 +103,6 @@ components:
                     type: string
                 action:
                     type: string
-        notifications.v1.EmptyReply:
-            type: object
-            properties: {}
         notifications.v1.FcmDeviceRequest:
             type: object
             properties:
@@ -119,14 +116,14 @@ components:
                     items:
                         $ref: '#/components/schemas/notifications.v1.Notification'
                 paginate:
-                    $ref: '#/components/schemas/notifications.v1.PaginateReply'
+                    $ref: '#/components/schemas/utils.v1.PaginateReply'
         notifications.v1.ListNotificationsRequest:
             type: object
             properties:
                 type:
                     type: string
                 paginate:
-                    $ref: '#/components/schemas/notifications.v1.PaginateRequest'
+                    $ref: '#/components/schemas/utils.v1.PaginateRequest'
         notifications.v1.Notification:
             type: object
             properties:
@@ -152,7 +149,10 @@ components:
                     additionalProperties:
                         type: integer
                         format: int32
-        notifications.v1.PaginateReply:
+        utils.v1.EmptyReply:
+            type: object
+            properties: {}
+        utils.v1.PaginateReply:
             type: object
             properties:
                 total:
@@ -162,7 +162,13 @@ components:
                     type: string
                 toId:
                     type: string
-        notifications.v1.PaginateRequest:
+                fromDate:
+                    type: string
+                toDate:
+                    type: string
+                fromLabel:
+                    type: string
+        utils.v1.PaginateRequest:
             type: object
             properties:
                 limit:
@@ -171,6 +177,16 @@ components:
                 fromId:
                     type: string
                 toId:
+                    type: string
+                aroundId:
+                    type: string
+                fromDate:
+                    type: string
+                toDate:
+                    type: string
+                aroundDate:
+                    type: string
+                fromLabel:
                     type: string
                 descending:
                     type: boolean

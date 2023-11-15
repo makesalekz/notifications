@@ -10,6 +10,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 )
 
 type NotificationItem struct {
@@ -18,7 +19,7 @@ type NotificationItem struct {
 
 type NotificationsList struct {
 	Notifications []*NotificationItem
-	Paginate      *v1.PaginateReply
+	Paginate      *utils_v1.PaginateReply
 }
 
 type NotificationsCounters map[string]int32
@@ -118,7 +119,7 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*N
 	return (*NotificationsCounters)(&replyCounter), nil
 }
 
-func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto, paginate *v1.PaginateRequest) (*NotificationsList, error) {
+func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto, paginate *utils_v1.PaginateRequest) (*NotificationsList, error) {
 	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
@@ -128,7 +129,7 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 	var notificationType string
 
 	if paginate == nil {
-		paginate = &v1.PaginateRequest{}
+		paginate = &utils_v1.PaginateRequest{}
 	}
 
 	if enum.NotificationType(filter.Type).IsValid() {
@@ -149,7 +150,7 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 		return nil, v1.ErrorNotificationNotFound("this user has no notifications")
 	}
 
-	paginateReply := &v1.PaginateReply{Total: &total}
+	paginateReply := &utils_v1.PaginateReply{Total: &total}
 
 	if paginate.FromId == 0 && len(notifications) == int(paginate.Limit) {
 		paginateReply.ToId = &notifications[0].ID

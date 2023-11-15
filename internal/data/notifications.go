@@ -3,12 +3,12 @@ package data
 import (
 	"context"
 
-	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 
 	_ "github.com/lib/pq"
 )
@@ -30,8 +30,8 @@ type Counter struct {
 
 // NotificationsRepo
 type NotificationsRepo interface {
-	CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error)
-	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *v1.PaginateRequest) ([]*ent.Notification, error)
+	CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error)
+	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error)
 	CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
 	GetLastReadNotification(ctx context.Context, userId int64) (*ent.LastReadNotification, error)
@@ -49,7 +49,7 @@ func NewNotificationsRepo(d *Data) NotificationsRepo {
 	}
 }
 
-func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error) {
+func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
 	notificationsCreate := make([]*ent.NotificationCreate, len(data))
 
 	for i, dto := range data {
@@ -87,7 +87,7 @@ func (r *notificationsRepo) GetLastReadNotification(ctx context.Context, userId 
 		First(ctx)
 }
 
-func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *v1.PaginateRequest) ([]*ent.Notification, error) {
+func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error) {
 	query := r.db.Notification.Query().Where(notification.UserID(filter.UserId))
 
 	if enum.NotificationType(filter.Type).IsValid() {

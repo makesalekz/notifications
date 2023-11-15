@@ -8,6 +8,7 @@ package notifications_v1
 
 import (
 	context "context"
+	v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -28,9 +29,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SenderClient interface {
-	CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error)
-	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error)
-	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
+	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
+	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 }
 
 type senderClient struct {
@@ -41,8 +42,8 @@ func NewSenderClient(cc grpc.ClientConnInterface) SenderClient {
 	return &senderClient{cc}
 }
 
-func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
-	out := new(EmptyReply)
+func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
+	out := new(v1.EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_CreateFcmDevice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +51,8 @@ func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDeviceRequest
 	return out, nil
 }
 
-func (c *senderClient) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
-	out := new(EmptyReply)
+func (c *senderClient) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
+	out := new(v1.EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_DeleteFcmDevice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -59,8 +60,8 @@ func (c *senderClient) DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest
 	return out, nil
 }
 
-func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
-	out := new(EmptyReply)
+func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
+	out := new(v1.EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_PersonalSmsSender_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +73,9 @@ func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSen
 // All implementations must embed UnimplementedSenderServer
 // for forward compatibility
 type SenderServer interface {
-	CreateFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
-	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error)
-	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*EmptyReply, error)
+	CreateFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error)
+	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error)
+	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*v1.EmptyReply, error)
 	mustEmbedUnimplementedSenderServer()
 }
 
@@ -82,13 +83,13 @@ type SenderServer interface {
 type UnimplementedSenderServer struct {
 }
 
-func (UnimplementedSenderServer) CreateFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error) {
+func (UnimplementedSenderServer) CreateFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFcmDevice not implemented")
 }
-func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*EmptyReply, error) {
+func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFcmDevice not implemented")
 }
-func (UnimplementedSenderServer) PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*EmptyReply, error) {
+func (UnimplementedSenderServer) PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*v1.EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PersonalSmsSender not implemented")
 }
 func (UnimplementedSenderServer) mustEmbedUnimplementedSenderServer() {}

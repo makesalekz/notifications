@@ -8,6 +8,7 @@ import (
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 )
 
 type NotificationsService struct {
@@ -76,7 +77,7 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 	}, nil
 }
 
-func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *v1.EmptyRequest) (*v1.NotificationCountersReply, error) {
+func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.EmptyRequest) (*v1.NotificationCountersReply, error) {
 	reply, err := s.nu.GetNotificationCounters(ctx)
 	if err != nil {
 		return nil, err
@@ -87,11 +88,11 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 	}, err
 }
 
-func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*v1.EmptyReply, error) {
+func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*utils_v1.EmptyReply, error) {
 	switch req.Action {
 	case "read":
-		return &v1.EmptyReply{}, s.nu.ReadNotification(ctx, req.NotificationId)
+		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, req.NotificationId)
 	}
 
-	return &v1.EmptyReply{}, nil
+	return &utils_v1.EmptyReply{}, nil
 }

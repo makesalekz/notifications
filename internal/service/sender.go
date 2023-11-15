@@ -8,6 +8,7 @@ import (
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 )
 
 type SenderService struct {
@@ -28,7 +29,7 @@ func NewSenderService(logger log.Logger, jwt *data.JwtProcessor, sms *biz.SmsUse
 	}
 }
 
-func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*v1.EmptyReply, error) {
+func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*utils_v1.EmptyReply, error) {
 	userId, ok := s.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
@@ -41,10 +42,10 @@ func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 		return nil, errors.InternalServer("internal", "Internal error")
 	}
 
-	return &v1.EmptyReply{}, nil
+	return &utils_v1.EmptyReply{}, nil
 }
 
-func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*v1.EmptyReply, error) {
+func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*utils_v1.EmptyReply, error) {
 	userId, ok := s.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
@@ -56,10 +57,10 @@ func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 		return nil, errors.InternalServer("internal", "Internal error")
 	}
 
-	return &v1.EmptyReply{}, nil
+	return &utils_v1.EmptyReply{}, nil
 }
 
-func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalSmsSenderRequest) (*v1.EmptyReply, error) {
+func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalSmsSenderRequest) (*utils_v1.EmptyReply, error) {
 	err := s.sms.SendSms(ctx, &biz.Sms{
 		Phone:   req.Phone,
 		Message: req.Message,
@@ -69,5 +70,5 @@ func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalS
 		return nil, v1.ErrorSmsFailed("Internal error")
 	}
 
-	return &v1.EmptyReply{}, nil
+	return &utils_v1.EmptyReply{}, nil
 }

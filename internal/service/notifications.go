@@ -90,7 +90,7 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 	return &v1.NotificationCountersReply{
 		Counters: &v1.NotificationCounters{
 			TotalUnread: reply.TotalUnread,
-			UnreadCount: reply.Counters,
+			UnreadCount: reply.UnreadCounters,
 		},
 	}, err
 }

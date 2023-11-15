@@ -21,8 +21,8 @@ type NotificationsList struct {
 }
 
 type NotificationsCounters struct {
-	TotalUnread int32
-	Counters    map[string]int32
+	TotalUnread    int32
+	UnreadCounters map[string]int32
 }
 
 // NotificationsUsecase is a Greeter usecase.
@@ -51,14 +51,14 @@ func NewNotificationsUsecase(
 }
 
 func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
-	createdLen, err := uc.notificationsRepo.CreateNotifications(ctx, data)
+	newRecords, err := uc.notificationsRepo.CreateNotifications(ctx, data)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return 0, v1.ErrorDatabaseQuery("can't create notifactions: %v", err)
 		}
 	}
 
-	return createdLen, nil
+	return newRecords, nil
 }
 
 func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64) error {
@@ -118,8 +118,8 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*N
 	}
 
 	return &NotificationsCounters{
-		Counters:    replyCounter,
-		TotalUnread: totalUnread,
+		UnreadCounters: replyCounter,
+		TotalUnread:    totalUnread,
 	}, nil
 }
 

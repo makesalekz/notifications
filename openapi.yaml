@@ -172,7 +172,7 @@ components:
                     type: string
                 toId:
                     type: string
-                ascending:
+                descending:
                     type: boolean
 tags:
     - name: Notifications

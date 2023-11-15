@@ -3,7 +3,7 @@ syntax = "proto3";
 package notifications.v1;
 
 import "google/api/annotations.proto";
-import "notifications/v1/models.proto";
+import "api/notifications/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;

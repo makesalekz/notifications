@@ -106,10 +106,10 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		paginate.Limit = 100
 	}
 
-	if paginate.Ascending {
-		query = query.Order(ent.Asc(notification.FieldID))
-	} else {
+	if paginate.Descending {
 		query = query.Order(ent.Desc(notification.FieldID))
+	} else {
+		query = query.Order(ent.Asc(notification.FieldID))
 	}
 
 	notifications, err := query.Limit(int(paginate.Limit)).All(ctx)
@@ -117,7 +117,7 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 		return nil, err
 	}
 
-	if paginate.Ascending && len(notifications) > 1 {
+	if !paginate.Descending && len(notifications) > 1 {
 		reverse(notifications)
 	}
 
@@ -125,10 +125,9 @@ func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *Filte
 }
 
 func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error) {
-	query := r.db.Notification.Query()
-	if userId > 0 {
-		query.Where(notification.UserID(userId))
-	}
+	query := r.db.Notification.Query().
+		Where(notification.UserID(userId))
+
 	if enum.NotificationType(notificationType).IsValid() {
 		query.Where(notification.Type(enum.NotificationType(notificationType)))
 	}

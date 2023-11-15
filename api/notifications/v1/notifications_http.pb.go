@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-http v2.7.1
 // - protoc             v4.23.4
-// source: notifications/v1/notifications.proto
+// source: api/notifications/v1/notifications.proto
 
 package notifications_v1
 

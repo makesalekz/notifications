@@ -80,13 +80,13 @@ migrations:
 api:
 	go mod vendor;
 #	find vendor/gitlab.calendaria.team -name 'models.proto' -exec sh -c 'f="{}"; d="third_party/$$(dirname "$$f" | awk -F/ "{print \$$(NF-1)\"/\"\$$NF}")"; mkdir -p "$$d"; rsync -a "$$f" "$$d"' \;
-	protoc --proto_path=./api \
-		   --proto_path=./third_party \
- 	       --go_out=paths=source_relative:./api \
- 	       --go-http_out=paths=source_relative:./api \
- 	       --go-grpc_out=paths=source_relative:./api \
-			--go-errors_out=paths=source_relative:./api \
-	       --openapi_out=fq_schema_naming=true,default_response=false:. \
+	protoc --proto_path=. \
+            --proto_path=./third_party \
+			--go_out=paths=source_relative:. \
+			--go-http_out=paths=source_relative:. \
+			--go-grpc_out=paths=source_relative:. \
+			--go-errors_out=paths=source_relative:. \
+			--openapi_out=fq_schema_naming=true,default_response=false:. \
 	       $(API_PROTO_FILES)
 
 .PHONY: build

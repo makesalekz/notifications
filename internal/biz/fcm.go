@@ -23,7 +23,7 @@ type FcmUsecase struct {
 func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
 	uc := &FcmUsecase{}
 
-	if os.Getenv("DEBUG") != "1" {
+	if os.Getenv("DEBUG") == "" {
 		app, err := firebase.NewApp(context.Background(), nil)
 		if err != nil {
 			return nil, err
@@ -114,7 +114,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg Notification) bool {
 
 	message.Tokens = tokens
 
-	if os.Getenv("DEBUG") != "1" {
+	if uc.client != nil {
 		_, err = uc.client.SendEachForMulticast(ctx, message)
 		if err != nil {
 			uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())

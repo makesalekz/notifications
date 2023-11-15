@@ -65,10 +65,10 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 			Type: req.Type,
 		},
 		&v1.PaginateRequest{
-			FromId:    req.GetPaginate().GetFromId(),
-			ToId:      req.GetPaginate().GetToId(),
-			Limit:     req.GetPaginate().GetLimit(),
-			Ascending: req.GetPaginate().GetAscending(),
+			FromId:     req.GetPaginate().GetFromId(),
+			ToId:       req.GetPaginate().GetToId(),
+			Limit:      req.GetPaginate().GetLimit(),
+			Descending: req.GetPaginate().GetDescending(),
 		},
 	)
 	if err != nil {

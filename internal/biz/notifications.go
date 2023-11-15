@@ -127,6 +127,10 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 
 	var notificationType string
 
+	if paginate == nil {
+		paginate = &v1.PaginateRequest{}
+	}
+
 	if enum.NotificationType(filter.Type).IsValid() {
 		notificationType = filter.Type
 	}

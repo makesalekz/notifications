@@ -150,21 +150,14 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 		return nil, v1.ErrorNotificationNotFound("this user has no notifications")
 	}
 
-	paginateReply := &utils_v1.PaginateReply{Total: &total}
-
-	if paginate.FromId == 0 && len(notifications) == int(paginate.Limit) {
-		paginateReply.ToId = &notifications[0].ID
-		if paginate.Descending {
-			paginateReply.ToId = &notifications[len(notifications)-1].ID
-		}
+	// set paginateReply
+	var fromId, toId *int64
+	if len(notifications) > 0 {
+		fromId = &notifications[len(notifications)-1].ID
+		toId = &notifications[0].ID
 	}
 
-	if paginate.ToId == 0 || paginate.FromId != 0 {
-		paginateReply.FromId = &notifications[len(notifications)-1].ID
-		if paginate.Descending {
-			paginateReply.FromId = &notifications[0].ID
-		}
-	}
+	paginateReply := replyPaginate(paginate, len(notifications), total, fromId, toId)
 
 	return &NotificationsList{
 		Notifications: notificationItems,

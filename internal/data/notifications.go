@@ -4,25 +4,38 @@ import (
 	"context"
 
 	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 
 	_ "github.com/lib/pq"
 )
 
 type FilterNotificationsDto struct {
-	UserId    int64
-	FromId    int64
-	ToId      int64
-	Limit     int32
-	Ascending bool
+	UserId int64
+	Type   string
+}
+
+type ReadNotificationDto struct {
+	UserId         int64
+	NotificationId int64
+}
+
+type Counter struct {
+	Type  string `json:"type"`
+	Count int    `json:"count"`
 }
 
 // NotificationsRepo
 type NotificationsRepo interface {
 	CreateNotifications(ctx context.Context, data []*notifications_v1.NotificationDto) (int32, error)
-	ListNotifications(ctx context.Context, filter *FilterNotificationsDto) ([]*ent.Notification, error)
+	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *v1.PaginateRequest) ([]*ent.Notification, error)
+	CountNotifications(ctx context.Context, userId int64) (int32, error)
+	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
+	GetLastReadNotification(ctx context.Context, userId int64) (*ent.LastReadNotification, error)
+	CountUnreadNotifications(ctx context.Context, userId, lastReadId int64) ([]Counter, error)
 }
 
 type notificationsRepo struct {
@@ -58,37 +71,83 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*not
 	return int32(len(notifications)), err
 }
 
-func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *FilterNotificationsDto) ([]*ent.Notification, error) {
+func (r *notificationsRepo) ReadNotification(ctx context.Context, readDto ReadNotificationDto) error {
+	query := r.db.LastReadNotification.Create().
+		SetUserID(readDto.UserId).
+		SetLastReadID(readDto.NotificationId).
+		OnConflictColumns(lastreadnotification.FieldUserID).
+		UpdateNewValues()
+
+	return query.Exec(ctx)
+}
+
+func (r *notificationsRepo) GetLastReadNotification(ctx context.Context, userId int64) (*ent.LastReadNotification, error) {
+	return r.db.LastReadNotification.Query().
+		Where(lastreadnotification.UserID(userId)).
+		First(ctx)
+}
+
+func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *v1.PaginateRequest) ([]*ent.Notification, error) {
 	query := r.db.Notification.Query().Where(notification.UserID(filter.UserId))
 
-	if filter.FromId != 0 {
-		query.Where(notification.IDGT(filter.FromId))
+	if enum.NotificationType(filter.Type).IsValid() {
+		query.Where(notification.Type(enum.NotificationType(filter.Type)))
 	}
 
-	if filter.ToId != 0 {
-		query.Where(notification.IDLT(filter.ToId))
+	if paginate.FromId != 0 {
+		query.Where(notification.IDGT(paginate.FromId))
 	}
 
-	if filter.Limit == 0 {
-		filter.Limit = 100
+	if paginate.ToId != 0 {
+		query.Where(notification.IDLT(paginate.ToId))
 	}
 
-	if filter.Ascending {
+	if paginate.Limit == 0 {
+		paginate.Limit = 100
+	}
+
+	if paginate.Asc {
 		query = query.Order(ent.Asc(notification.FieldID))
 	} else {
 		query = query.Order(ent.Desc(notification.FieldID))
 	}
 
-	notifications, err := query.Limit(int(filter.Limit)).All(ctx)
+	notifications, err := query.Limit(int(paginate.Limit)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if filter.Ascending && len(notifications) > 1 {
+	if paginate.Asc && len(notifications) > 1 {
 		reverse(notifications)
 	}
 
 	return notifications, nil
+}
+
+func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64) (int32, error) {
+	query := r.db.Notification.Query()
+	if userId > 0 {
+		query.Where(notification.UserID(userId))
+	}
+
+	count, err := query.Count(ctx)
+
+	return int32(count), err
+}
+
+func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userId, lastReadId int64) ([]Counter, error) {
+	var counters []Counter
+
+	err := r.db.Notification.Query().
+		Where(
+			notification.IDGT(lastReadId),
+			notification.UserID(userId),
+		).
+		GroupBy(notification.FieldType).
+		Aggregate(ent.Count()).
+		Scan(ctx, &counters)
+
+	return counters, err
 }
 
 func reverse[S ~[]E, E any](s S) {

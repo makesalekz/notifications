@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Notification holds the schema definition for the Notification entity.
@@ -30,4 +31,11 @@ func (Notification) Fields() []ent.Field {
 // Edges of the Notification.
 func (Notification) Edges() []ent.Edge {
 	return nil
+}
+
+// Indexes of the Notification.
+func (Notification) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("user_id", "type"), // for the case of count unread notifications of type
+	}
 }

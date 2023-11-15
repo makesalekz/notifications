@@ -9,5 +9,8 @@ import (
 // Device is the predicate function for device builders.
 type Device func(*sql.Selector)
 
+// LastReadNotification is the predicate function for lastreadnotification builders.
+type LastReadNotification func(*sql.Selector)
+
 // Notification is the predicate function for notification builders.
 type Notification func(*sql.Selector)

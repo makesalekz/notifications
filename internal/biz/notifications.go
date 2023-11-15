@@ -11,10 +11,18 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 )
 
+type NotificationItem struct {
+	*ent.Notification
+}
+
 type NotificationsList struct {
-	Notifications []*ent.Notification
-	NextFromId    *int64
-	NextToId      *int64
+	Notifications []*NotificationItem
+	Paginate      *v1.PaginateReply
+}
+
+type NotificationsCounters struct {
+	TotalUnread int32
+	Counters    map[string]int32
 }
 
 // NotificationsUsecase is a Greeter usecase.
@@ -43,37 +51,126 @@ func NewNotificationsUsecase(
 }
 
 func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
-	return uc.notificationsRepo.CreateNotifications(ctx, data)
+	createdLen, err := uc.notificationsRepo.CreateNotifications(ctx, data)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return 0, v1.ErrorDatabaseQuery("can't create notifactions: %v", err)
+		}
+	}
+
+	return createdLen, nil
 }
 
-func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto) (*NotificationsList, error) {
+func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64) error {
+	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
+	if !ok {
+		return v1.ErrorUnauthorized("Unauthorized")
+	}
+
+	err := uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: Id})
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return v1.ErrorDatabaseQuery("can't read notifaction: %v", err)
+		}
+		return v1.ErrorNotificationNotFound("there is no such notification")
+	}
+
+	return nil
+}
+
+func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*NotificationsCounters, error) {
+	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
+	if !ok {
+		return nil, v1.ErrorUnauthorized("Unauthorized")
+	}
+
+	lastReadNotification, err := uc.notificationsRepo.GetLastReadNotification(ctx, userId)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return nil, v1.ErrorDatabaseQuery("can't get last read notification")
+		}
+
+		err = uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: 0})
+		if err != nil {
+			return nil, v1.ErrorDatabaseQuery("can't read notification: %v", err)
+		}
+
+		lastReadNotification = &ent.LastReadNotification{LastReadID: 0}
+	}
+
+	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userId, lastReadNotification.LastReadID)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return nil, v1.ErrorDatabaseQuery("can't count common type notifications")
+		}
+		return nil, v1.ErrorNotificationNotFound("notifications not found")
+	}
+
+	if len(counters) == 0 {
+		return nil, v1.ErrorNotificationNotFound("notifications not found")
+	}
+
+	replyCounter := make(map[string]int32)
+	var totalUnread int32
+	for _, counter := range counters {
+		replyCounter[counter.Type] = int32(counter.Count)
+		totalUnread += int32(counter.Count)
+	}
+
+	return &NotificationsCounters{
+		Counters:    replyCounter,
+		TotalUnread: totalUnread,
+	}, nil
+}
+
+func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto, paginate *v1.PaginateRequest) (*NotificationsList, error) {
 	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return nil, v1.ErrorUnauthorized("Unauthorized")
 	}
 	filter.UserId = userId
 
-	if filter.FromId != 0 {
-		filter.Ascending = true
+	if paginate.FromId != 0 {
+		paginate.Asc = true
 	}
 
-	notifications, err := uc.notificationsRepo.ListNotifications(ctx, filter)
+	notifications, err := uc.notificationsRepo.ListNotifications(ctx, filter, paginate)
 	if err != nil {
 		return nil, err
 	}
 
-	var nextFromId, nextToId *int64
-	if len(notifications) == int(filter.Limit) {
-		if filter.Ascending {
-			nextFromId = &notifications[0].ID
+	notificationItems := uc.createNotifications(notifications)
+
+	total, err := uc.notificationsRepo.CountNotifications(ctx, userId)
+	if err != nil {
+		if !ent.IsNotFound(err) {
+			return nil, v1.ErrorDatabaseQuery("can't get notification count")
+		}
+		return nil, v1.ErrorNotificationNotFound("this user has no notifications")
+	}
+
+	paginateReply := &v1.PaginateReply{Total: &total}
+
+	if len(notifications) == int(paginate.Limit) {
+		if paginate.Asc {
+			paginateReply.FromId = &notifications[0].ID
 		} else {
-			nextToId = &notifications[len(notifications)-1].ID
+			paginateReply.ToId = &notifications[len(notifications)-1].ID
 		}
 	}
 
 	return &NotificationsList{
-		Notifications: notifications,
-		NextFromId:    nextFromId,
-		NextToId:      nextToId,
+		Notifications: notificationItems,
+		Paginate:      paginateReply,
 	}, nil
+}
+
+func (uc *NotificationsUsecase) createNotifications(notifications []*ent.Notification) []*NotificationItem {
+	notificationsItems := make([]*NotificationItem, len(notifications))
+	for i, notification := range notifications {
+		notificationsItems[i] = &NotificationItem{}
+		notificationsItems[i].Notification = notification
+	}
+
+	return notificationsItems
 }

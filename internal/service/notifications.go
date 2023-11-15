@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 )
@@ -25,7 +24,7 @@ func NewNotificationsService(logger log.Logger, nu *biz.NotificationsUsecase) *N
 	}
 }
 
-func replyNotifications(notifications []*ent.Notification) []*v1.Notification {
+func replyNotifications(notifications []*biz.NotificationItem) []*v1.Notification {
 	reply := make([]*v1.Notification, len(notifications))
 
 	for i, notification := range notifications {
@@ -60,18 +59,47 @@ func (s *NotificationsService) CreateNotifications(ctx context.Context, req *v1.
 }
 
 func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.ListNotificationsRequest) (*v1.ListNotificationsReply, error) {
-	list, err := s.nu.ListNotifications(ctx, &data.FilterNotificationsDto{
-		FromId: req.FromId,
-		ToId:   req.ToId,
-		Limit:  req.Limit,
-	})
+	list, err := s.nu.ListNotifications(
+		ctx,
+		&data.FilterNotificationsDto{
+			Type: req.Type,
+		},
+		&v1.PaginateRequest{
+			FromId: req.GetPaginate().GetFromId(),
+			ToId:   req.GetPaginate().GetToId(),
+			Limit:  req.GetPaginate().GetLimit(),
+			Asc:    req.GetPaginate().GetAsc(),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &v1.ListNotificationsReply{
 		Notifications: replyNotifications(list.Notifications),
-		NextFromId:    list.NextFromId,
-		NextToId:      list.NextToId,
+		Paginate:      list.Paginate,
 	}, nil
+}
+
+func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *v1.EmptyRequest) (*v1.NotificationCountersReply, error) {
+	reply, err := s.nu.GetNotificationCounters(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v1.NotificationCountersReply{
+		Counters: &v1.NotificationCounters{
+			TotalUnread: reply.TotalUnread,
+			UnreadCount: reply.Counters,
+		},
+	}, err
+}
+
+func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*v1.EmptyReply, error) {
+	switch req.Action {
+	case "read":
+		return &v1.EmptyReply{}, s.nu.ReadNotification(ctx, req.NotificationId)
+	}
+
+	return &v1.EmptyReply{}, nil
 }

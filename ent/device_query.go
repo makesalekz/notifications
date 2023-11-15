@@ -21,6 +21,7 @@ type DeviceQuery struct {
 	order      []device.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Device
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -342,6 +343,9 @@ func (dq *DeviceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Devic
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
+	if len(dq.modifiers) > 0 {
+		_spec.Modifiers = dq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -356,6 +360,9 @@ func (dq *DeviceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Devic
 
 func (dq *DeviceQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := dq.querySpec()
+	if len(dq.modifiers) > 0 {
+		_spec.Modifiers = dq.modifiers
+	}
 	_spec.Node.Columns = dq.ctx.Fields
 	if len(dq.ctx.Fields) > 0 {
 		_spec.Unique = dq.ctx.Unique != nil && *dq.ctx.Unique
@@ -418,6 +425,9 @@ func (dq *DeviceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if dq.ctx.Unique != nil && *dq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range dq.modifiers {
+		m(selector)
+	}
 	for _, p := range dq.predicates {
 		p(selector)
 	}
@@ -433,6 +443,12 @@ func (dq *DeviceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (dq *DeviceQuery) Modify(modifiers ...func(s *sql.Selector)) *DeviceSelect {
+	dq.modifiers = append(dq.modifiers, modifiers...)
+	return dq.Select()
 }
 
 // DeviceGroupBy is the group-by builder for Device entities.
@@ -523,4 +539,10 @@ func (ds *DeviceSelect) sqlScan(ctx context.Context, root *DeviceQuery, v any) e
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ds *DeviceSelect) Modify(modifiers ...func(s *sql.Selector)) *DeviceSelect {
+	ds.modifiers = append(ds.modifiers, modifiers...)
+	return ds
 }

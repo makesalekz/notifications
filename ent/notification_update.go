@@ -19,8 +19,9 @@ import (
 // NotificationUpdate is the builder for updating Notification entities.
 type NotificationUpdate struct {
 	config
-	hooks    []Hook
-	mutation *NotificationMutation
+	hooks     []Hook
+	mutation  *NotificationMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the NotificationUpdate builder.
@@ -188,6 +189,12 @@ func (nu *NotificationUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (nu *NotificationUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *NotificationUpdate {
+	nu.modifiers = append(nu.modifiers, modifiers...)
+	return nu
+}
+
 func (nu *NotificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := nu.check(); err != nil {
 		return n, err
@@ -236,6 +243,7 @@ func (nu *NotificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := nu.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
 	}
+	_spec.AddModifiers(nu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, nu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{notification.Label}
@@ -251,9 +259,10 @@ func (nu *NotificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // NotificationUpdateOne is the builder for updating a single Notification entity.
 type NotificationUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *NotificationMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *NotificationMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetUserID sets the "user_id" field.
@@ -428,6 +437,12 @@ func (nuo *NotificationUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (nuo *NotificationUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *NotificationUpdateOne {
+	nuo.modifiers = append(nuo.modifiers, modifiers...)
+	return nuo
+}
+
 func (nuo *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notification, err error) {
 	if err := nuo.check(); err != nil {
 		return _node, err
@@ -493,6 +508,7 @@ func (nuo *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificat
 	if value, ok := nuo.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
 	}
+	_spec.AddModifiers(nuo.modifiers...)
 	_node = &Notification{config: nuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

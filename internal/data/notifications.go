@@ -160,7 +160,7 @@ func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userId
 			},
 			notification.UserID(userId),
 		).
-		GroupBy(notification.FieldUserID, notification.FieldType).
+		GroupBy(notification.FieldType).
 		Aggregate(ent.Count()).
 		Scan(ctx, &counters)
 

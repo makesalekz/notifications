@@ -117,6 +117,8 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg Notification) bool {
 		if err != nil {
 			uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 		}
+	} else {
+		uc.log.Debug("sendMessage (debug): ", message)
 	}
 
 	return err == nil

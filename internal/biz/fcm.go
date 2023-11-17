@@ -21,7 +21,11 @@ type FcmUsecase struct {
 }
 
 func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
-	uc := &FcmUsecase{}
+	uc := &FcmUsecase{
+		log:         log.NewHelper(logger),
+		devicesRepo: devicesRepo,
+		qm:          qm,
+	}
 
 	if os.Getenv("DEBUG") == "" {
 		app, err := firebase.NewApp(context.Background(), nil)
@@ -35,12 +39,6 @@ func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRe
 			return nil, err
 		}
 		uc.client = client
-	}
-
-	uc = &FcmUsecase{
-		log:         log.NewHelper(logger),
-		devicesRepo: devicesRepo,
-		qm:          qm,
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)

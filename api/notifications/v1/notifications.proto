@@ -56,4 +56,5 @@ message NotificationCountersReply {
 message DoActionOnNotificationRequest {
 	int64 notificationId = 1;
 	string action = 2;
+	string type = 3;
 }

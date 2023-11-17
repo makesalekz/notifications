@@ -510,6 +510,7 @@ type LastReadNotificationMutation struct {
 	id              *int64
 	user_id         *int64
 	adduser_id      *int64
+	_type           *enum.NotificationType
 	last_read_id    *int64
 	addlast_read_id *int64
 	clearedFields   map[string]struct{}
@@ -672,6 +673,42 @@ func (m *LastReadNotificationMutation) ResetUserID() {
 	m.adduser_id = nil
 }
 
+// SetType sets the "type" field.
+func (m *LastReadNotificationMutation) SetType(et enum.NotificationType) {
+	m._type = &et
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *LastReadNotificationMutation) GetType() (r enum.NotificationType, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the LastReadNotification entity.
+// If the LastReadNotification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LastReadNotificationMutation) OldType(ctx context.Context) (v enum.NotificationType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *LastReadNotificationMutation) ResetType() {
+	m._type = nil
+}
+
 // SetLastReadID sets the "last_read_id" field.
 func (m *LastReadNotificationMutation) SetLastReadID(i int64) {
 	m.last_read_id = &i
@@ -762,9 +799,12 @@ func (m *LastReadNotificationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LastReadNotificationMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.user_id != nil {
 		fields = append(fields, lastreadnotification.FieldUserID)
+	}
+	if m._type != nil {
+		fields = append(fields, lastreadnotification.FieldType)
 	}
 	if m.last_read_id != nil {
 		fields = append(fields, lastreadnotification.FieldLastReadID)
@@ -779,6 +819,8 @@ func (m *LastReadNotificationMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case lastreadnotification.FieldUserID:
 		return m.UserID()
+	case lastreadnotification.FieldType:
+		return m.GetType()
 	case lastreadnotification.FieldLastReadID:
 		return m.LastReadID()
 	}
@@ -792,6 +834,8 @@ func (m *LastReadNotificationMutation) OldField(ctx context.Context, name string
 	switch name {
 	case lastreadnotification.FieldUserID:
 		return m.OldUserID(ctx)
+	case lastreadnotification.FieldType:
+		return m.OldType(ctx)
 	case lastreadnotification.FieldLastReadID:
 		return m.OldLastReadID(ctx)
 	}
@@ -809,6 +853,13 @@ func (m *LastReadNotificationMutation) SetField(name string, value ent.Value) er
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case lastreadnotification.FieldType:
+		v, ok := value.(enum.NotificationType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
 		return nil
 	case lastreadnotification.FieldLastReadID:
 		v, ok := value.(int64)
@@ -895,6 +946,9 @@ func (m *LastReadNotificationMutation) ResetField(name string) error {
 	switch name {
 	case lastreadnotification.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case lastreadnotification.FieldType:
+		m.ResetType()
 		return nil
 	case lastreadnotification.FieldLastReadID:
 		m.ResetLastReadID()

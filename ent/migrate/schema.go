@@ -24,7 +24,8 @@ var (
 	// LastReadNotificationsColumns holds the columns for the "last_read_notifications" table.
 	LastReadNotificationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
-		{Name: "user_id", Type: field.TypeInt64, Unique: true},
+		{Name: "user_id", Type: field.TypeInt64},
+		{Name: "type", Type: field.TypeString, Default: "COMMON"},
 		{Name: "last_read_id", Type: field.TypeInt64},
 	}
 	// LastReadNotificationsTable holds the schema information for the "last_read_notifications" table.
@@ -32,6 +33,13 @@ var (
 		Name:       "last_read_notifications",
 		Columns:    LastReadNotificationsColumns,
 		PrimaryKey: []*schema.Column{LastReadNotificationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "lastreadnotification_user_id_type",
+				Unique:  true,
+				Columns: []*schema.Column{LastReadNotificationsColumns[1], LastReadNotificationsColumns[2]},
+			},
+		},
 	}
 	// NotificationsColumns holds the columns for the "notifications" table.
 	NotificationsColumns = []*schema.Column{

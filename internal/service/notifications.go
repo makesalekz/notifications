@@ -91,7 +91,7 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*utils_v1.EmptyReply, error) {
 	switch req.Action {
 	case "read":
-		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, req.NotificationId)
+		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, req.NotificationId, req.Type)
 	}
 
 	return &utils_v1.EmptyReply{}, nil

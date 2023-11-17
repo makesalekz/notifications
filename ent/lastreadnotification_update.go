@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
@@ -25,6 +26,20 @@ type LastReadNotificationUpdate struct {
 // Where appends a list predicates to the LastReadNotificationUpdate builder.
 func (lrnu *LastReadNotificationUpdate) Where(ps ...predicate.LastReadNotification) *LastReadNotificationUpdate {
 	lrnu.mutation.Where(ps...)
+	return lrnu
+}
+
+// SetType sets the "type" field.
+func (lrnu *LastReadNotificationUpdate) SetType(et enum.NotificationType) *LastReadNotificationUpdate {
+	lrnu.mutation.SetType(et)
+	return lrnu
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (lrnu *LastReadNotificationUpdate) SetNillableType(et *enum.NotificationType) *LastReadNotificationUpdate {
+	if et != nil {
+		lrnu.SetType(*et)
+	}
 	return lrnu
 }
 
@@ -88,6 +103,9 @@ func (lrnu *LastReadNotificationUpdate) sqlSave(ctx context.Context) (n int, err
 			}
 		}
 	}
+	if value, ok := lrnu.mutation.GetType(); ok {
+		_spec.SetField(lastreadnotification.FieldType, field.TypeString, value)
+	}
 	if value, ok := lrnu.mutation.LastReadID(); ok {
 		_spec.SetField(lastreadnotification.FieldLastReadID, field.TypeInt64, value)
 	}
@@ -114,6 +132,20 @@ type LastReadNotificationUpdateOne struct {
 	hooks     []Hook
 	mutation  *LastReadNotificationMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetType sets the "type" field.
+func (lrnuo *LastReadNotificationUpdateOne) SetType(et enum.NotificationType) *LastReadNotificationUpdateOne {
+	lrnuo.mutation.SetType(et)
+	return lrnuo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (lrnuo *LastReadNotificationUpdateOne) SetNillableType(et *enum.NotificationType) *LastReadNotificationUpdateOne {
+	if et != nil {
+		lrnuo.SetType(*et)
+	}
+	return lrnuo
 }
 
 // SetLastReadID sets the "last_read_id" field.
@@ -205,6 +237,9 @@ func (lrnuo *LastReadNotificationUpdateOne) sqlSave(ctx context.Context) (_node 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := lrnuo.mutation.GetType(); ok {
+		_spec.SetField(lastreadnotification.FieldType, field.TypeString, value)
 	}
 	if value, ok := lrnuo.mutation.LastReadID(); ok {
 		_spec.SetField(lastreadnotification.FieldLastReadID, field.TypeInt64, value)

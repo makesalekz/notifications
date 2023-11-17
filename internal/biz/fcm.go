@@ -21,7 +21,11 @@ type FcmUsecase struct {
 }
 
 func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
-	uc := &FcmUsecase{}
+	uc := &FcmUsecase{
+		log:         log.NewHelper(logger),
+		devicesRepo: devicesRepo,
+		qm:          qm,
+	}
 
 	if os.Getenv("DEBUG") == "" {
 		app, err := firebase.NewApp(context.Background(), nil)
@@ -35,12 +39,8 @@ func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRe
 			return nil, err
 		}
 		uc.client = client
-	}
-
-	uc = &FcmUsecase{
-		log:         log.NewHelper(logger),
-		devicesRepo: devicesRepo,
-		qm:          qm,
+	} else {
+		uc.log.Debug("run in debug mode")
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
@@ -119,6 +119,8 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg Notification) bool {
 		if err != nil {
 			uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 		}
+	} else {
+		uc.log.Debug("sendMessage (debug): ", message)
 	}
 
 	return err == nil

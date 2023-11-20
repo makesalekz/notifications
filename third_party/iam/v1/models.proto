@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package iam.v1;
+
+import "errors/errors.proto";
+
+option go_package = "gitlab.calendaria.team/services/iam/api/iam/v1;iam_v1";
+option java_multiple_files = true;
+option java_package = "iam.v1";
+
+message EmptyRequest {}
+message EmptyReply {}
+
+message User {
+	int64 id = 1;
+	string name = 2;
+	string bio = 3;
+	string timezone = 4;
+	string createdAt = 5;
+	string updatedAt = 6;
+	string lastLoginAt = 7;
+	bool isActive = 8;
+	optional string phone = 9;
+	optional string email = 10;
+	optional string avatar = 11;
+	optional string bioUpdatedAt = 12;
+
+	// field containing tied contact info
+	optional Contact contact = 13;
+	optional Relation relation = 14;
+}
+
+message UserShort {
+	int64 id = 1;
+	string phone = 2;
+	string email = 3;
+	string name = 4;
+	string avatar = 6;
+	string lastLoginAt = 7;
+
+	optional Relation relation = 8;
+}
+
+message Contact {
+	string label = 1;
+}
+
+message Relation {
+	bool isBlocked = 1;
+	bool isMuted = 2;
+}
+
+enum ErrorReason {
+    // Set default error code.
+    option (errors.default_code) = 500;
+  
+    // Set the error code separately for an enumeration.
+    INTERNAL = 0;
+    GRPC_CONNECTION = 1;
+    SERVICE_FAILED = 2;
+    DATABASE_QUERY = 3;
+    
+    UNAUTHORIZED = 10 [(errors.code) = 401];
+    INVALID_PHONE_NUMBER = 11 [(errors.code) = 400];
+    INVALID_TOKEN = 12 [(errors.code) = 401];
+    INVALID_CODE = 13 [(errors.code) = 401];
+  
+    USER_NOT_FOUND = 20 [(errors.code) = 404];
+    INVALID_REQUEST = 21 [(errors.code) = 400];
+	CONTACT_NOT_FOUND = 22 [(errors.code) = 404];
+  }

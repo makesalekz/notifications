@@ -4,6 +4,8 @@ package notifications.v1;
 
 import "google/api/annotations.proto";
 import "api/notifications/v1/models.proto";
+import "contacts/v1/models.proto";
+import "events/v1/models.proto";
 import "utils/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
@@ -46,7 +48,9 @@ message ListNotificationsRequest {
 
 message ListNotificationsReply {
 	repeated Notification notifications = 1;
-	utils.v1.PaginateReply paginate = 2;
+	repeated contacts.v1.Contact contacts = 2;
+	repeated events.v1.Event events = 3;
+	utils.v1.PaginateReply paginate = 4;
 }
 
 message NotificationCountersReply {

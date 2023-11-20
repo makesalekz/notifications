@@ -73,6 +73,8 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 
 	return &v1.ListNotificationsReply{
 		Notifications: replyNotifications(list.Notifications),
+		Events:        list.Events,
+		Contacts:      list.Contacts,
 		Paginate:      list.Paginate,
 	}, nil
 }

@@ -96,6 +96,112 @@ paths:
                                 $ref: '#/components/schemas/utils.v1.EmptyReply'
 components:
     schemas:
+        contacts.v1.Contact:
+            type: object
+            properties:
+                id:
+                    type: string
+                phone:
+                    type: string
+                label:
+                    type: string
+                updatedAt:
+                    type: string
+                email:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/iam.v1.UserShort'
+                createdAt:
+                    type: string
+        events.v1.Event:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                coverUrl:
+                    type: string
+                startDateTime:
+                    type: string
+                endDateTime:
+                    type: string
+                isAllDay:
+                    type: boolean
+                noticeBefore:
+                    type: integer
+                    format: int32
+                chatId:
+                    type: string
+                locationId:
+                    type: string
+                type:
+                    type: string
+                recurrenceRule:
+                    type: string
+                avatars:
+                    type: array
+                    items:
+                        type: string
+                membersCount:
+                    type: integer
+                    format: int32
+                owner:
+                    $ref: '#/components/schemas/iam.v1.UserShort'
+                membership:
+                    $ref: '#/components/schemas/events.v1.Membership'
+                location:
+                    $ref: '#/components/schemas/events.v1.LocationDto'
+            description: reply
+        events.v1.LocationDto:
+            type: object
+            properties:
+                address:
+                    type: string
+                latitude:
+                    type: number
+                    format: float
+                longitude:
+                    type: number
+                    format: float
+        events.v1.Membership:
+            type: object
+            properties:
+                status:
+                    type: string
+                role:
+                    type: string
+                remind:
+                    type: integer
+                    format: int32
+                remindAt:
+                    type: string
+        iam.v1.Relation:
+            type: object
+            properties:
+                isBlocked:
+                    type: boolean
+                isMuted:
+                    type: boolean
+        iam.v1.UserShort:
+            type: object
+            properties:
+                id:
+                    type: string
+                phone:
+                    type: string
+                email:
+                    type: string
+                name:
+                    type: string
+                avatar:
+                    type: string
+                lastLoginAt:
+                    type: string
+                relation:
+                    $ref: '#/components/schemas/iam.v1.Relation'
         notifications.v1.DoActionOnNotificationRequest:
             type: object
             properties:
@@ -115,6 +221,14 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/notifications.v1.Notification'
+                contacts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/contacts.v1.Contact'
+                events:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/events.v1.Event'
                 paginate:
                     $ref: '#/components/schemas/utils.v1.PaginateReply'
         notifications.v1.ListNotificationsRequest:

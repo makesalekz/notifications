@@ -37,8 +37,6 @@ message UserShort {
 	string name = 4;
 	string avatar = 6;
 	string lastLoginAt = 7;
-
-	optional Relation relation = 8;
 }
 
 message Contact {

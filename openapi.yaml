@@ -178,13 +178,6 @@ components:
                     format: int32
                 remindAt:
                     type: string
-        iam.v1.Relation:
-            type: object
-            properties:
-                isBlocked:
-                    type: boolean
-                isMuted:
-                    type: boolean
         iam.v1.UserShort:
             type: object
             properties:
@@ -200,8 +193,6 @@ components:
                     type: string
                 lastLoginAt:
                     type: string
-                relation:
-                    $ref: '#/components/schemas/iam.v1.Relation'
         notifications.v1.DoActionOnNotificationRequest:
             type: object
             properties:

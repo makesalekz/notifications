@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 )
 
@@ -27,6 +28,20 @@ func (lrnc *LastReadNotificationCreate) SetUserID(i int64) *LastReadNotification
 	return lrnc
 }
 
+// SetType sets the "type" field.
+func (lrnc *LastReadNotificationCreate) SetType(et enum.NotificationType) *LastReadNotificationCreate {
+	lrnc.mutation.SetType(et)
+	return lrnc
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (lrnc *LastReadNotificationCreate) SetNillableType(et *enum.NotificationType) *LastReadNotificationCreate {
+	if et != nil {
+		lrnc.SetType(*et)
+	}
+	return lrnc
+}
+
 // SetLastReadID sets the "last_read_id" field.
 func (lrnc *LastReadNotificationCreate) SetLastReadID(i int64) *LastReadNotificationCreate {
 	lrnc.mutation.SetLastReadID(i)
@@ -40,6 +55,7 @@ func (lrnc *LastReadNotificationCreate) Mutation() *LastReadNotificationMutation
 
 // Save creates the LastReadNotification in the database.
 func (lrnc *LastReadNotificationCreate) Save(ctx context.Context) (*LastReadNotification, error) {
+	lrnc.defaults()
 	return withHooks(ctx, lrnc.sqlSave, lrnc.mutation, lrnc.hooks)
 }
 
@@ -65,10 +81,21 @@ func (lrnc *LastReadNotificationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (lrnc *LastReadNotificationCreate) defaults() {
+	if _, ok := lrnc.mutation.GetType(); !ok {
+		v := lastreadnotification.DefaultType
+		lrnc.mutation.SetType(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (lrnc *LastReadNotificationCreate) check() error {
 	if _, ok := lrnc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "LastReadNotification.user_id"`)}
+	}
+	if _, ok := lrnc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "LastReadNotification.type"`)}
 	}
 	if _, ok := lrnc.mutation.LastReadID(); !ok {
 		return &ValidationError{Name: "last_read_id", err: errors.New(`ent: missing required field "LastReadNotification.last_read_id"`)}
@@ -103,6 +130,10 @@ func (lrnc *LastReadNotificationCreate) createSpec() (*LastReadNotification, *sq
 	if value, ok := lrnc.mutation.UserID(); ok {
 		_spec.SetField(lastreadnotification.FieldUserID, field.TypeInt64, value)
 		_node.UserID = value
+	}
+	if value, ok := lrnc.mutation.GetType(); ok {
+		_spec.SetField(lastreadnotification.FieldType, field.TypeString, value)
+		_node.Type = value
 	}
 	if value, ok := lrnc.mutation.LastReadID(); ok {
 		_spec.SetField(lastreadnotification.FieldLastReadID, field.TypeInt64, value)
@@ -159,6 +190,18 @@ type (
 		*sql.UpdateSet
 	}
 )
+
+// SetType sets the "type" field.
+func (u *LastReadNotificationUpsert) SetType(v enum.NotificationType) *LastReadNotificationUpsert {
+	u.Set(lastreadnotification.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *LastReadNotificationUpsert) UpdateType() *LastReadNotificationUpsert {
+	u.SetExcluded(lastreadnotification.FieldType)
+	return u
+}
 
 // SetLastReadID sets the "last_read_id" field.
 func (u *LastReadNotificationUpsert) SetLastReadID(v int64) *LastReadNotificationUpsert {
@@ -221,6 +264,20 @@ func (u *LastReadNotificationUpsertOne) Update(set func(*LastReadNotificationUps
 		set(&LastReadNotificationUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetType sets the "type" field.
+func (u *LastReadNotificationUpsertOne) SetType(v enum.NotificationType) *LastReadNotificationUpsertOne {
+	return u.Update(func(s *LastReadNotificationUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *LastReadNotificationUpsertOne) UpdateType() *LastReadNotificationUpsertOne {
+	return u.Update(func(s *LastReadNotificationUpsert) {
+		s.UpdateType()
+	})
 }
 
 // SetLastReadID sets the "last_read_id" field.
@@ -292,6 +349,7 @@ func (lrncb *LastReadNotificationCreateBulk) Save(ctx context.Context) ([]*LastR
 	for i := range lrncb.builders {
 		func(i int, root context.Context) {
 			builder := lrncb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LastReadNotificationMutation)
 				if !ok {
@@ -448,6 +506,20 @@ func (u *LastReadNotificationUpsertBulk) Update(set func(*LastReadNotificationUp
 		set(&LastReadNotificationUpsert{UpdateSet: update})
 	}))
 	return u
+}
+
+// SetType sets the "type" field.
+func (u *LastReadNotificationUpsertBulk) SetType(v enum.NotificationType) *LastReadNotificationUpsertBulk {
+	return u.Update(func(s *LastReadNotificationUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *LastReadNotificationUpsertBulk) UpdateType() *LastReadNotificationUpsertBulk {
+	return u.Update(func(s *LastReadNotificationUpsert) {
+		s.UpdateType()
+	})
 }
 
 // SetLastReadID sets the "last_read_id" field.

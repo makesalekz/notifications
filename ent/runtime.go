@@ -7,6 +7,7 @@ import (
 
 	"gitlab.calendaria.team/services/notifications/ent/device"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	"gitlab.calendaria.team/services/notifications/ent/schema"
 )
@@ -25,6 +26,12 @@ func init() {
 	deviceDescCreatedAt := deviceFields[2].Descriptor()
 	// device.DefaultCreatedAt holds the default value on creation for the created_at field.
 	device.DefaultCreatedAt = deviceDescCreatedAt.Default.(func() time.Time)
+	lastreadnotificationFields := schema.LastReadNotification{}.Fields()
+	_ = lastreadnotificationFields
+	// lastreadnotificationDescType is the schema descriptor for type field.
+	lastreadnotificationDescType := lastreadnotificationFields[1].Descriptor()
+	// lastreadnotification.DefaultType holds the default value on creation for the type field.
+	lastreadnotification.DefaultType = enum.NotificationType(lastreadnotificationDescType.Default.(string))
 	notificationFields := schema.Notification{}.Fields()
 	_ = notificationFields
 	// notificationDescUserID is the schema descriptor for user_id field.

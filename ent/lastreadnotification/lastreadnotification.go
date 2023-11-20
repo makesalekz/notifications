@@ -4,6 +4,7 @@ package lastreadnotification
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 )
 
 const (
@@ -13,6 +14,8 @@ const (
 	FieldID = "id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// FieldLastReadID holds the string denoting the last_read_id field in the database.
 	FieldLastReadID = "last_read_id"
 	// Table holds the table name of the lastreadnotification in the database.
@@ -23,6 +26,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldUserID,
+	FieldType,
 	FieldLastReadID,
 }
 
@@ -36,6 +40,11 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultType holds the default value on creation for the "type" field.
+	DefaultType enum.NotificationType
+)
+
 // OrderOption defines the ordering options for the LastReadNotification queries.
 type OrderOption func(*sql.Selector)
 
@@ -47,6 +56,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
 // ByLastReadID orders the results by the last_read_id field.

@@ -60,13 +60,13 @@ func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []
 	return newRecords, nil
 }
 
-func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64) error {
+func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64, notificationType string) error {
 	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
 	if !ok {
 		return v1.ErrorUnauthorized("Unauthorized")
 	}
 
-	err := uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: Id})
+	err := uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: Id, Type: notificationType})
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return v1.ErrorDatabaseQuery("can't read notifaction: %v", err)
@@ -83,24 +83,10 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*N
 		return nil, v1.ErrorUnauthorized("Unauthorized")
 	}
 
-	lastReadNotification, err := uc.notificationsRepo.GetLastReadNotification(ctx, userId)
+	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userId)
 	if err != nil {
 		if !ent.IsNotFound(err) {
-			return nil, v1.ErrorDatabaseQuery("can't get last read notification")
-		}
-
-		err = uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: 0})
-		if err != nil {
-			return nil, v1.ErrorDatabaseQuery("can't read notification: %v", err)
-		}
-
-		lastReadNotification = &ent.LastReadNotification{LastReadID: 0}
-	}
-
-	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userId, lastReadNotification.LastReadID)
-	if err != nil {
-		if !ent.IsNotFound(err) {
-			return nil, v1.ErrorDatabaseQuery("can't count common type notifications")
+			return nil, v1.ErrorDatabaseQuery("can't count common type notifications: %v", err)
 		}
 		return nil, v1.ErrorNotificationNotFound("notifications not found")
 	}

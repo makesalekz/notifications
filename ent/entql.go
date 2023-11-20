@@ -44,6 +44,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 		Type: "LastReadNotification",
 		Fields: map[string]*sqlgraph.FieldSpec{
 			lastreadnotification.FieldUserID:     {Type: field.TypeInt64, Column: lastreadnotification.FieldUserID},
+			lastreadnotification.FieldType:       {Type: field.TypeString, Column: lastreadnotification.FieldType},
 			lastreadnotification.FieldLastReadID: {Type: field.TypeInt64, Column: lastreadnotification.FieldLastReadID},
 		},
 	}
@@ -174,6 +175,11 @@ func (f *LastReadNotificationFilter) WhereID(p entql.Int64P) {
 // WhereUserID applies the entql int64 predicate on the user_id field.
 func (f *LastReadNotificationFilter) WhereUserID(p entql.Int64P) {
 	f.Where(p.Field(lastreadnotification.FieldUserID))
+}
+
+// WhereType applies the entql string predicate on the type field.
+func (f *LastReadNotificationFilter) WhereType(p entql.StringP) {
+	f.Where(p.Field(lastreadnotification.FieldType))
 }
 
 // WhereLastReadID applies the entql int64 predicate on the last_read_id field.

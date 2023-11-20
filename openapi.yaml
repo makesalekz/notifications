@@ -209,6 +209,8 @@ components:
                     type: string
                 action:
                     type: string
+                type:
+                    type: string
         notifications.v1.FcmDeviceRequest:
             type: object
             properties:

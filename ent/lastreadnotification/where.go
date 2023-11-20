@@ -4,6 +4,7 @@ package lastreadnotification
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
@@ -57,6 +58,12 @@ func UserID(v int64) predicate.LastReadNotification {
 	return predicate.LastReadNotification(sql.FieldEQ(FieldUserID, v))
 }
 
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldEQ(FieldType, vc))
+}
+
 // LastReadID applies equality check predicate on the "last_read_id" field. It's identical to LastReadIDEQ.
 func LastReadID(v int64) predicate.LastReadNotification {
 	return predicate.LastReadNotification(sql.FieldEQ(FieldLastReadID, v))
@@ -100,6 +107,90 @@ func UserIDLT(v int64) predicate.LastReadNotification {
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v int64) predicate.LastReadNotification {
 	return predicate.LastReadNotification(sql.FieldLTE(FieldUserID, v))
+}
+
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldEQ(FieldType, vc))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldNEQ(FieldType, vc))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...enum.NotificationType) predicate.LastReadNotification {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.LastReadNotification(sql.FieldIn(FieldType, v...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...enum.NotificationType) predicate.LastReadNotification {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.LastReadNotification(sql.FieldNotIn(FieldType, v...))
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldGT(FieldType, vc))
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldGTE(FieldType, vc))
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldLT(FieldType, vc))
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldLTE(FieldType, vc))
+}
+
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldContains(FieldType, vc))
+}
+
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldHasPrefix(FieldType, vc))
+}
+
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldHasSuffix(FieldType, vc))
+}
+
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldEqualFold(FieldType, vc))
+}
+
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v enum.NotificationType) predicate.LastReadNotification {
+	vc := string(v)
+	return predicate.LastReadNotification(sql.FieldContainsFold(FieldType, vc))
 }
 
 // LastReadIDEQ applies the EQ predicate on the "last_read_id" field.

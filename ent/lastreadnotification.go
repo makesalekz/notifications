@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 )
 
@@ -18,6 +19,8 @@ type LastReadNotification struct {
 	ID int64 `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID int64 `json:"user_id,omitempty"`
+	// Type holds the value of the "type" field.
+	Type enum.NotificationType `json:"type,omitempty"`
 	// LastReadID holds the value of the "last_read_id" field.
 	LastReadID   int64 `json:"last_read_id,omitempty"`
 	selectValues sql.SelectValues
@@ -30,6 +33,8 @@ func (*LastReadNotification) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case lastreadnotification.FieldID, lastreadnotification.FieldUserID, lastreadnotification.FieldLastReadID:
 			values[i] = new(sql.NullInt64)
+		case lastreadnotification.FieldType:
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -56,6 +61,12 @@ func (lrn *LastReadNotification) assignValues(columns []string, values []any) er
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
 				lrn.UserID = value.Int64
+			}
+		case lastreadnotification.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				lrn.Type = enum.NotificationType(value.String)
 			}
 		case lastreadnotification.FieldLastReadID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -101,6 +112,9 @@ func (lrn *LastReadNotification) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", lrn.ID))
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", lrn.UserID))
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", lrn.Type))
 	builder.WriteString(", ")
 	builder.WriteString("last_read_id=")
 	builder.WriteString(fmt.Sprintf("%v", lrn.LastReadID))

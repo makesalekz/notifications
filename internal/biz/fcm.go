@@ -39,8 +39,6 @@ func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRe
 			return nil, err
 		}
 		uc.client = client
-	} else {
-		uc.log.Debug("run in debug mode")
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)

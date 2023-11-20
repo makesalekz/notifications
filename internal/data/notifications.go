@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 
+	"entgo.io/ent/dialect/sql"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
@@ -20,12 +21,14 @@ type FilterNotificationsDto struct {
 
 type ReadNotificationDto struct {
 	UserId         int64
+	Type           string
 	NotificationId int64
 }
 
 type Counter struct {
-	Type  string `json:"type"`
-	Count int    `json:"count"`
+	UserId int    `json:"user_id"`
+	Type   string `json:"type"`
+	Count  int    `json:"count"`
 }
 
 // NotificationsRepo
@@ -34,8 +37,7 @@ type NotificationsRepo interface {
 	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error)
 	CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
-	GetLastReadNotification(ctx context.Context, userId int64) (*ent.LastReadNotification, error)
-	CountUnreadNotifications(ctx context.Context, userId, lastReadId int64) ([]Counter, error)
+	CountUnreadNotifications(ctx context.Context, userId int64) ([]Counter, error)
 }
 
 type notificationsRepo struct {
@@ -74,17 +76,16 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*v1.
 func (r *notificationsRepo) ReadNotification(ctx context.Context, readDto ReadNotificationDto) error {
 	query := r.db.LastReadNotification.Create().
 		SetUserID(readDto.UserId).
-		SetLastReadID(readDto.NotificationId).
-		OnConflictColumns(lastreadnotification.FieldUserID).
+		SetLastReadID(readDto.NotificationId)
+
+	if readDto.Type != "" {
+		query.SetType(enum.NotificationType(readDto.Type))
+	}
+
+	query.OnConflictColumns(lastreadnotification.FieldUserID, lastreadnotification.FieldType).
 		UpdateNewValues()
 
 	return query.Exec(ctx)
-}
-
-func (r *notificationsRepo) GetLastReadNotification(ctx context.Context, userId int64) (*ent.LastReadNotification, error) {
-	return r.db.LastReadNotification.Query().
-		Where(lastreadnotification.UserID(userId)).
-		First(ctx)
 }
 
 func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error) {
@@ -139,12 +140,24 @@ func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64
 	return int32(count), err
 }
 
-func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userId, lastReadId int64) ([]Counter, error) {
+func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userId int64) ([]Counter, error) {
 	var counters []Counter
 
 	err := r.db.Notification.Query().
 		Where(
-			notification.IDGT(lastReadId),
+			func(notificationTable *sql.Selector) {
+				lastReadTable := sql.Table(lastreadnotification.Table)
+
+				notificationTable.LeftJoin(lastReadTable).
+					On(notificationTable.C(notification.FieldUserID), lastReadTable.C(lastreadnotification.FieldUserID)).
+					On(notificationTable.C(notification.FieldType), lastReadTable.C(lastreadnotification.FieldType)).
+					Where(
+						sql.Or(
+							sql.ColumnsGT(notificationTable.C(notification.FieldID), lastReadTable.C(lastreadnotification.FieldLastReadID)),
+							sql.IsNull(lastReadTable.C(lastreadnotification.FieldLastReadID)),
+						),
+					)
+			},
 			notification.UserID(userId),
 		).
 		GroupBy(notification.FieldType).

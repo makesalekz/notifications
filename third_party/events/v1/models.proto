@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "iam/v1/models.proto";
+import "media/v1/media.proto";
+import "errors/errors.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_package = "events.v1";
+
+//---------------------------------- Models ----------------------------------
+// request/reply
+message EventRequest {
+  int64 eventId = 1;
+}
+message EventReply {
+  Event event = 1;
+}
+
+// empty
+message EmptyReply {}
+
+// dto
+message EventDto {
+  string title = 2;
+  string description = 3;
+  optional int64 mediaId = 4;
+  string startDateTime = 5;
+  string endDateTime = 6;
+  bool isAllDay = 7;
+  int32 noticeBefore = 8;
+  string type = 9;
+  string recurrenceRule = 10;
+  bool isChatOn = 11;
+
+  optional LocationDto location = 12;
+}
+message LocationDto {
+  optional string address = 1;
+  float latitude = 2;
+  float longitude = 3;
+}
+message LinkDto {
+  string title = 1;
+  string url = 2;
+}
+
+// reply
+message Event {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  optional string coverUrl = 5;
+  string startDateTime = 6;
+  string endDateTime = 7;
+  bool isAllDay = 8;
+  optional int32 noticeBefore = 9;
+  optional int64 chatId = 10;
+  optional int64 locationId = 11;
+  string type = 12;
+  optional string recurrenceRule = 13;
+  repeated string avatars = 14;
+  int32 membersCount = 15;
+
+  iam.v1.UserShort owner = 16;
+  optional Membership membership = 17;
+  optional LocationDto location = 18;
+}
+
+message Attachment {
+  int64 id = 1;
+  string type = 2;
+  int64 eventId = 3;
+
+  media.v1.Media media = 4;
+}
+
+message Link {
+  int64 id = 1;
+  string title = 2;
+  string url = 3;
+  int64 ownerId = 4;
+  int64 eventId = 5;
+}
+
+message Member {
+  int64 id = 1;
+  int64 eventId = 2;
+  int64 userId = 3;
+  string status = 4;
+  string role = 5;
+  int32 remind = 6;
+  optional string remindAt = 7;
+
+  iam.v1.UserShort user = 8;
+}
+message MemberShort {
+  int64 id = 1;
+  string role = 2;
+
+  iam.v1.UserShort user = 3;
+}
+message Membership {
+  string status = 1;
+  string role = 2;
+  optional int32 remind = 3;
+  optional string remindAt = 4;
+}
+message MemberHistory {
+  int64 id = 1;
+  int64 userId = 2;
+  optional string statusFrom = 3;
+  string statusTo = 4;
+  string createdAt = 5;
+}
+
+//---------------------------------- Pagination ----------------------------------
+message PaginateRequest {
+  int32 limit = 1;
+  int64 fromId = 2;
+  int64 toId = 3;
+  int64 aroundId = 4;
+  optional string fromDate = 5;
+  optional string toDate = 6;
+  optional string aroundDate = 7;
+  string fromLabel = 8;
+  bool descending = 9;
+}
+
+message PaginateReply {
+  optional int32 total = 1;
+  optional int64 fromId = 2;
+  optional int64 toId = 3;
+  optional string fromDate = 4;
+  optional string toDate = 5;
+  optional string fromLabel = 6;
+}
+
+//---------------------------------- Errors ----------------------------------
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+
+  // ----------------- Bad Request --------------------
+  INVALID_REQUEST = 10 [(errors.code) = 400];
+  INVALID_DATE_TIME_FORMAT = 11 [(errors.code) = 400];
+  INVALID_DATE_RANGE = 12 [(errors.code) = 400];
+  // ----------------- Unauthorized --------------------
+  UNAUTHORIZED = 13 [(errors.code) = 401];
+  // ----------------- Forbidden --------------------
+  FORBIDDEN = 14 [(errors.code) = 403];
+  INVALID_UPDATE_MEMBER_STATUS = 15 [(errors.code) = 403];
+
+  // ----------------- Not Found --------------------
+  EVENT_NOT_FOUND = 100 [(errors.code) = 404];
+  USER_NOT_FOUND = 101 [(errors.code) = 404];
+  ATTACHMENT_NOT_FOUND = 102 [(errors.code) = 404];
+  LINK_NOT_FOUND = 103 [(errors.code) = 404];
+  MEMBER_NOT_FOUND = 104 [(errors.code) = 404];
+  MEMBER_HISTORY_NOT_FOUND = 105 [(errors.code) = 404];
+}

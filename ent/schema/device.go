@@ -16,8 +16,8 @@ type Device struct {
 func (Device) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("user_id").Positive(),
-		field.String("token").Unique(),
-		field.Time("created_at").Default(time.Now),
+		field.String("token").Immutable().Unique(),
+		field.Time("created_at").Immutable().Default(time.Now),
 	}
 }
 

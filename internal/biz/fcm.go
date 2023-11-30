@@ -60,9 +60,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nats.Msg) bool {
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, userId int64, token string) error {
-	_, err := uc.devicesRepo.CreateDevice(ctx, userId, token)
-
-	return err
+	return uc.devicesRepo.CreateDevice(ctx, userId, token)
 }
 
 func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, userId int64, token string) error {

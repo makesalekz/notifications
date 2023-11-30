@@ -214,30 +214,6 @@ func (u *DeviceUpsert) AddUserID(v int64) *DeviceUpsert {
 	return u
 }
 
-// SetToken sets the "token" field.
-func (u *DeviceUpsert) SetToken(v string) *DeviceUpsert {
-	u.Set(device.FieldToken, v)
-	return u
-}
-
-// UpdateToken sets the "token" field to the value that was provided on create.
-func (u *DeviceUpsert) UpdateToken() *DeviceUpsert {
-	u.SetExcluded(device.FieldToken)
-	return u
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (u *DeviceUpsert) SetCreatedAt(v time.Time) *DeviceUpsert {
-	u.Set(device.FieldCreatedAt, v)
-	return u
-}
-
-// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
-func (u *DeviceUpsert) UpdateCreatedAt() *DeviceUpsert {
-	u.SetExcluded(device.FieldCreatedAt)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -248,6 +224,14 @@ func (u *DeviceUpsert) UpdateCreatedAt() *DeviceUpsert {
 //		Exec(ctx)
 func (u *DeviceUpsertOne) UpdateNewValues() *DeviceUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.Token(); exists {
+			s.SetIgnore(device.FieldToken)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(device.FieldCreatedAt)
+		}
+	}))
 	return u
 }
 
@@ -296,34 +280,6 @@ func (u *DeviceUpsertOne) AddUserID(v int64) *DeviceUpsertOne {
 func (u *DeviceUpsertOne) UpdateUserID() *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateUserID()
-	})
-}
-
-// SetToken sets the "token" field.
-func (u *DeviceUpsertOne) SetToken(v string) *DeviceUpsertOne {
-	return u.Update(func(s *DeviceUpsert) {
-		s.SetToken(v)
-	})
-}
-
-// UpdateToken sets the "token" field to the value that was provided on create.
-func (u *DeviceUpsertOne) UpdateToken() *DeviceUpsertOne {
-	return u.Update(func(s *DeviceUpsert) {
-		s.UpdateToken()
-	})
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (u *DeviceUpsertOne) SetCreatedAt(v time.Time) *DeviceUpsertOne {
-	return u.Update(func(s *DeviceUpsert) {
-		s.SetCreatedAt(v)
-	})
-}
-
-// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
-func (u *DeviceUpsertOne) UpdateCreatedAt() *DeviceUpsertOne {
-	return u.Update(func(s *DeviceUpsert) {
-		s.UpdateCreatedAt()
 	})
 }
 
@@ -497,6 +453,16 @@ type DeviceUpsertBulk struct {
 //		Exec(ctx)
 func (u *DeviceUpsertBulk) UpdateNewValues() *DeviceUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.Token(); exists {
+				s.SetIgnore(device.FieldToken)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(device.FieldCreatedAt)
+			}
+		}
+	}))
 	return u
 }
 
@@ -545,34 +511,6 @@ func (u *DeviceUpsertBulk) AddUserID(v int64) *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) UpdateUserID() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateUserID()
-	})
-}
-
-// SetToken sets the "token" field.
-func (u *DeviceUpsertBulk) SetToken(v string) *DeviceUpsertBulk {
-	return u.Update(func(s *DeviceUpsert) {
-		s.SetToken(v)
-	})
-}
-
-// UpdateToken sets the "token" field to the value that was provided on create.
-func (u *DeviceUpsertBulk) UpdateToken() *DeviceUpsertBulk {
-	return u.Update(func(s *DeviceUpsert) {
-		s.UpdateToken()
-	})
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (u *DeviceUpsertBulk) SetCreatedAt(v time.Time) *DeviceUpsertBulk {
-	return u.Update(func(s *DeviceUpsert) {
-		s.SetCreatedAt(v)
-	})
-}
-
-// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
-func (u *DeviceUpsertBulk) UpdateCreatedAt() *DeviceUpsertBulk {
-	return u.Update(func(s *DeviceUpsert) {
-		s.UpdateCreatedAt()
 	})
 }
 

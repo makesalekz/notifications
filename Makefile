@@ -113,6 +113,12 @@ all:
 	make config;
 	make generate;
 
+.PHONY: doc
+doc:
+	go run -mod=mod entgo.io/ent/cmd/ent describe ./ent/schema > ./doc/schema.md
+	doc/sed.sh doc/schema.md
+	widdershins openapi.yaml -o ./doc/openapi.md --l --code --omitHeader --summary --resolve
+
 # show help
 help:
 	@echo ''

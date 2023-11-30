@@ -10,7 +10,7 @@ import (
 
 // DevicesRepo
 type DevicesRepo interface {
-	CreateDevice(ctx context.Context, userId int64, token string) (*ent.Device, error)
+	CreateDevice(ctx context.Context, userId int64, token string) error
 	DeleteDevice(ctx context.Context, userId int64, token string) (int, error)
 	GetDevicesForUser(ctx context.Context, userId int64) ([]*ent.Device, error)
 	GetDevicesForUsers(ctx context.Context, usersIds []int64) ([]*ent.Device, error)
@@ -27,11 +27,13 @@ func NewDevicesRepo(d *Data, logger log.Logger) DevicesRepo {
 	}
 }
 
-func (r *devicesRepo) CreateDevice(ctx context.Context, userId int64, token string) (*ent.Device, error) {
+func (r *devicesRepo) CreateDevice(ctx context.Context, userId int64, token string) error {
 	return r.db.Device.Create().
 		SetUserID(userId).
 		SetToken(token).
-		Save(ctx)
+		OnConflictColumns(device.FieldToken).
+		UpdateNewValues().
+		Exec(ctx)
 }
 
 func (r *devicesRepo) DeleteDevice(ctx context.Context, userId int64, token string) (int, error) {

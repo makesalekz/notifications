@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-kratos/kratos/v2/log"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
@@ -14,18 +14,16 @@ import (
 type NotificationsService struct {
 	v1.UnimplementedNotificationsServer
 
-	log *log.Helper
-	nu  *biz.NotificationsUsecase
+	nu *biz.NotificationsUsecase
 }
 
-func NewNotificationsService(logger log.Logger, nu *biz.NotificationsUsecase) *NotificationsService {
+func NewNotificationsService(nu *biz.NotificationsUsecase) *NotificationsService {
 	return &NotificationsService{
-		log: log.NewHelper(logger),
-		nu:  nu,
+		nu: nu,
 	}
 }
 
-func replyNotifications(notifications []*biz.NotificationItem) []*v1.Notification {
+func replyNotifications(notifications []*ent.Notification) []*v1.Notification {
 	reply := make([]*v1.Notification, len(notifications))
 
 	for i, notification := range notifications {
@@ -73,8 +71,6 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 
 	return &v1.ListNotificationsReply{
 		Notifications: replyNotifications(list.Notifications),
-		Events:        list.Events,
-		Contacts:      list.Contacts,
 		Paginate:      list.Paginate,
 	}, nil
 }

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 
 	"gitlab.calendaria.team/services/notifications/ent/migrate"
 
@@ -112,11 +113,14 @@ func Open(driverName, dataSourceName string, options ...Option) (*Client, error)
 	}
 }
 
+// ErrTxStarted is returned when trying to start a new transaction from a transactional client.
+var ErrTxStarted = errors.New("ent: cannot start a transaction within a transaction")
+
 // Tx returns a new transactional client. The provided context
 // is used until the transaction is committed or rolled back.
 func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	if _, ok := c.driver.(*txDriver); ok {
-		return nil, errors.New("ent: cannot start a transaction within a transaction")
+		return nil, ErrTxStarted
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
@@ -240,6 +244,21 @@ func (c *DeviceClient) CreateBulk(builders ...*DeviceCreate) *DeviceCreateBulk {
 	return &DeviceCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DeviceClient) MapCreateBulk(slice any, setFunc func(*DeviceCreate, int)) *DeviceCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DeviceCreateBulk{err: fmt.Errorf("calling to DeviceClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DeviceCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DeviceCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for Device.
 func (c *DeviceClient) Update() *DeviceUpdate {
 	mutation := newDeviceMutation(c.config, OpUpdate)
@@ -358,6 +377,21 @@ func (c *LastReadNotificationClient) CreateBulk(builders ...*LastReadNotificatio
 	return &LastReadNotificationCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LastReadNotificationClient) MapCreateBulk(slice any, setFunc func(*LastReadNotificationCreate, int)) *LastReadNotificationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LastReadNotificationCreateBulk{err: fmt.Errorf("calling to LastReadNotificationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LastReadNotificationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LastReadNotificationCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for LastReadNotification.
 func (c *LastReadNotificationClient) Update() *LastReadNotificationUpdate {
 	mutation := newLastReadNotificationMutation(c.config, OpUpdate)
@@ -473,6 +507,21 @@ func (c *NotificationClient) Create() *NotificationCreate {
 
 // CreateBulk returns a builder for creating a bulk of Notification entities.
 func (c *NotificationClient) CreateBulk(builders ...*NotificationCreate) *NotificationCreateBulk {
+	return &NotificationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationClient) MapCreateBulk(slice any, setFunc func(*NotificationCreate, int)) *NotificationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationCreateBulk{err: fmt.Errorf("calling to NotificationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
 	return &NotificationCreateBulk{config: c.config, builders: builders}
 }
 

@@ -7,33 +7,35 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
-	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+	"gitlab.calendaria.team/services/utils/v1/jwt"
 )
 
 type SenderService struct {
 	v1.UnimplementedSenderServer
 
-	log *log.Helper
-	jwt *data.JwtProcessor
-	sms *biz.SmsUsecase
-	fcm *biz.FcmUsecase
+	log  *log.Helper
+	jwtp *jwt.JwtProcessor
+	sms  *biz.SmsUsecase
+	fcm  *biz.FcmUsecase
 }
 
-func NewSenderService(logger log.Logger, jwt *data.JwtProcessor, sms *biz.SmsUsecase, fcm *biz.FcmUsecase) *SenderService {
+func NewSenderService(
+	logger log.Logger,
+	jwtp *jwt.JwtProcessor,
+	sms *biz.SmsUsecase,
+	fcm *biz.FcmUsecase,
+) *SenderService {
 	return &SenderService{
-		log: log.NewHelper(logger),
-		jwt: jwt,
-		sms: sms,
-		fcm: fcm,
+		log:  log.NewHelper(logger),
+		jwtp: jwtp,
+		sms:  sms,
+		fcm:  fcm,
 	}
 }
 
 func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*utils_v1.EmptyReply, error) {
-	userId, ok := s.jwt.GetUserIdFromContext(ctx)
-	if !ok {
-		return nil, v1.ErrorUnauthorized("Unauthorized")
-	}
+	userId := s.jwtp.GetUserIdFromContext(ctx)
 
 	err := s.fcm.RegisterDevice(ctx, userId, req.Token)
 
@@ -46,10 +48,7 @@ func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 }
 
 func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*utils_v1.EmptyReply, error) {
-	userId, ok := s.jwt.GetUserIdFromContext(ctx)
-	if !ok {
-		return nil, v1.ErrorUnauthorized("Unauthorized")
-	}
+	userId := s.jwtp.GetUserIdFromContext(ctx)
 
 	err := s.fcm.UnregisterDevice(ctx, userId, req.Token)
 	if err != nil {

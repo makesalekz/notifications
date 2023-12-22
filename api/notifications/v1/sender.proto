@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package notifications.v1;
 
-import "google/api/annotations.proto";
-import "api/notifications/v1/models.proto";
 import "utils/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
@@ -11,17 +9,8 @@ option java_multiple_files = true;
 option java_package = "notifications.v1";
 
 service Sender {
-	rpc CreateFcmDevice (FcmDeviceRequest) returns (utils.v1.EmptyReply) {
-		option (google.api.http) = {
-			post: "/v1/notifications/fcm/devices"
-			body: "*"
-		};
-	};
-	rpc DeleteFcmDevice (FcmDeviceRequest) returns (utils.v1.EmptyReply) {
-		option (google.api.http) = {
-			delete: "/v1/notifications/fcm/devices"
-		};
-	};
+	rpc CreateFcmDevice (FcmDeviceRequest) returns (utils.v1.EmptyReply);
+	rpc DeleteFcmDevice (FcmDeviceRequest) returns (utils.v1.EmptyReply);
 	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (utils.v1.EmptyReply);
 }
 

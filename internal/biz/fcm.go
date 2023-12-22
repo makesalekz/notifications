@@ -8,19 +8,32 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/nats-io/nats.go"
+	nnats "github.com/nats-io/nats.go"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/utils/v1/nats"
 )
+
+type FirebaseNotification struct {
+	UsersIds []int64
+	Title    string
+	Body     string
+	Image    string
+	Data     map[string]string
+}
 
 // SmsUsecase is a Greeter usecase.
 type FcmUsecase struct {
 	client      *messaging.Client
 	log         *log.Helper
 	devicesRepo data.DevicesRepo
-	qm          *QueueManager
+	qm          *nats.QueueManager
 }
 
-func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRepo, qm *QueueManager) (*FcmUsecase, error) {
+func NewFcmUsecase(
+	logger log.Logger,
+	devicesRepo data.DevicesRepo,
+	qm *nats.QueueManager,
+) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
 		log:         log.NewHelper(logger),
 		devicesRepo: devicesRepo,
@@ -46,8 +59,8 @@ func NewFcmUsecase(c *data.Config, logger log.Logger, devicesRepo data.DevicesRe
 	return uc, nil
 }
 
-func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nats.Msg) bool {
-	notification := Notification{}
+func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool {
+	notification := FirebaseNotification{}
 	err := json.Unmarshal(m.Data, &notification)
 	if err != nil {
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
@@ -69,7 +82,7 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, userId int64, token 
 	return err
 }
 
-func (uc *FcmUsecase) sendMessage(ctx context.Context, msg Notification) bool {
+func (uc *FcmUsecase) sendMessage(ctx context.Context, msg FirebaseNotification) bool {
 	message := &messaging.MulticastMessage{}
 	empty := true
 

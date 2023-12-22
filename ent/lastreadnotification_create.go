@@ -337,12 +337,16 @@ func (u *LastReadNotificationUpsertOne) IDX(ctx context.Context) int64 {
 // LastReadNotificationCreateBulk is the builder for creating many LastReadNotification entities in bulk.
 type LastReadNotificationCreateBulk struct {
 	config
+	err      error
 	builders []*LastReadNotificationCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the LastReadNotification entities in the database.
 func (lrncb *LastReadNotificationCreateBulk) Save(ctx context.Context) ([]*LastReadNotification, error) {
+	if lrncb.err != nil {
+		return nil, lrncb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(lrncb.builders))
 	nodes := make([]*LastReadNotification, len(lrncb.builders))
 	mutators := make([]Mutator, len(lrncb.builders))
@@ -545,6 +549,9 @@ func (u *LastReadNotificationUpsertBulk) UpdateLastReadID() *LastReadNotificatio
 
 // Exec executes the query.
 func (u *LastReadNotificationUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the LastReadNotificationCreateBulk instead", i)

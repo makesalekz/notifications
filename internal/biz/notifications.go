@@ -3,55 +3,34 @@ package biz
 import (
 	"context"
 
-	consul "github.com/go-kratos/consul/registry"
-	"github.com/go-kratos/kratos/v2/log"
-	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
-	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+	"gitlab.calendaria.team/services/utils/v1/jwt"
 )
 
-type NotificationItem struct {
-	*ent.Notification
-}
-
 type NotificationsList struct {
-	Notifications []*NotificationItem
+	Notifications []*ent.Notification
 	Paginate      *utils_v1.PaginateReply
-	Contacts      []*contacts_v1.Contact
-	Events        []*events_v1.Event
 }
 
 type NotificationsCounters map[string]int32
 
 // NotificationsUsecase is a Greeter usecase.
 type NotificationsUsecase struct {
-	conf              *conf.Bootstrap
-	log               *log.Helper
-	discovery         *consul.Registry
-	jwt               *data.JwtProcessor
-	dialer            *data.Dialer
+	jwt               *jwt.JwtProcessor
 	notificationsRepo data.NotificationsRepo
 }
 
 // NewGreeterUsecase new a Greeter usecase.
 func NewNotificationsUsecase(
-	logger log.Logger,
-	c *data.Config,
-	jwt *data.JwtProcessor,
-	dialer *data.Dialer,
+	jwt *jwt.JwtProcessor,
 	notificationsRepo data.NotificationsRepo,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
-		conf:              c.Bootstrap,
-		log:               log.NewHelper(logger),
-		discovery:         c.GetRegistry(),
 		jwt:               jwt,
-		dialer:            dialer,
 		notificationsRepo: notificationsRepo,
 	}, nil
 }
@@ -68,10 +47,7 @@ func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []
 }
 
 func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64, notificationType string) error {
-	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
-	if !ok {
-		return v1.ErrorUnauthorized("Unauthorized")
-	}
+	userId := uc.jwt.GetUserIdFromContext(ctx)
 
 	err := uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: Id, Type: notificationType})
 	if err != nil {
@@ -85,10 +61,7 @@ func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64, 
 }
 
 func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*NotificationsCounters, error) {
-	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
-	if !ok {
-		return nil, v1.ErrorUnauthorized("Unauthorized")
-	}
+	userId := uc.jwt.GetUserIdFromContext(ctx)
 
 	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userId)
 	if err != nil {
@@ -112,12 +85,12 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*N
 	return (*NotificationsCounters)(&replyCounter), nil
 }
 
-func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *data.FilterNotificationsDto, paginate *utils_v1.PaginateRequest) (*NotificationsList, error) {
-	userId, ok := uc.jwt.GetUserIdFromContext(ctx)
-	if !ok {
-		return nil, v1.ErrorUnauthorized("Unauthorized")
-	}
-	filter.UserId = userId
+func (uc *NotificationsUsecase) ListNotifications(
+	ctx context.Context,
+	filter *data.FilterNotificationsDto,
+	paginate *utils_v1.PaginateRequest,
+) (*NotificationsList, error) {
+	filter.UserId = uc.jwt.GetUserIdFromContext(ctx)
 
 	var notificationType string
 
@@ -134,9 +107,7 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 		return nil, err
 	}
 
-	notificationItems := uc.createNotifications(notifications)
-
-	total, err := uc.notificationsRepo.CountNotifications(ctx, userId, notificationType)
+	total, err := uc.notificationsRepo.CountNotifications(ctx, filter.UserId, notificationType)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return nil, v1.ErrorDatabaseQuery("can't get notification count")
@@ -153,92 +124,8 @@ func (uc *NotificationsUsecase) ListNotifications(ctx context.Context, filter *d
 
 	paginateReply := replyPaginate(paginate, len(notifications), total, fromId, toId)
 
-	contacts, err := uc.getContacts(ctx, notificationItems)
-	if err != nil {
-		return nil, err
-	}
-
-	events, err := uc.getEvents(ctx, notificationItems)
-	if err != nil {
-		return nil, err
-	}
-
 	return &NotificationsList{
-		Notifications: notificationItems,
+		Notifications: notifications,
 		Paginate:      paginateReply,
-		Contacts:      contacts,
-		Events:        events,
 	}, nil
-}
-
-func (uc *NotificationsUsecase) getContacts(
-	ctx context.Context,
-	notificationItems []*NotificationItem,
-) ([]*contacts_v1.Contact, error) {
-	contactsIds := make([]int64, 0)
-	for _, notification := range notificationItems {
-		if notification.ContactID == nil {
-			continue
-		}
-		if *notification.ContactID == 0 {
-			continue
-		}
-
-		contactsIds = append(contactsIds, *notification.ContactID)
-	}
-
-	contactClient, err := uc.dialer.Contacts(ctx)
-	if err != nil {
-		return nil, v1.ErrorGrpcConnection("failed to get contact: %v", err)
-	}
-
-	replyContacts, err := contactClient.GetContacts(ctx, &contacts_v1.GetContactsRequest{Ids: contactsIds})
-	if err != nil {
-		if !contacts_v1.IsNotFound(err) {
-			return nil, v1.ErrorGrpcConnection("failed to get contact: %v", err)
-		}
-	}
-
-	return replyContacts.GetContacts(), nil
-}
-
-func (uc *NotificationsUsecase) getEvents(
-	ctx context.Context,
-	notificationItems []*NotificationItem,
-) ([]*events_v1.Event, error) {
-	eventIds := make([]int64, 0)
-	for _, notification := range notificationItems {
-		if notification.EventID == nil {
-			continue
-		}
-		if *notification.EventID == 0 {
-			continue
-		}
-
-		eventIds = append(eventIds, *notification.EventID)
-	}
-
-	eventClient, err := uc.dialer.Events(ctx)
-	if err != nil {
-		return nil, v1.ErrorGrpcConnection("failed to get contact: %v", err)
-	}
-
-	replyEvents, err := eventClient.GetEvents(ctx, &events_v1.GetEventsRequest{EventsIds: eventIds})
-	if err != nil {
-		if !events_v1.IsEventNotFound(err) {
-			return nil, v1.ErrorGrpcConnection("failed to get contact: %v", err)
-		}
-	}
-
-	return replyEvents.GetEvents(), nil
-}
-
-func (uc *NotificationsUsecase) createNotifications(notifications []*ent.Notification) []*NotificationItem {
-	notificationsItems := make([]*NotificationItem, len(notifications))
-	for i, notification := range notifications {
-		notificationsItems[i] = &NotificationItem{}
-		notificationsItems[i].Notification = notification
-	}
-
-	return notificationsItems
 }

@@ -14,6 +14,9 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/internal/server"
 	"gitlab.calendaria.team/services/notifications/internal/service"
+	"gitlab.calendaria.team/services/utils/v1/config"
+	"gitlab.calendaria.team/services/utils/v1/jwt"
+	"gitlab.calendaria.team/services/utils/v1/nats"
 )
 
 import (
@@ -24,15 +27,15 @@ import (
 
 // wireApp init kratos application.
 func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(), error) {
-	config, err := data.NewConfig(bootstrap)
+	configConfig, err := config.NewConfig()
 	if err != nil {
 		return nil, nil, err
 	}
-	jwtProcessor, err := data.NewJwtProcessor(config)
+	jwtProcessor, err := jwt.NewJwtProcessor(configConfig)
 	if err != nil {
 		return nil, nil, err
 	}
-	smsUsecase, err := biz.NewSmsUsecase(config, logger)
+	smsUsecase, err := biz.NewSmsUsecase(configConfig, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -41,36 +44,30 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)
-	natsClient, cleanup2, err := data.NewNatsClient(config)
+	encodedConn, cleanup2, err := data.NewNatsClient(bootstrap)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	queueManager := biz.NewQueueManager(config, natsClient, logger)
-	fcmUsecase, err := biz.NewFcmUsecase(config, logger, devicesRepo, queueManager)
+	queueManager := nats.NewQueueManager(configConfig, encodedConn, logger)
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, queueManager)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	senderService := service.NewSenderService(logger, jwtProcessor, smsUsecase, fcmUsecase)
-	dialer, err := data.NewDialer(config, jwtProcessor)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	notificationsRepo := data.NewNotificationsRepo(dataData)
-	notificationsUsecase, err := biz.NewNotificationsUsecase(logger, config, jwtProcessor, dialer, notificationsRepo)
+	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, notificationsRepo)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	notificationsService := service.NewNotificationsService(logger, notificationsUsecase)
+	notificationsService := service.NewNotificationsService(notificationsUsecase)
 	grpcServer := server.NewGRPCServer(bootstrap, jwtProcessor, senderService, notificationsService)
-	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor, senderService, notificationsService)
-	app := newApp(logger, config, grpcServer, httpServer)
+	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor)
+	app := newApp(logger, configConfig, grpcServer, httpServer)
 	return app, func() {
 		cleanup2()
 		cleanup()

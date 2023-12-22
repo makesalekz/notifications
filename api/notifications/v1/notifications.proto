@@ -2,10 +2,7 @@ syntax = "proto3";
 
 package notifications.v1;
 
-import "google/api/annotations.proto";
 import "api/notifications/v1/models.proto";
-import "contacts/v1/models.proto";
-import "events/v1/models.proto";
 import "utils/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
@@ -14,23 +11,9 @@ option java_package = "notifications.v1";
 
 service Notifications {
 	rpc CreateNotifications (CreateNotificationsRequest) returns (CreateNotificationsReply);
-	rpc ListNotifications (ListNotificationsRequest) returns (ListNotificationsReply) {
-		option (google.api.http) = {
-			post: "/v1/notifications/list"
-			body: "*"
-		};
-	};
-	rpc GetNotificationsCounters(utils.v1.EmptyRequest) returns (NotificationCountersReply){
-		option (google.api.http) = {
-			get: "/v1/notifications/counters"
-		};
-	};
-	rpc DoActionOnNotification(DoActionOnNotificationRequest) returns (utils.v1.EmptyReply){
-		option (google.api.http) = {
-			post: "/v1/notifications/{notificationId}/action"
-			body: "*"
-		};
-	};
+	rpc ListNotifications (ListNotificationsRequest) returns (ListNotificationsReply);
+	rpc GetNotificationsCounters(utils.v1.EmptyRequest) returns (NotificationCountersReply);
+	rpc DoActionOnNotification(DoActionOnNotificationRequest) returns (utils.v1.EmptyReply);
 }
 
 message CreateNotificationsRequest {
@@ -48,9 +31,7 @@ message ListNotificationsRequest {
 
 message ListNotificationsReply {
 	repeated Notification notifications = 1;
-	repeated contacts.v1.Contact contacts = 2;
-	repeated events.v1.Event events = 3;
-	utils.v1.PaginateReply paginate = 4;
+	utils.v1.PaginateReply paginate = 2;
 }
 
 message NotificationCountersReply {

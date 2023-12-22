@@ -88,7 +88,11 @@ func (r *notificationsRepo) ReadNotification(ctx context.Context, readDto ReadNo
 	return query.Exec(ctx)
 }
 
-func (r *notificationsRepo) ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error) {
+func (r *notificationsRepo) ListNotifications(
+	ctx context.Context,
+	filter *FilterNotificationsDto,
+	paginate *utils_v1.PaginateRequest,
+) ([]*ent.Notification, error) {
 	query := r.db.Notification.Query().Where(notification.UserID(filter.UserId))
 
 	if enum.NotificationType(filter.Type).IsValid() {

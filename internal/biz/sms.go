@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/koorgoo/smsc"
-	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/utils/v1/config"
 )
 
 type Sms struct {
@@ -17,11 +17,11 @@ type Sms struct {
 // SmsUsecase is a Greeter usecase.
 type SmsUsecase struct {
 	client *smsc.Client
-	config *data.Config
+	config *config.Config
 	log    *log.Helper
 }
 
-func NewSmsUsecase(c *data.Config, logger log.Logger) (*SmsUsecase, error) {
+func NewSmsUsecase(c *config.Config, logger log.Logger) (*SmsUsecase, error) {
 	return &SmsUsecase{
 		config: c,
 		log:    log.NewHelper(logger),

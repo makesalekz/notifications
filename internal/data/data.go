@@ -9,7 +9,6 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/utils/v1/config"
-	"gitlab.calendaria.team/services/utils/v1/dialer"
 	"gitlab.calendaria.team/services/utils/v1/jwt"
 
 	_ "github.com/lib/pq"
@@ -23,7 +22,6 @@ var ProviderSet = wire.NewSet(
 	NewNatsClient,
 	NewDevicesRepo,
 	NewNotificationsRepo,
-	dialer.NewDialer,
 )
 
 // Data .

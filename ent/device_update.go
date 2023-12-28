@@ -35,6 +35,14 @@ func (du *DeviceUpdate) SetUserID(i int64) *DeviceUpdate {
 	return du
 }
 
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (du *DeviceUpdate) SetNillableUserID(i *int64) *DeviceUpdate {
+	if i != nil {
+		du.SetUserID(*i)
+	}
+	return du
+}
+
 // AddUserID adds i to the "user_id" field.
 func (du *DeviceUpdate) AddUserID(i int64) *DeviceUpdate {
 	du.mutation.AddUserID(i)
@@ -133,6 +141,14 @@ type DeviceUpdateOne struct {
 func (duo *DeviceUpdateOne) SetUserID(i int64) *DeviceUpdateOne {
 	duo.mutation.ResetUserID()
 	duo.mutation.SetUserID(i)
+	return duo
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (duo *DeviceUpdateOne) SetNillableUserID(i *int64) *DeviceUpdateOne {
+	if i != nil {
+		duo.SetUserID(*i)
+	}
 	return duo
 }
 

@@ -37,6 +37,14 @@ func (nu *NotificationUpdate) SetUserID(i int64) *NotificationUpdate {
 	return nu
 }
 
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (nu *NotificationUpdate) SetNillableUserID(i *int64) *NotificationUpdate {
+	if i != nil {
+		nu.SetUserID(*i)
+	}
+	return nu
+}
+
 // AddUserID adds i to the "user_id" field.
 func (nu *NotificationUpdate) AddUserID(i int64) *NotificationUpdate {
 	nu.mutation.AddUserID(i)
@@ -63,9 +71,25 @@ func (nu *NotificationUpdate) SetTitle(s string) *NotificationUpdate {
 	return nu
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (nu *NotificationUpdate) SetNillableTitle(s *string) *NotificationUpdate {
+	if s != nil {
+		nu.SetTitle(*s)
+	}
+	return nu
+}
+
 // SetText sets the "text" field.
 func (nu *NotificationUpdate) SetText(s string) *NotificationUpdate {
 	nu.mutation.SetText(s)
+	return nu
+}
+
+// SetNillableText sets the "text" field if the given value is not nil.
+func (nu *NotificationUpdate) SetNillableText(s *string) *NotificationUpdate {
+	if s != nil {
+		nu.SetText(*s)
+	}
 	return nu
 }
 
@@ -272,6 +296,14 @@ func (nuo *NotificationUpdateOne) SetUserID(i int64) *NotificationUpdateOne {
 	return nuo
 }
 
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (nuo *NotificationUpdateOne) SetNillableUserID(i *int64) *NotificationUpdateOne {
+	if i != nil {
+		nuo.SetUserID(*i)
+	}
+	return nuo
+}
+
 // AddUserID adds i to the "user_id" field.
 func (nuo *NotificationUpdateOne) AddUserID(i int64) *NotificationUpdateOne {
 	nuo.mutation.AddUserID(i)
@@ -298,9 +330,25 @@ func (nuo *NotificationUpdateOne) SetTitle(s string) *NotificationUpdateOne {
 	return nuo
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (nuo *NotificationUpdateOne) SetNillableTitle(s *string) *NotificationUpdateOne {
+	if s != nil {
+		nuo.SetTitle(*s)
+	}
+	return nuo
+}
+
 // SetText sets the "text" field.
 func (nuo *NotificationUpdateOne) SetText(s string) *NotificationUpdateOne {
 	nuo.mutation.SetText(s)
+	return nuo
+}
+
+// SetNillableText sets the "text" field if the given value is not nil.
+func (nuo *NotificationUpdateOne) SetNillableText(s *string) *NotificationUpdateOne {
+	if s != nil {
+		nuo.SetText(*s)
+	}
 	return nuo
 }
 

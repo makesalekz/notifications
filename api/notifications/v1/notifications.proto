@@ -3,43 +3,47 @@ syntax = "proto3";
 package notifications.v1;
 
 import "api/notifications/v1/models.proto";
-import "utils/v1/models.proto";
+import "api/utils/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;
 option java_package = "notifications.v1";
 
 service Notifications {
-	rpc CreateNotifications (CreateNotificationsRequest) returns (CreateNotificationsReply);
-	rpc ListNotifications (ListNotificationsRequest) returns (ListNotificationsReply);
-	rpc GetNotificationsCounters(utils.v1.EmptyRequest) returns (NotificationCountersReply);
-	rpc DoActionOnNotification(DoActionOnNotificationRequest) returns (utils.v1.EmptyReply);
+  rpc CreateNotifications(CreateNotificationsRequest)
+      returns (CreateNotificationsReply);
+  rpc ListNotifications(ListNotificationsRequest)
+      returns (ListNotificationsReply);
+  rpc GetNotificationsCounters(utils.v1.EmptyRequest)
+      returns (NotificationCountersReply);
+  rpc DoActionOnNotification(DoActionOnNotificationRequest)
+      returns (utils.v1.EmptyReply);
 }
 
 message CreateNotificationsRequest {
-	repeated NotificationDto notifications = 1;
+  repeated NotificationDto notifications = 1;
 }
 
 message CreateNotificationsReply {
-	int32 created = 1;
+  int32 created = 1;
 }
 
 message ListNotificationsRequest {
-	string type = 1;
-	utils.v1.PaginateRequest paginate = 2;
+  string type = 1;
+  utils.v1.PaginateRequest paginate = 2;
 }
 
 message ListNotificationsReply {
-	repeated Notification notifications = 1;
-	utils.v1.PaginateReply paginate = 2;
+  repeated Notification notifications = 1;
+  utils.v1.PaginateReply paginate = 2;
 }
 
 message NotificationCountersReply {
-	map<string,int32> unreadCount = 1;
+  map<string, int32> unreadCount = 1;
 }
 
 message DoActionOnNotificationRequest {
-	int64 notificationId = 1;
-	string action = 2;
-	string type = 3;
+  int64 notificationId = 1;
+  string action = 2;
+  string type = 3;
 }

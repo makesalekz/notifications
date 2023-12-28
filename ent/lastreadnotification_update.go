@@ -50,6 +50,14 @@ func (lrnu *LastReadNotificationUpdate) SetLastReadID(i int64) *LastReadNotifica
 	return lrnu
 }
 
+// SetNillableLastReadID sets the "last_read_id" field if the given value is not nil.
+func (lrnu *LastReadNotificationUpdate) SetNillableLastReadID(i *int64) *LastReadNotificationUpdate {
+	if i != nil {
+		lrnu.SetLastReadID(*i)
+	}
+	return lrnu
+}
+
 // AddLastReadID adds i to the "last_read_id" field.
 func (lrnu *LastReadNotificationUpdate) AddLastReadID(i int64) *LastReadNotificationUpdate {
 	lrnu.mutation.AddLastReadID(i)
@@ -152,6 +160,14 @@ func (lrnuo *LastReadNotificationUpdateOne) SetNillableType(et *enum.Notificatio
 func (lrnuo *LastReadNotificationUpdateOne) SetLastReadID(i int64) *LastReadNotificationUpdateOne {
 	lrnuo.mutation.ResetLastReadID()
 	lrnuo.mutation.SetLastReadID(i)
+	return lrnuo
+}
+
+// SetNillableLastReadID sets the "last_read_id" field if the given value is not nil.
+func (lrnuo *LastReadNotificationUpdateOne) SetNillableLastReadID(i *int64) *LastReadNotificationUpdateOne {
+	if i != nil {
+		lrnuo.SetLastReadID(*i)
+	}
 	return lrnuo
 }
 

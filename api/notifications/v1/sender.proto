@@ -2,24 +2,23 @@ syntax = "proto3";
 
 package notifications.v1;
 
-import "utils/v1/models.proto";
+import "api/utils/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;
 option java_package = "notifications.v1";
 
 service Sender {
-	rpc CreateFcmDevice (FcmDeviceRequest) returns (utils.v1.EmptyReply);
-	rpc DeleteFcmDevice (FcmDeviceRequest) returns (utils.v1.EmptyReply);
-	rpc PersonalSmsSender (PersonalSmsSenderRequest) returns (utils.v1.EmptyReply);
+  rpc CreateFcmDevice(FcmDeviceRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteFcmDevice(FcmDeviceRequest) returns (utils.v1.EmptyReply);
+  rpc PersonalSmsSender(PersonalSmsSenderRequest) returns (utils.v1.EmptyReply);
 }
 
-
 message FcmDeviceRequest {
-	string token = 1;
+  string token = 1;
 }
 
 message PersonalSmsSenderRequest {
-	string phone = 1;
-	string message = 2;
+  string phone = 1;
+  string message = 2;
 }

@@ -1,0 +1,96 @@
+image:
+  # image config
+  repository: 
+  tag: 
+  pullPolicy: IfNotPresent
+  imagePullSecrets:
+
+fullnameOverride: notifications
+nameOverride: notifications
+namespaceOverride: stage-backend
+configmap:
+  private:
+    enabled: false
+  data:
+    DEBUG: "1"
+    SERVICE_NAME: "notifications"
+    AUTOMIGRATE: "true"
+    CONSUL_ADDRESS: "http://10.2.5.6:8500"
+    VAULT_ADDRESS: "http://10.2.4.5:8200"
+    VAULT_ROLE_ID: "a4a8e7e8-8cb7-430a-4fde-f826e3ab5c80"
+    VAULT_SECRET_ID: "13ad3e24-0e3d-5a33-e4aa-b6beb659b0ee"
+
+
+server:
+  replicaCount: 1
+  command: ["./notifications", "-conf", "./config.yaml"]
+  podSecurityContext: {}
+  securityContext: {}
+  serviceAccount:
+  
+  # livenessProbe:
+  #   failureThreshold: 2
+  #   initialDelaySeconds: 120
+  #   periodSeconds: 60
+  #   successThreshold: 1
+  #   tcpSocket:
+  #     port: 8000
+  #   timeoutSeconds: 10
+
+  # readinessProbe:
+  #   failureThreshold: 2
+  #   httpGet:
+  #     path: /health-check/
+  #     port: http
+  #     scheme: HTTP
+  #   initialDelaySeconds: 120
+  #   periodSeconds: 10
+  #   successThreshold: 1
+  #   timeoutSeconds: 10
+
+  # startupProbe:
+  #   failureThreshold: 2
+  #   periodSeconds: 10
+  #   successThreshold: 1
+  #   initialDelaySeconds: 120
+  #   tcpSocket:
+  #     port: 8000
+  #   timeoutSeconds: 10
+
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 0.5
+      memory: 0.5Gi
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+    
+  env: { }
+  envSecrets: { }
+  vaultSecret:
+    enabled: false
+    project: stage-calendaria
+
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 512m
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    path: /notifications/?(.*)
+    hosts:
+      - stage.calendaria.net
+    tls:
+    - secretName: calendaria-tls
+      hosts:
+        - stage.calendaria.net
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

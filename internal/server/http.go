@@ -23,7 +23,7 @@ var _metricSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 }, []string{"kind", "operation"})
 
 var _metricRequests = prometheus.NewCounterVec(prometheus.CounterOpts{
-	Namespace: "client",
+	Namespace: "server",
 	Subsystem: "requests",
 	Name:      "code_total",
 	Help:      "The total number of processed requests",

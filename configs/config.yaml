@@ -5,5 +5,5 @@ server:
   grpc:
     addr: 0.0.0.0:9000
     timeout: 30s
-db: host=10.2.8.175 port=5432 user=rbac dbname=rbac password=Zei<die+z3ulee#
+db: host=10.2.8.175 port=5432 user=notifications dbname=notifications password=Zei<die+z3ulee#
 nats: nats://10.2.4.6:4222

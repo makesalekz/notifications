@@ -98,7 +98,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 			}
 
 			if notification.Data["contact"] != "" {
-				err := json.Unmarshal([]byte(notification.Data["event"]), &notificationData)
+				err := json.Unmarshal([]byte(notification.Data["contact"]), &notificationData)
 				if err != nil {
 					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 				}

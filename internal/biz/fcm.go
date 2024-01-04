@@ -3,7 +3,9 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"os"
+	"strconv"
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
@@ -23,21 +25,24 @@ type FirebaseNotification struct {
 
 // SmsUsecase is a Greeter usecase.
 type FcmUsecase struct {
-	client      *messaging.Client
-	log         *log.Helper
-	devicesRepo data.DevicesRepo
-	qm          *nats.QueueManager
+	client            *messaging.Client
+	log               *log.Helper
+	devicesRepo       data.DevicesRepo
+	notificationsRepo data.NotificationsRepo
+	qm                *nats.QueueManager
 }
 
 func NewFcmUsecase(
 	logger log.Logger,
 	devicesRepo data.DevicesRepo,
+	notificationsRepo data.NotificationsRepo,
 	qm *nats.QueueManager,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
-		log:         log.NewHelper(logger),
-		devicesRepo: devicesRepo,
-		qm:          qm,
+		log:               log.NewHelper(logger),
+		devicesRepo:       devicesRepo,
+		notificationsRepo: notificationsRepo,
+		qm:                qm,
 	}
 
 	if os.Getenv("DEBUG") == "" {
@@ -69,7 +74,44 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 
 	uc.log.Debugf("sendNotifications: %v", notification)
 
-	return uc.sendMessage(ctx, notification)
+	ok := uc.sendMessage(ctx, notification)
+	if ok {
+		listDto := make([]*v1.NotificationDto, len(notification.UsersIds))
+		dto := v1.NotificationDto{
+			Title: notification.Title,
+			Text:  notification.Body,
+		}
+
+		for i, userId := range notification.UsersIds {
+			dto.UserId = userId
+			if notification.Data["event_id"] != "" {
+				dto.EventId, err = strconv.ParseInt(notification.Data["event_id"], 10, 64)
+				if err != nil {
+					uc.log.Errorf("sendNotifications: strconv.ParseInt: %s", err.Error())
+				}
+			} else {
+				dto.EventId = 0
+			}
+
+			if notification.Data["contact_id"] != "" {
+				dto.ContactId, err = strconv.ParseInt(notification.Data["contact_id"], 10, 64)
+				if err != nil {
+					uc.log.Errorf("sendNotifications: strconv.ParseInt: %s", err.Error())
+				}
+			} else {
+				dto.ContactId = 0
+			}
+
+			listDto[i] = &dto
+		}
+
+		_, err := uc.notificationsRepo.CreateNotifications(ctx, listDto)
+		if err != nil {
+			uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err.Error())
+		}
+	}
+
+	return ok
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, userId int64, token string) error {

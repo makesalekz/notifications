@@ -3,16 +3,14 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"os"
-	"strconv"
-
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
 	nnats "github.com/nats-io/nats.go"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/utils/v1/nats"
+	"os"
 )
 
 type FirebaseNotification struct {
@@ -77,32 +75,40 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 	ok := uc.sendMessage(ctx, notification)
 	if ok {
 		listDto := make([]*v1.NotificationDto, len(notification.UsersIds))
-		dto := v1.NotificationDto{
-			Title: notification.Title,
-			Text:  notification.Body,
+		type NotificationData struct {
+			Id int64 `json:"id"`
 		}
-
 		for i, userId := range notification.UsersIds {
-			dto.UserId = userId
-			if notification.Data["event_id"] != "" {
-				dto.EventId, err = strconv.ParseInt(notification.Data["event_id"], 10, 64)
+			dto := &v1.NotificationDto{
+				UserId: userId,
+				Title:  notification.Title,
+				Text:   notification.Body,
+			}
+
+			var notificationData NotificationData
+			if notification.Data["event"] != "" {
+				err := json.Unmarshal([]byte(notification.Data["event"]), &notificationData)
 				if err != nil {
-					uc.log.Errorf("sendNotifications: strconv.ParseInt: %s", err.Error())
+					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 				}
+
+				dto.EventId = notificationData.Id
 			} else {
 				dto.EventId = 0
 			}
 
-			if notification.Data["contact_id"] != "" {
-				dto.ContactId, err = strconv.ParseInt(notification.Data["contact_id"], 10, 64)
+			if notification.Data["contact"] != "" {
+				err := json.Unmarshal([]byte(notification.Data["event"]), &notificationData)
 				if err != nil {
-					uc.log.Errorf("sendNotifications: strconv.ParseInt: %s", err.Error())
+					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 				}
+
+				dto.ContactId = notificationData.Id
 			} else {
 				dto.ContactId = 0
 			}
 
-			listDto[i] = &dto
+			listDto[i] = dto
 		}
 
 		_, err := uc.notificationsRepo.CreateNotifications(ctx, listDto)

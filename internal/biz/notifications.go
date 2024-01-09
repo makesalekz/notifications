@@ -89,12 +89,9 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context, use
 
 func (uc *NotificationsUsecase) ListNotifications(
 	ctx context.Context,
-	userId int64,
 	filter *data.FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) (*NotificationsList, error) {
-	filter.UserId = userId
-
 	var notificationType string
 
 	if enum.NotificationType(filter.Type).IsValid() {

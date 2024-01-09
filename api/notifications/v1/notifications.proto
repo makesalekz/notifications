@@ -14,7 +14,7 @@ service Notifications {
       returns (CreateNotificationsReply);
   rpc ListNotifications(ListNotificationsRequest)
       returns (ListNotificationsReply);
-  rpc GetNotificationsCounters(NotificationRequest)
+  rpc GetNotificationsCounters(utils.v1.ActorRequest)
       returns (NotificationCountersReply);
   rpc DoActionOnNotification(DoActionOnNotificationRequest)
       returns (utils.v1.EmptyReply);
@@ -32,10 +32,6 @@ message ListNotificationsRequest {
   int64 actorId = 1;
   string type = 2;
   utils.v1.PaginateRequest paginate = 3;
-}
-
-message NotificationRequest {
-  int64 actorId = 1;
 }
 
 message ListNotificationsReply {

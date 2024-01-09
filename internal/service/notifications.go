@@ -70,9 +70,9 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 
 	list, err := s.nu.ListNotifications(
 		ctx,
-		actorId,
 		&data.FilterNotificationsDto{
-			Type: req.Type,
+			UserId: actorId,
+			Type:   req.Type,
 		},
 		req.Paginate,
 	)
@@ -86,7 +86,7 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 	}, nil
 }
 
-func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *v1.NotificationRequest) (*v1.NotificationCountersReply, error) {
+func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.ActorRequest) (*v1.NotificationCountersReply, error) {
 	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
 	if err != nil {
 		return nil, err

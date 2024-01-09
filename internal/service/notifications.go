@@ -14,12 +14,17 @@ import (
 type NotificationsService struct {
 	v1.UnimplementedNotificationsServer
 
+	sh *ServiceHelper
 	nu *biz.NotificationsUsecase
 }
 
-func NewNotificationsService(nu *biz.NotificationsUsecase) *NotificationsService {
+func NewNotificationsService(
+	nu *biz.NotificationsUsecase,
+	sh *ServiceHelper,
+) *NotificationsService {
 	return &NotificationsService{
 		nu: nu,
+		sh: sh,
 	}
 }
 
@@ -58,8 +63,14 @@ func (s *NotificationsService) CreateNotifications(ctx context.Context, req *v1.
 }
 
 func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.ListNotificationsRequest) (*v1.ListNotificationsReply, error) {
+	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
+	if err != nil {
+		return nil, err
+	}
+
 	list, err := s.nu.ListNotifications(
 		ctx,
+		actorId,
 		&data.FilterNotificationsDto{
 			Type: req.Type,
 		},
@@ -75,8 +86,13 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 	}, nil
 }
 
-func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.EmptyRequest) (*v1.NotificationCountersReply, error) {
-	reply, err := s.nu.GetNotificationCounters(ctx)
+func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *v1.NotificationRequest) (*v1.NotificationCountersReply, error) {
+	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
+	if err != nil {
+		return nil, err
+	}
+
+	reply, err := s.nu.GetNotificationCounters(ctx, actorId)
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +103,14 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 }
 
 func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*utils_v1.EmptyReply, error) {
+	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Action {
 	case "read":
-		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, req.NotificationId, req.Type)
+		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, actorId, req.NotificationId, req.Type)
 	}
 
 	return &utils_v1.EmptyReply{}, nil

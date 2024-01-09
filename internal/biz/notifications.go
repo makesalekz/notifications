@@ -46,10 +46,14 @@ func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []
 	return newRecords, nil
 }
 
-func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64, notificationType string) error {
-	userId := uc.jwt.GetUserIdFromContext(ctx)
-
-	err := uc.notificationsRepo.ReadNotification(ctx, data.ReadNotificationDto{UserId: userId, NotificationId: Id, Type: notificationType})
+func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, userId, notificationId int64, notificationType string) error {
+	err := uc.notificationsRepo.ReadNotification(
+		ctx,
+		data.ReadNotificationDto{
+			UserId:         userId,
+			NotificationId: notificationId,
+			Type:           notificationType,
+		})
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return v1.ErrorDatabaseQuery("can't read notifaction: %v", err)
@@ -60,9 +64,7 @@ func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, Id int64, 
 	return nil
 }
 
-func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*NotificationsCounters, error) {
-	userId := uc.jwt.GetUserIdFromContext(ctx)
-
+func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context, userId int64) (*NotificationsCounters, error) {
 	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userId)
 	if err != nil {
 		if !ent.IsNotFound(err) {
@@ -87,10 +89,11 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context) (*N
 
 func (uc *NotificationsUsecase) ListNotifications(
 	ctx context.Context,
+	userId int64,
 	filter *data.FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) (*NotificationsList, error) {
-	filter.UserId = uc.jwt.GetUserIdFromContext(ctx)
+	filter.UserId = userId
 
 	var notificationType string
 

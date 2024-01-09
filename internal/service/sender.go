@@ -8,36 +8,38 @@ import (
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
-	"gitlab.calendaria.team/services/utils/v1/jwt"
 )
 
 type SenderService struct {
 	v1.UnimplementedSenderServer
 
-	log  *log.Helper
-	jwtp *jwt.JwtProcessor
-	sms  *biz.SmsUsecase
-	fcm  *biz.FcmUsecase
+	log *log.Helper
+	sh  *ServiceHelper
+	sms *biz.SmsUsecase
+	fcm *biz.FcmUsecase
 }
 
 func NewSenderService(
 	logger log.Logger,
-	jwtp *jwt.JwtProcessor,
+	sh *ServiceHelper,
 	sms *biz.SmsUsecase,
 	fcm *biz.FcmUsecase,
 ) *SenderService {
 	return &SenderService{
-		log:  log.NewHelper(logger),
-		jwtp: jwtp,
-		sms:  sms,
-		fcm:  fcm,
+		log: log.NewHelper(logger),
+		sh:  sh,
+		sms: sms,
+		fcm: fcm,
 	}
 }
 
 func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*utils_v1.EmptyReply, error) {
-	userId := s.jwtp.GetUserIdFromContext(ctx)
+	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
+	if err != nil {
+		return nil, err
+	}
 
-	err := s.fcm.RegisterDevice(ctx, userId, req.Token)
+	err = s.fcm.RegisterDevice(ctx, actorId, req.Token)
 
 	if err != nil {
 		s.log.Errorf("fcm.RegisterDevice: %v", err)
@@ -48,9 +50,12 @@ func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 }
 
 func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRequest) (*utils_v1.EmptyReply, error) {
-	userId := s.jwtp.GetUserIdFromContext(ctx)
+	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
+	if err != nil {
+		return nil, err
+	}
 
-	err := s.fcm.UnregisterDevice(ctx, userId, req.Token)
+	err = s.fcm.UnregisterDevice(ctx, actorId, req.Token)
 	if err != nil {
 		s.log.Errorf("fcm.UnregisterDevice: %v", err)
 		return nil, errors.InternalServer("internal", "Internal error")

@@ -3,6 +3,8 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"os"
+
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
@@ -10,7 +12,6 @@ import (
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/utils/v1/nats"
-	"os"
 )
 
 type FirebaseNotification struct {

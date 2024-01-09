@@ -14,6 +14,10 @@ message SortRequest {
 	bool descending = 2; // descending – to sort in reverse order
 }
 
+message ActorRequest{
+	int64 actorId = 1;
+}
+
 message PaginateRequest {
 	int32 limit = 1;
 	int64 fromId = 2; // fromId, toId, aroundId – to paginate by ID

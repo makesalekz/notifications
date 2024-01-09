@@ -9,6 +9,7 @@ import (
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
 	nnats "github.com/nats-io/nats.go"
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/utils/v1/nats"
 )
@@ -23,21 +24,24 @@ type FirebaseNotification struct {
 
 // SmsUsecase is a Greeter usecase.
 type FcmUsecase struct {
-	client      *messaging.Client
-	log         *log.Helper
-	devicesRepo data.DevicesRepo
-	qm          *nats.QueueManager
+	client            *messaging.Client
+	log               *log.Helper
+	devicesRepo       data.DevicesRepo
+	notificationsRepo data.NotificationsRepo
+	qm                *nats.QueueManager
 }
 
 func NewFcmUsecase(
 	logger log.Logger,
 	devicesRepo data.DevicesRepo,
+	notificationsRepo data.NotificationsRepo,
 	qm *nats.QueueManager,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
-		log:         log.NewHelper(logger),
-		devicesRepo: devicesRepo,
-		qm:          qm,
+		log:               log.NewHelper(logger),
+		devicesRepo:       devicesRepo,
+		notificationsRepo: notificationsRepo,
+		qm:                qm,
 	}
 
 	if os.Getenv("DEBUG") == "" {
@@ -69,7 +73,52 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 
 	uc.log.Debugf("sendNotifications: %v", notification)
 
-	return uc.sendMessage(ctx, notification)
+	ok := uc.sendMessage(ctx, notification)
+	if ok {
+		listDto := make([]*v1.NotificationDto, len(notification.UsersIds))
+		type NotificationData struct {
+			Id int64 `json:"id"`
+		}
+		for i, userId := range notification.UsersIds {
+			dto := &v1.NotificationDto{
+				UserId: userId,
+				Title:  notification.Title,
+				Text:   notification.Body,
+			}
+
+			var notificationData NotificationData
+			if notification.Data["event"] != "" {
+				err := json.Unmarshal([]byte(notification.Data["event"]), &notificationData)
+				if err != nil {
+					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+				}
+
+				dto.EventId = notificationData.Id
+			} else {
+				dto.EventId = 0
+			}
+
+			if notification.Data["contact"] != "" {
+				err := json.Unmarshal([]byte(notification.Data["contact"]), &notificationData)
+				if err != nil {
+					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+				}
+
+				dto.ContactId = notificationData.Id
+			} else {
+				dto.ContactId = 0
+			}
+
+			listDto[i] = dto
+		}
+
+		_, err := uc.notificationsRepo.CreateNotifications(ctx, listDto)
+		if err != nil {
+			uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err.Error())
+		}
+	}
+
+	return ok
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, userId int64, token string) error {

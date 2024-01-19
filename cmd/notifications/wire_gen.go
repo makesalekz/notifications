@@ -35,6 +35,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
+	serviceHelper := service.NewServiceHelper(jwtProcessor)
 	smsUsecase, err := biz.NewSmsUsecase(configConfig, logger)
 	if err != nil {
 		return nil, nil, err
@@ -44,27 +45,27 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)
+	notificationsRepo := data.NewNotificationsRepo(dataData)
 	encodedConn, cleanup2, err := data.NewNatsClient(bootstrap)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	queueManager := nats.NewQueueManager(configConfig, encodedConn, logger)
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, queueManager)
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, queueManager)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	senderService := service.NewSenderService(logger, jwtProcessor, smsUsecase, fcmUsecase)
-	notificationsRepo := data.NewNotificationsRepo(dataData)
+	senderService := service.NewSenderService(logger, serviceHelper, smsUsecase, fcmUsecase)
 	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, notificationsRepo)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	notificationsService := service.NewNotificationsService(notificationsUsecase)
+	notificationsService := service.NewNotificationsService(notificationsUsecase, serviceHelper)
 	grpcServer := server.NewGRPCServer(bootstrap, jwtProcessor, senderService, notificationsService)
 	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor)
 	app := newApp(logger, configConfig, grpcServer, httpServer)

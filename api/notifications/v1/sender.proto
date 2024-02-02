@@ -15,7 +15,6 @@ service Sender {
 }
 
 message FcmDeviceRequest {
-  int64 actorId = 1;
   string token = 2;
 }
 

@@ -102,6 +102,11 @@ func (dc *DeviceCreate) check() error {
 	if _, ok := dc.mutation.Token(); !ok {
 		return &ValidationError{Name: "token", err: errors.New(`ent: missing required field "Device.token"`)}
 	}
+	if v, ok := dc.mutation.Token(); ok {
+		if err := device.TokenValidator(v); err != nil {
+			return &ValidationError{Name: "token", err: fmt.Errorf(`ent: validator failed for field "Device.token": %w`, err)}
+		}
+	}
 	if _, ok := dc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Device.created_at"`)}
 	}

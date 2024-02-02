@@ -35,7 +35,6 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	serviceHelper := service.NewServiceHelper(jwtProcessor)
 	smsUsecase, err := biz.NewSmsUsecase(configConfig, logger)
 	if err != nil {
 		return nil, nil, err
@@ -58,14 +57,14 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	senderService := service.NewSenderService(logger, serviceHelper, smsUsecase, fcmUsecase)
+	senderService := service.NewSenderService(smsUsecase, fcmUsecase)
 	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, notificationsRepo)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	notificationsService := service.NewNotificationsService(notificationsUsecase, serviceHelper)
+	notificationsService := service.NewNotificationsService(notificationsUsecase)
 	grpcServer := server.NewGRPCServer(bootstrap, jwtProcessor, senderService, notificationsService)
 	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor)
 	app := newApp(logger, configConfig, grpcServer, httpServer)

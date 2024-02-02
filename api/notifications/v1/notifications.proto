@@ -29,7 +29,6 @@ message CreateNotificationsReply {
 }
 
 message ListNotificationsRequest {
-  int64 actorId = 1;
   string type = 2;
   utils.v1.PaginateRequest paginate = 3;
 }
@@ -44,7 +43,6 @@ message NotificationCountersReply {
 }
 
 message DoActionOnNotificationRequest {
-  int64 actorId = 1;
   int64 notificationId = 2;
   string action = 3;
   string type = 4;

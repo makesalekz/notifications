@@ -17,6 +17,7 @@ enum ErrorReason {
   GRPC_CONNECTION = 1;
   SERVICE_FAILED = 2;
   DATABASE_QUERY = 3;
+  EMPTY_ACTOR_ID = 5;
 
   UNAUTHORIZED = 10 [(errors.code) = 401];
   FCM_FAILED = 11;

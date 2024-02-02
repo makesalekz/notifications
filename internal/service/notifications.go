@@ -9,22 +9,20 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+	"gitlab.calendaria.team/services/utils/v2/auth"
 )
 
 type NotificationsService struct {
 	v1.UnimplementedNotificationsServer
 
-	sh *ServiceHelper
 	nu *biz.NotificationsUsecase
 }
 
 func NewNotificationsService(
 	nu *biz.NotificationsUsecase,
-	sh *ServiceHelper,
 ) *NotificationsService {
 	return &NotificationsService{
 		nu: nu,
-		sh: sh,
 	}
 }
 
@@ -63,9 +61,9 @@ func (s *NotificationsService) CreateNotifications(ctx context.Context, req *v1.
 }
 
 func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.ListNotificationsRequest) (*v1.ListNotificationsReply, error) {
-	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
-	if err != nil {
-		return nil, err
+	actorId := auth.GetActorIdFromContext(ctx)
+	if actorId == 0 {
+		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
 	list, err := s.nu.ListNotifications(
@@ -87,9 +85,9 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 }
 
 func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.ActorRequest) (*v1.NotificationCountersReply, error) {
-	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
-	if err != nil {
-		return nil, err
+	actorId := auth.GetActorIdFromContext(ctx)
+	if actorId == 0 {
+		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
 	reply, err := s.nu.GetNotificationCounters(ctx, actorId)
@@ -103,9 +101,9 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 }
 
 func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*utils_v1.EmptyReply, error) {
-	actorId, err := s.sh.GetActorId(ctx, req.ActorId)
-	if err != nil {
-		return nil, err
+	actorId := auth.GetActorIdFromContext(ctx)
+	if actorId == 0 {
+		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
 	switch req.Action {

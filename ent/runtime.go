@@ -22,6 +22,10 @@ func init() {
 	deviceDescUserID := deviceFields[0].Descriptor()
 	// device.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
 	device.UserIDValidator = deviceDescUserID.Validators[0].(func(int64) error)
+	// deviceDescToken is the schema descriptor for token field.
+	deviceDescToken := deviceFields[1].Descriptor()
+	// device.TokenValidator is a validator for the "token" field. It is called by the builders before save.
+	device.TokenValidator = deviceDescToken.Validators[0].(func(string) error)
 	// deviceDescCreatedAt is the schema descriptor for created_at field.
 	deviceDescCreatedAt := deviceFields[2].Descriptor()
 	// device.DefaultCreatedAt holds the default value on creation for the created_at field.

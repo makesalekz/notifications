@@ -32,7 +32,7 @@ const (
 type NotificationsClient interface {
 	CreateNotifications(ctx context.Context, in *CreateNotificationsRequest, opts ...grpc.CallOption) (*CreateNotificationsReply, error)
 	ListNotifications(ctx context.Context, in *ListNotificationsRequest, opts ...grpc.CallOption) (*ListNotificationsReply, error)
-	GetNotificationsCounters(ctx context.Context, in *v1.ActorRequest, opts ...grpc.CallOption) (*NotificationCountersReply, error)
+	GetNotificationsCounters(ctx context.Context, in *v1.EmptyRequest, opts ...grpc.CallOption) (*NotificationCountersReply, error)
 	DoActionOnNotification(ctx context.Context, in *DoActionOnNotificationRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 }
 
@@ -62,7 +62,7 @@ func (c *notificationsClient) ListNotifications(ctx context.Context, in *ListNot
 	return out, nil
 }
 
-func (c *notificationsClient) GetNotificationsCounters(ctx context.Context, in *v1.ActorRequest, opts ...grpc.CallOption) (*NotificationCountersReply, error) {
+func (c *notificationsClient) GetNotificationsCounters(ctx context.Context, in *v1.EmptyRequest, opts ...grpc.CallOption) (*NotificationCountersReply, error) {
 	out := new(NotificationCountersReply)
 	err := c.cc.Invoke(ctx, Notifications_GetNotificationsCounters_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -86,7 +86,7 @@ func (c *notificationsClient) DoActionOnNotification(ctx context.Context, in *Do
 type NotificationsServer interface {
 	CreateNotifications(context.Context, *CreateNotificationsRequest) (*CreateNotificationsReply, error)
 	ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsReply, error)
-	GetNotificationsCounters(context.Context, *v1.ActorRequest) (*NotificationCountersReply, error)
+	GetNotificationsCounters(context.Context, *v1.EmptyRequest) (*NotificationCountersReply, error)
 	DoActionOnNotification(context.Context, *DoActionOnNotificationRequest) (*v1.EmptyReply, error)
 	mustEmbedUnimplementedNotificationsServer()
 }
@@ -101,7 +101,7 @@ func (UnimplementedNotificationsServer) CreateNotifications(context.Context, *Cr
 func (UnimplementedNotificationsServer) ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNotifications not implemented")
 }
-func (UnimplementedNotificationsServer) GetNotificationsCounters(context.Context, *v1.ActorRequest) (*NotificationCountersReply, error) {
+func (UnimplementedNotificationsServer) GetNotificationsCounters(context.Context, *v1.EmptyRequest) (*NotificationCountersReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNotificationsCounters not implemented")
 }
 func (UnimplementedNotificationsServer) DoActionOnNotification(context.Context, *DoActionOnNotificationRequest) (*v1.EmptyReply, error) {
@@ -157,7 +157,7 @@ func _Notifications_ListNotifications_Handler(srv interface{}, ctx context.Conte
 }
 
 func _Notifications_GetNotificationsCounters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(v1.ActorRequest)
+	in := new(v1.EmptyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func _Notifications_GetNotificationsCounters_Handler(srv interface{}, ctx contex
 		FullMethod: Notifications_GetNotificationsCounters_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationsServer).GetNotificationsCounters(ctx, req.(*v1.ActorRequest))
+		return srv.(NotificationsServer).GetNotificationsCounters(ctx, req.(*v1.EmptyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

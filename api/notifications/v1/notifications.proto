@@ -14,7 +14,7 @@ service Notifications {
       returns (CreateNotificationsReply);
   rpc ListNotifications(ListNotificationsRequest)
       returns (ListNotificationsReply);
-  rpc GetNotificationsCounters(utils.v1.ActorRequest)
+  rpc GetNotificationsCounters(utils.v1.EmptyRequest)
       returns (NotificationCountersReply);
   rpc DoActionOnNotification(DoActionOnNotificationRequest)
       returns (utils.v1.EmptyReply);

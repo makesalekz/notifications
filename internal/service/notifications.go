@@ -84,7 +84,7 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 	}, nil
 }
 
-func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.ActorRequest) (*v1.NotificationCountersReply, error) {
+func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.EmptyRequest) (*v1.NotificationCountersReply, error) {
 	actorId := auth.GetActorIdFromContext(ctx)
 	if actorId == 0 {
 		return nil, v1.ErrorEmptyActorId("empty actor id")

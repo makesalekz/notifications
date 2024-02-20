@@ -41,6 +41,8 @@ server:
   vaultSecret:
     enabled: true
     project: stage-calendaria
+    google: app/notifications/gserviceaccount
+    firebase: app/notifications/firebase
 
   nodeSelector: {}
   tolerations: []

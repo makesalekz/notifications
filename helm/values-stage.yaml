@@ -43,11 +43,11 @@ server:
   fileSecrets:
     enabled: true
     secrets:
-      - name: google
-        key: secret/app/notifications/gserviceaccount
+      google:
+        path: secret/app/notifications/gserviceaccount
         envName: GOOGLE_APPLICATION_CREDENTIALS
-      - name: firebase
-        key: secret/app/notifications/firebase
+      firebase:
+        path: secret/app/notifications/firebase
         envName: FIREBASE_CREDENTIALS
 
   nodeSelector: {}

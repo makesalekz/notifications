@@ -41,8 +41,15 @@ server:
   vaultSecret:
     enabled: true
     project: stage-calendaria
-    google: secret/app/notifications/gserviceaccount
-    firebase: secret/app/notifications/firebase
+
+  fileSecrets:
+    secrets:
+      - name: google
+        key: secret/app/notifications/gserviceaccount
+        env: GOOGLE_APPLICATION_CREDENTIALS
+      - name: firebase
+        key: secret/app/notifications/firebase
+        env: FIREBASE_CREDENTIALS
 
   nodeSelector: {}
   tolerations: []

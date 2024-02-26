@@ -43,6 +43,7 @@ server:
     project: stage-calendaria
 
   fileSecrets:
+    enabled: true
     secrets:
       - name: google
         key: secret/app/notifications/gserviceaccount

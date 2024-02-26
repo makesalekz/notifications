@@ -44,10 +44,10 @@ server:
     enabled: true
     secrets:
       google:
-        path: secret/app/notifications/gserviceaccount/data
+        path: secret/app/notifications/gserviceaccount
         envName: GOOGLE_APPLICATION_CREDENTIALS
       firebase:
-        path: secret/app/notifications/firebase/data
+        path: secret/app/notifications/firebase
         envName: FIREBASE_CONFIG
 
   nodeSelector: {}

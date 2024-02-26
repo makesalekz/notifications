@@ -48,7 +48,7 @@ server:
         envName: GOOGLE_APPLICATION_CREDENTIALS
       firebase:
         path: secret/app/notifications/firebase
-        envName: FIREBASE_CREDENTIALS
+        envName: FIREBASE_CONFIG
 
   nodeSelector: {}
   tolerations: []

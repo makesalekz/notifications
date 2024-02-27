@@ -43,10 +43,10 @@ server:
   fileSecrets:
     enabled: true
     secrets:
-      google:
+      - name: google
         path: files/notifications/gserviceaccount
         envName: GOOGLE_APPLICATION_CREDENTIALS
-      firebase:
+      - name: firebase
         path: files/notifications/firebase
         envName: FIREBASE_CONFIG
 

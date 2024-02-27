@@ -33,7 +33,7 @@ server:
 
   service:
     type: ClusterIP
-    port: 81
+    port: 80
     targetPort: 8000
 
   vaultSecret:

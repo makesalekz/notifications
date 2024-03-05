@@ -24,7 +24,7 @@ var (
 	// Name is the name of the compiled software.
 	Name string = "notifications"
 	// Version is the version of the compiled software.
-	Version string = "1.1.1"
+	Version string = "1.3.0"
 	// flagconf is the config flag.
 	flagconf string
 

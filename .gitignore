@@ -41,3 +41,5 @@ bin/
 .env
 .docker
 configs/config.yaml
+*credentials.json
+*firebase.json

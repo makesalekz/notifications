@@ -11,16 +11,9 @@ import (
 	nnats "github.com/nats-io/nats.go"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/messages"
 	"gitlab.calendaria.team/services/utils/v1/nats"
 )
-
-type FirebaseNotification struct {
-	UsersIds []int64
-	Title    string
-	Body     string
-	Image    string
-	Data     map[string]string
-}
 
 // SmsUsecase is a Greeter usecase.
 type FcmUsecase struct {
@@ -64,7 +57,7 @@ func NewFcmUsecase(
 }
 
 func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool {
-	notification := FirebaseNotification{}
+	notification := messages.FirebaseNotification{}
 	err := json.Unmarshal(m.Data, &notification)
 	if err != nil {
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
@@ -112,9 +105,11 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 			listDto[i] = dto
 		}
 
-		_, err := uc.notificationsRepo.CreateNotifications(ctx, listDto)
-		if err != nil {
-			uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err.Error())
+		if notification.Type.IsValid() && notification.Title != "" {
+			_, err := uc.notificationsRepo.CreateNotifications(ctx, listDto)
+			if err != nil {
+				uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err.Error())
+			}
 		}
 	}
 
@@ -131,7 +126,7 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, userId int64, token 
 	return err
 }
 
-func (uc *FcmUsecase) sendMessage(ctx context.Context, msg FirebaseNotification) bool {
+func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
 	message := &messaging.MulticastMessage{}
 	empty := true
 

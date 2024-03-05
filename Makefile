@@ -1,3 +1,6 @@
+include .env
+export
+
 GOHOSTOS:=$(shell go env GOHOSTOS)
 GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
@@ -32,10 +35,9 @@ init:
 	npm install widdershins -g
 
 .PHONY: run
-# run
-run:
-	set -a && source .env && set +a && \
-	GOFLAGS='-mod=readonly' kratos run
+# run locally
+run:	
+	GOFLAGS='-mod=readonly' kratos run -w ./configs
 
 .PHONY: db
 # db
@@ -105,7 +107,7 @@ build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
 .PHONY: generate
-# generate
+# generate ent & wire
 generate:
 	go mod tidy
 	go get github.com/google/wire/cmd/wire@latest
@@ -117,12 +119,33 @@ all:
 	make api;
 	make config;
 	make generate;
+.PHONY: lint
+# run linter
+lint:
+	golangci-lint run -v
 
-.PHONY: doc
-doc:
-	go run -mod=mod entgo.io/ent/cmd/ent describe ./ent/schema > ./doc/schema.md
-	doc/sed.sh doc/schema.md
-	widdershins openapi.yaml -o ./doc/openapi.md --l --code --omitHeader --summary --resolve
+.PHONY: test
+# run tests
+test:
+	go test -v -count=1 ./...
+
+.PHONY: race
+# run tests with race
+race:
+	go test -v -race -count=10 ./...
+
+.PHONY: cover
+# calculate coverage
+cover:
+	go test -short -count=1 -race -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out
+	rm coverage.out
+
+.PHONY: mock
+# generate mock - (example here)
+mock:
+	mockgen -source internal/data/teams.go -destination internal/data/mock/teams.go -package mock
+
 
 # show help
 help:

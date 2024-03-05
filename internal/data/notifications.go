@@ -61,6 +61,8 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*v1.
 			notificationCreate.SetEventID(dto.EventId).SetType(enum.Event)
 		} else if dto.ContactId != 0 {
 			notificationCreate.SetContactID(dto.ContactId).SetType(enum.Contact)
+		} else if dto.TaskId != 0 {
+			notificationCreate.SetTaskID(dto.TaskId).SetType(enum.Tasks)
 		} else {
 			notificationCreate.SetType(enum.Common)
 		}

@@ -147,6 +147,33 @@ func (nu *NotificationUpdate) ClearContactID() *NotificationUpdate {
 	return nu
 }
 
+// SetTaskID sets the "task_id" field.
+func (nu *NotificationUpdate) SetTaskID(i int64) *NotificationUpdate {
+	nu.mutation.ResetTaskID()
+	nu.mutation.SetTaskID(i)
+	return nu
+}
+
+// SetNillableTaskID sets the "task_id" field if the given value is not nil.
+func (nu *NotificationUpdate) SetNillableTaskID(i *int64) *NotificationUpdate {
+	if i != nil {
+		nu.SetTaskID(*i)
+	}
+	return nu
+}
+
+// AddTaskID adds i to the "task_id" field.
+func (nu *NotificationUpdate) AddTaskID(i int64) *NotificationUpdate {
+	nu.mutation.AddTaskID(i)
+	return nu
+}
+
+// ClearTaskID clears the value of the "task_id" field.
+func (nu *NotificationUpdate) ClearTaskID() *NotificationUpdate {
+	nu.mutation.ClearTaskID()
+	return nu
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (nu *NotificationUpdate) SetCreatedAt(t time.Time) *NotificationUpdate {
 	nu.mutation.SetCreatedAt(t)
@@ -263,6 +290,15 @@ func (nu *NotificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nu.mutation.ContactIDCleared() {
 		_spec.ClearField(notification.FieldContactID, field.TypeInt64)
+	}
+	if value, ok := nu.mutation.TaskID(); ok {
+		_spec.SetField(notification.FieldTaskID, field.TypeInt64, value)
+	}
+	if value, ok := nu.mutation.AddedTaskID(); ok {
+		_spec.AddField(notification.FieldTaskID, field.TypeInt64, value)
+	}
+	if nu.mutation.TaskIDCleared() {
+		_spec.ClearField(notification.FieldTaskID, field.TypeInt64)
 	}
 	if value, ok := nu.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
@@ -403,6 +439,33 @@ func (nuo *NotificationUpdateOne) AddContactID(i int64) *NotificationUpdateOne {
 // ClearContactID clears the value of the "contact_id" field.
 func (nuo *NotificationUpdateOne) ClearContactID() *NotificationUpdateOne {
 	nuo.mutation.ClearContactID()
+	return nuo
+}
+
+// SetTaskID sets the "task_id" field.
+func (nuo *NotificationUpdateOne) SetTaskID(i int64) *NotificationUpdateOne {
+	nuo.mutation.ResetTaskID()
+	nuo.mutation.SetTaskID(i)
+	return nuo
+}
+
+// SetNillableTaskID sets the "task_id" field if the given value is not nil.
+func (nuo *NotificationUpdateOne) SetNillableTaskID(i *int64) *NotificationUpdateOne {
+	if i != nil {
+		nuo.SetTaskID(*i)
+	}
+	return nuo
+}
+
+// AddTaskID adds i to the "task_id" field.
+func (nuo *NotificationUpdateOne) AddTaskID(i int64) *NotificationUpdateOne {
+	nuo.mutation.AddTaskID(i)
+	return nuo
+}
+
+// ClearTaskID clears the value of the "task_id" field.
+func (nuo *NotificationUpdateOne) ClearTaskID() *NotificationUpdateOne {
+	nuo.mutation.ClearTaskID()
 	return nuo
 }
 
@@ -552,6 +615,15 @@ func (nuo *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificat
 	}
 	if nuo.mutation.ContactIDCleared() {
 		_spec.ClearField(notification.FieldContactID, field.TypeInt64)
+	}
+	if value, ok := nuo.mutation.TaskID(); ok {
+		_spec.SetField(notification.FieldTaskID, field.TypeInt64, value)
+	}
+	if value, ok := nuo.mutation.AddedTaskID(); ok {
+		_spec.AddField(notification.FieldTaskID, field.TypeInt64, value)
+	}
+	if nuo.mutation.TaskIDCleared() {
+		_spec.ClearField(notification.FieldTaskID, field.TypeInt64)
 	}
 	if value, ok := nuo.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)

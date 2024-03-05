@@ -1020,6 +1020,8 @@ type NotificationMutation struct {
 	addevent_id   *int64
 	contact_id    *int64
 	addcontact_id *int64
+	task_id       *int64
+	addtask_id    *int64
 	created_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
@@ -1429,6 +1431,76 @@ func (m *NotificationMutation) ResetContactID() {
 	delete(m.clearedFields, notification.FieldContactID)
 }
 
+// SetTaskID sets the "task_id" field.
+func (m *NotificationMutation) SetTaskID(i int64) {
+	m.task_id = &i
+	m.addtask_id = nil
+}
+
+// TaskID returns the value of the "task_id" field in the mutation.
+func (m *NotificationMutation) TaskID() (r int64, exists bool) {
+	v := m.task_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaskID returns the old "task_id" field's value of the Notification entity.
+// If the Notification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *NotificationMutation) OldTaskID(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaskID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaskID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaskID: %w", err)
+	}
+	return oldValue.TaskID, nil
+}
+
+// AddTaskID adds i to the "task_id" field.
+func (m *NotificationMutation) AddTaskID(i int64) {
+	if m.addtask_id != nil {
+		*m.addtask_id += i
+	} else {
+		m.addtask_id = &i
+	}
+}
+
+// AddedTaskID returns the value that was added to the "task_id" field in this mutation.
+func (m *NotificationMutation) AddedTaskID() (r int64, exists bool) {
+	v := m.addtask_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTaskID clears the value of the "task_id" field.
+func (m *NotificationMutation) ClearTaskID() {
+	m.task_id = nil
+	m.addtask_id = nil
+	m.clearedFields[notification.FieldTaskID] = struct{}{}
+}
+
+// TaskIDCleared returns if the "task_id" field was cleared in this mutation.
+func (m *NotificationMutation) TaskIDCleared() bool {
+	_, ok := m.clearedFields[notification.FieldTaskID]
+	return ok
+}
+
+// ResetTaskID resets all changes to the "task_id" field.
+func (m *NotificationMutation) ResetTaskID() {
+	m.task_id = nil
+	m.addtask_id = nil
+	delete(m.clearedFields, notification.FieldTaskID)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *NotificationMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -1499,7 +1571,7 @@ func (m *NotificationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *NotificationMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.user_id != nil {
 		fields = append(fields, notification.FieldUserID)
 	}
@@ -1517,6 +1589,9 @@ func (m *NotificationMutation) Fields() []string {
 	}
 	if m.contact_id != nil {
 		fields = append(fields, notification.FieldContactID)
+	}
+	if m.task_id != nil {
+		fields = append(fields, notification.FieldTaskID)
 	}
 	if m.created_at != nil {
 		fields = append(fields, notification.FieldCreatedAt)
@@ -1541,6 +1616,8 @@ func (m *NotificationMutation) Field(name string) (ent.Value, bool) {
 		return m.EventID()
 	case notification.FieldContactID:
 		return m.ContactID()
+	case notification.FieldTaskID:
+		return m.TaskID()
 	case notification.FieldCreatedAt:
 		return m.CreatedAt()
 	}
@@ -1564,6 +1641,8 @@ func (m *NotificationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldEventID(ctx)
 	case notification.FieldContactID:
 		return m.OldContactID(ctx)
+	case notification.FieldTaskID:
+		return m.OldTaskID(ctx)
 	case notification.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	}
@@ -1617,6 +1696,13 @@ func (m *NotificationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContactID(v)
 		return nil
+	case notification.FieldTaskID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaskID(v)
+		return nil
 	case notification.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -1641,6 +1727,9 @@ func (m *NotificationMutation) AddedFields() []string {
 	if m.addcontact_id != nil {
 		fields = append(fields, notification.FieldContactID)
 	}
+	if m.addtask_id != nil {
+		fields = append(fields, notification.FieldTaskID)
+	}
 	return fields
 }
 
@@ -1655,6 +1744,8 @@ func (m *NotificationMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedEventID()
 	case notification.FieldContactID:
 		return m.AddedContactID()
+	case notification.FieldTaskID:
+		return m.AddedTaskID()
 	}
 	return nil, false
 }
@@ -1685,6 +1776,13 @@ func (m *NotificationMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddContactID(v)
 		return nil
+	case notification.FieldTaskID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTaskID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Notification numeric field %s", name)
 }
@@ -1698,6 +1796,9 @@ func (m *NotificationMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(notification.FieldContactID) {
 		fields = append(fields, notification.FieldContactID)
+	}
+	if m.FieldCleared(notification.FieldTaskID) {
+		fields = append(fields, notification.FieldTaskID)
 	}
 	return fields
 }
@@ -1718,6 +1819,9 @@ func (m *NotificationMutation) ClearField(name string) error {
 		return nil
 	case notification.FieldContactID:
 		m.ClearContactID()
+		return nil
+	case notification.FieldTaskID:
+		m.ClearTaskID()
 		return nil
 	}
 	return fmt.Errorf("unknown Notification nullable field %s", name)
@@ -1744,6 +1848,9 @@ func (m *NotificationMutation) ResetField(name string) error {
 		return nil
 	case notification.FieldContactID:
 		m.ResetContactID()
+		return nil
+	case notification.FieldTaskID:
+		m.ResetTaskID()
 		return nil
 	case notification.FieldCreatedAt:
 		m.ResetCreatedAt()

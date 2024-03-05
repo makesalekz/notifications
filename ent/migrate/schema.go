@@ -50,6 +50,7 @@ var (
 		{Name: "text", Type: field.TypeString},
 		{Name: "event_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "contact_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "task_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// NotificationsTable holds the schema information for the "notifications" table.

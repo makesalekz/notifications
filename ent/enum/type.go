@@ -6,10 +6,11 @@ const (
 	Common  NotificationType = "COMMON"
 	Event   NotificationType = "EVENT"
 	Contact NotificationType = "CONTACT"
+	Tasks   NotificationType = "TASKS"
 )
 
 func notificationTypeValues() []NotificationType {
-	return []NotificationType{Common, Event, Contact}
+	return []NotificationType{Common, Event, Contact, Tasks}
 }
 
 func (NotificationType) Values() (kinds []string) {

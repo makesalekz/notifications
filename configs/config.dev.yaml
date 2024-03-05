@@ -5,4 +5,4 @@ server:
   grpc:
     addr: 0.0.0.0:9000
     timeout: 30s
-nats: nats://10.2.4.6:4222
+nats: nats://nats:4222

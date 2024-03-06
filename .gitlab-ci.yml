@@ -10,10 +10,39 @@ build dev:
   extends: .build-dev
 
 deploy dev:
-  extends: .deploy-dev
+  tags:
+    - dev-go
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
   variables:
+    SERVICE_NAME: ${CI_PROJECT_NAME}
+    DB_NAME: api
+    DB_USER: me
+    DB_PASS: password
     DB_PORT: 54403
-  
+    DB_VOLUME: dbvol
+    NETWORK: stage
+  script:
+    # set environment
+    - docker exec vault vault write auth/approle/role/app-${SERVICE_NAME} policies="app_${SERVICE_NAME}"
+    - export GOOGLE_APPLICATION_CREDENTIALS_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/gserviceaccount)
+    - export FIREBASE_CONFIG_FILE=$(docker exec vault vault kv get -mount=secret -field=data app/notifications/firebase)
+    - export CONSUL_ADDRESS=http://consul:8500
+    - export VAULT_ADDRESS=http://vault:8200
+    - export VAULT_ROLE_ID=$(docker exec vault vault read -field=role_id auth/approle/role/app-${SERVICE_NAME}/role-id)
+    - export VAULT_SECRET_ID=$(docker exec vault vault write -field=secret_id -f auth/approle/role/app-${SERVICE_NAME}/secret-id)
+    - docker compose down
+    # database up
+    - docker volume create ${SERVICE_NAME}_db || true
+    - docker compose up -d db
+    # migrations up
+    - docker pull arigaio/atlas
+    - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${NETWORK} arigaio/atlas migrate apply --url "postgres://me:password@${SERVICE_NAME}_db:5432/api?search_path=public&sslmode=disable"
+    # service up
+    - docker compose up -d service
+    - echo ${SERVICE_NAME} deployed successfully on dev
+
 build:
   extends: .build
 

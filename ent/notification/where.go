@@ -86,6 +86,11 @@ func ContactID(v int64) predicate.Notification {
 	return predicate.Notification(sql.FieldEQ(FieldContactID, v))
 }
 
+// TaskID applies equality check predicate on the "task_id" field. It's identical to TaskIDEQ.
+func TaskID(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldTaskID, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Notification {
 	return predicate.Notification(sql.FieldEQ(FieldCreatedAt, v))
@@ -443,6 +448,56 @@ func ContactIDIsNil() predicate.Notification {
 // ContactIDNotNil applies the NotNil predicate on the "contact_id" field.
 func ContactIDNotNil() predicate.Notification {
 	return predicate.Notification(sql.FieldNotNull(FieldContactID))
+}
+
+// TaskIDEQ applies the EQ predicate on the "task_id" field.
+func TaskIDEQ(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldTaskID, v))
+}
+
+// TaskIDNEQ applies the NEQ predicate on the "task_id" field.
+func TaskIDNEQ(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldNEQ(FieldTaskID, v))
+}
+
+// TaskIDIn applies the In predicate on the "task_id" field.
+func TaskIDIn(vs ...int64) predicate.Notification {
+	return predicate.Notification(sql.FieldIn(FieldTaskID, vs...))
+}
+
+// TaskIDNotIn applies the NotIn predicate on the "task_id" field.
+func TaskIDNotIn(vs ...int64) predicate.Notification {
+	return predicate.Notification(sql.FieldNotIn(FieldTaskID, vs...))
+}
+
+// TaskIDGT applies the GT predicate on the "task_id" field.
+func TaskIDGT(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldGT(FieldTaskID, v))
+}
+
+// TaskIDGTE applies the GTE predicate on the "task_id" field.
+func TaskIDGTE(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldGTE(FieldTaskID, v))
+}
+
+// TaskIDLT applies the LT predicate on the "task_id" field.
+func TaskIDLT(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldLT(FieldTaskID, v))
+}
+
+// TaskIDLTE applies the LTE predicate on the "task_id" field.
+func TaskIDLTE(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldLTE(FieldTaskID, v))
+}
+
+// TaskIDIsNil applies the IsNil predicate on the "task_id" field.
+func TaskIDIsNil() predicate.Notification {
+	return predicate.Notification(sql.FieldIsNull(FieldTaskID))
+}
+
+// TaskIDNotNil applies the NotNil predicate on the "task_id" field.
+func TaskIDNotNil() predicate.Notification {
+	return predicate.Notification(sql.FieldNotNull(FieldTaskID))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

@@ -55,7 +55,7 @@ func init() {
 	// notification.TextValidator is a validator for the "text" field. It is called by the builders before save.
 	notification.TextValidator = notificationDescText.Validators[0].(func(string) error)
 	// notificationDescCreatedAt is the schema descriptor for created_at field.
-	notificationDescCreatedAt := notificationFields[6].Descriptor()
+	notificationDescCreatedAt := notificationFields[7].Descriptor()
 	// notification.DefaultCreatedAt holds the default value on creation for the created_at field.
 	notification.DefaultCreatedAt = notificationDescCreatedAt.Default.(func() time.Time)
 }

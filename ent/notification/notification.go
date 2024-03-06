@@ -26,6 +26,8 @@ const (
 	FieldEventID = "event_id"
 	// FieldContactID holds the string denoting the contact_id field in the database.
 	FieldContactID = "contact_id"
+	// FieldTaskID holds the string denoting the task_id field in the database.
+	FieldTaskID = "task_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// Table holds the table name of the notification in the database.
@@ -41,6 +43,7 @@ var Columns = []string{
 	FieldText,
 	FieldEventID,
 	FieldContactID,
+	FieldTaskID,
 	FieldCreatedAt,
 }
 
@@ -103,6 +106,11 @@ func ByEventID(opts ...sql.OrderTermOption) OrderOption {
 // ByContactID orders the results by the contact_id field.
 func ByContactID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContactID, opts...).ToFunc()
+}
+
+// ByTaskID orders the results by the task_id field.
+func ByTaskID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTaskID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

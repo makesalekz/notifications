@@ -83,6 +83,20 @@ func (nc *NotificationCreate) SetNillableContactID(i *int64) *NotificationCreate
 	return nc
 }
 
+// SetTaskID sets the "task_id" field.
+func (nc *NotificationCreate) SetTaskID(i int64) *NotificationCreate {
+	nc.mutation.SetTaskID(i)
+	return nc
+}
+
+// SetNillableTaskID sets the "task_id" field if the given value is not nil.
+func (nc *NotificationCreate) SetNillableTaskID(i *int64) *NotificationCreate {
+	if i != nil {
+		nc.SetTaskID(*i)
+	}
+	return nc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (nc *NotificationCreate) SetCreatedAt(t time.Time) *NotificationCreate {
 	nc.mutation.SetCreatedAt(t)
@@ -224,6 +238,10 @@ func (nc *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 	if value, ok := nc.mutation.ContactID(); ok {
 		_spec.SetField(notification.FieldContactID, field.TypeInt64, value)
 		_node.ContactID = &value
+	}
+	if value, ok := nc.mutation.TaskID(); ok {
+		_spec.SetField(notification.FieldTaskID, field.TypeInt64, value)
+		_node.TaskID = &value
 	}
 	if value, ok := nc.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
@@ -380,6 +398,30 @@ func (u *NotificationUpsert) AddContactID(v int64) *NotificationUpsert {
 // ClearContactID clears the value of the "contact_id" field.
 func (u *NotificationUpsert) ClearContactID() *NotificationUpsert {
 	u.SetNull(notification.FieldContactID)
+	return u
+}
+
+// SetTaskID sets the "task_id" field.
+func (u *NotificationUpsert) SetTaskID(v int64) *NotificationUpsert {
+	u.Set(notification.FieldTaskID, v)
+	return u
+}
+
+// UpdateTaskID sets the "task_id" field to the value that was provided on create.
+func (u *NotificationUpsert) UpdateTaskID() *NotificationUpsert {
+	u.SetExcluded(notification.FieldTaskID)
+	return u
+}
+
+// AddTaskID adds v to the "task_id" field.
+func (u *NotificationUpsert) AddTaskID(v int64) *NotificationUpsert {
+	u.Add(notification.FieldTaskID, v)
+	return u
+}
+
+// ClearTaskID clears the value of the "task_id" field.
+func (u *NotificationUpsert) ClearTaskID() *NotificationUpsert {
+	u.SetNull(notification.FieldTaskID)
 	return u
 }
 
@@ -551,6 +593,34 @@ func (u *NotificationUpsertOne) UpdateContactID() *NotificationUpsertOne {
 func (u *NotificationUpsertOne) ClearContactID() *NotificationUpsertOne {
 	return u.Update(func(s *NotificationUpsert) {
 		s.ClearContactID()
+	})
+}
+
+// SetTaskID sets the "task_id" field.
+func (u *NotificationUpsertOne) SetTaskID(v int64) *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.SetTaskID(v)
+	})
+}
+
+// AddTaskID adds v to the "task_id" field.
+func (u *NotificationUpsertOne) AddTaskID(v int64) *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.AddTaskID(v)
+	})
+}
+
+// UpdateTaskID sets the "task_id" field to the value that was provided on create.
+func (u *NotificationUpsertOne) UpdateTaskID() *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.UpdateTaskID()
+	})
+}
+
+// ClearTaskID clears the value of the "task_id" field.
+func (u *NotificationUpsertOne) ClearTaskID() *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.ClearTaskID()
 	})
 }
 
@@ -888,6 +958,34 @@ func (u *NotificationUpsertBulk) UpdateContactID() *NotificationUpsertBulk {
 func (u *NotificationUpsertBulk) ClearContactID() *NotificationUpsertBulk {
 	return u.Update(func(s *NotificationUpsert) {
 		s.ClearContactID()
+	})
+}
+
+// SetTaskID sets the "task_id" field.
+func (u *NotificationUpsertBulk) SetTaskID(v int64) *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.SetTaskID(v)
+	})
+}
+
+// AddTaskID adds v to the "task_id" field.
+func (u *NotificationUpsertBulk) AddTaskID(v int64) *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.AddTaskID(v)
+	})
+}
+
+// UpdateTaskID sets the "task_id" field to the value that was provided on create.
+func (u *NotificationUpsertBulk) UpdateTaskID() *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.UpdateTaskID()
+	})
+}
+
+// ClearTaskID clears the value of the "task_id" field.
+func (u *NotificationUpsertBulk) ClearTaskID() *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.ClearTaskID()
 	})
 }
 

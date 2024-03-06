@@ -22,4 +22,5 @@ message NotificationDto {
   string text = 3;
   int64 eventId = 4;
   int64 contactId = 5;
+  int64 taskId = 6;
 }

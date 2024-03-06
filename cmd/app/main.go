@@ -35,19 +35,18 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "config.yaml", "config path, eg: -conf config.yaml")
 }
 
-func newApp(
-	logger log.Logger,
-	c *config.Config,
-	gs *grpc.Server,
-	hs *http.Server,
-) *kratos.App {
+func newApp(logger log.Logger, c *config.Config, gs *grpc.Server, hs *http.Server) *kratos.App {
 	return kratos.New(
 		kratos.ID(id),
 		kratos.Name(c.GetAppName()),
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
-		kratos.Server(gs, hs),
+		kratos.Server(
+			gs,
+			hs,
+		),
+		// with registrar
 		kratos.Registrar(c.GetRegistry()),
 	)
 }

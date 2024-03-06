@@ -30,6 +30,8 @@ type Notification struct {
 	EventID *int64 `json:"event_id,omitempty"`
 	// ContactID holds the value of the "contact_id" field.
 	ContactID *int64 `json:"contact_id,omitempty"`
+	// TaskID holds the value of the "task_id" field.
+	TaskID *int64 `json:"task_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
@@ -40,7 +42,7 @@ func (*Notification) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case notification.FieldID, notification.FieldUserID, notification.FieldEventID, notification.FieldContactID:
+		case notification.FieldID, notification.FieldUserID, notification.FieldEventID, notification.FieldContactID, notification.FieldTaskID:
 			values[i] = new(sql.NullInt64)
 		case notification.FieldType, notification.FieldTitle, notification.FieldText:
 			values[i] = new(sql.NullString)
@@ -105,6 +107,13 @@ func (n *Notification) assignValues(columns []string, values []any) error {
 				n.ContactID = new(int64)
 				*n.ContactID = value.Int64
 			}
+		case notification.FieldTaskID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field task_id", values[i])
+			} else if value.Valid {
+				n.TaskID = new(int64)
+				*n.TaskID = value.Int64
+			}
 		case notification.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -166,6 +175,11 @@ func (n *Notification) String() string {
 	builder.WriteString(", ")
 	if v := n.ContactID; v != nil {
 		builder.WriteString("contact_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := n.TaskID; v != nil {
+		builder.WriteString("task_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

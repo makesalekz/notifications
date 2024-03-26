@@ -102,6 +102,17 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 				dto.ContactId = 0
 			}
 
+			if notification.Data["task"] != "" {
+				err := json.Unmarshal([]byte(notification.Data["task"]), &notificationData)
+				if err != nil {
+					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+				}
+
+				dto.TaskId = notificationData.Id
+			} else {
+				dto.TaskId = 0
+			}
+
 			listDto[i] = dto
 		}
 

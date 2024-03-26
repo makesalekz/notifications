@@ -13,6 +13,7 @@ message Notification {
   string text = 4;
   int64 eventId = 5;
   int64 contactId = 6;
+  int64 taskId = 8;
   string createdAt = 7;
 }
 

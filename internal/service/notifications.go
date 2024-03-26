@@ -43,6 +43,9 @@ func replyNotifications(notifications []*ent.Notification) []*v1.Notification {
 		if notification.ContactID != nil {
 			n.ContactId = *notification.ContactID
 		}
+		if notification.TaskID != nil {
+			n.TaskId = *notification.TaskID
+		}
 		reply[i] = n
 	}
 

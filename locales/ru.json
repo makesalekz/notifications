@@ -30,7 +30,7 @@
     "CHAT_DELETED": "Чат был удален",
     "message.new":{
         "one": "{{.Content}}",
-        "many": "Новое сообщение",
-        "few": "{{.Content}}"
+        "few": "{{.Content}}",
+        "many": "Новое сообщение"
     }
 }

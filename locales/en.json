@@ -1,0 +1,33 @@
+{
+    "NEW_INVITE": "You have been invited to the event",
+    "MEMBER_INVITED":"{{.Inviter}} invited {{.Invitee}}",
+    "MEMBER_ROLE_CHANGED":"A role of {{.Member}} has changed to {{.Role}}",
+    "MEMBER_DECLINED":"{{.Invitee}} has declined the invitation",
+    "MEMBER_LEFT":"{{.Member}} has left the event",
+    "MEMBER_KICKED":"You have been deleted from the event",
+    "MEMBER_MAYBE":"{{.Invitee}} is thinking about the invitation",
+    "MEMBER_ACCEPTED":"{{.Invitee}} has accepted the invitation",
+    "EVENT_UPDATED":"{{.Member}} has changed the event's data: {{.NewData}}",
+    "EVENT_DELETED":"{{.Member}} has deleted the event",
+    "EVENT_STARTS_SOON":{
+        "one":"The event will start in {{.NotifyInAdvance}} minute",
+        "other":"The event will start in {{.NotifyInAdvance}} minutes"
+    },
+    "EVENT_STARTS_NOW":{
+        "zero":"The event started at {{.Location}}",
+        "other": "The event started"
+    },
+    "EVENT_REMINDER":"Answer for the invitation",
+    "EVENT_CHAT_CREATED":"The event's chat is created",
+    "ATTACHMENTS_ADDED":"{{.Member}} added a new attachment",
+    "ATTACHMENTS_DELETED":"{{.Member}} deleted the attachment",
+    "LINKS_ADDED":"{{.Member}} added a new link",
+    "LINKS_DELETED":"{{.Member}} deleted the link",
+    "CONTACT_CREATED":"Your contact {{.Contact}} has signed up for Calendaria",
+    "GROUP_CHAT_CREATED":"Group chat is created",
+    "CHAT_DELETED": "Chat has been deleted",
+    "message.new":{
+        "one":"{{.Content}}",
+        "other":"New message"
+    }
+}

@@ -11,9 +11,11 @@ require (
 	github.com/koorgoo/smsc v0.0.0-20180215205217-c91cd5bf462d
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats.go v1.31.0
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/prometheus/client_golang v1.18.0
 	gitlab.calendaria.team/services/utils v0.2.7
 	go.uber.org/automaxprocs v1.5.3
+	golang.org/x/text v0.14.0
 	google.golang.org/grpc v1.60.1
 	google.golang.org/protobuf v1.32.0
 )
@@ -99,7 +101,6 @@ require (
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.128.0 // indirect

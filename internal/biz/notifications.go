@@ -89,14 +89,10 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context, use
 
 func (uc *NotificationsUsecase) ListNotifications(
 	ctx context.Context,
-	language *string,
+	language string,
 	filter *data.FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) (*NotificationsList, error) {
-	if language == nil || *language == "" {
-		language = &DefaultLanguage
-	}
-
 	var notificationType string
 
 	if enum.NotificationType(filter.Type).IsValid() {

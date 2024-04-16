@@ -72,9 +72,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 	ok := uc.sendMessage(ctx, notification)
 	if ok {
 		listDto := make([]*data.NotificationDto, len(notification.UsersIds))
-		type NotificationData struct {
-			Id int64 `json:"id"`
-		}
+
 		for i, userId := range notification.UsersIds {
 			dto := &data.NotificationDto{
 				UserId: userId,
@@ -82,7 +80,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 				Text:   notification.Body,
 			}
 
-			dto.ParseAndSetNotificationData(notification.Data)
+			_ = dto.ParseAndSetNotificationData(notification.Data)
 
 			listDto[i] = dto
 		}
@@ -190,10 +188,9 @@ func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messag
 
 	localizedMsgs := make([]*messaging.MulticastMessage, len(langs))
 	for lang, tokens := range langs {
-		var localizedMessage messaging.MulticastMessage
-		localizedMessage = *msg
+		localizedMessage := *msg
 		localizedMessage.Tokens = tokens
-		localizedMsgs = append(localizedMsgs, msg)
+		localizedMsgs = append(localizedMsgs, &localizedMessage)
 
 		if lang == "null" {
 			continue

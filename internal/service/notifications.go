@@ -69,9 +69,14 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
+	language := req.Language
+	if language == nil || *language == "" {
+		language = &biz.DefaultLanguage
+	}
+
 	list, err := s.nu.ListNotifications(
 		ctx,
-		req.Language,
+		*language,
 		&data.FilterNotificationsDto{
 			UserId: actorId,
 			Type:   req.Type,

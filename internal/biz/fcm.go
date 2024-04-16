@@ -30,7 +30,7 @@ func NewFcmUsecase(
 	logger log.Logger,
 	devicesRepo data.DevicesRepo,
 	notificationsRepo data.NotificationsRepo,
-	localizer data.Localizer,
+	localizer *data.Localizer,
 	qm *nats.QueueManager,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
@@ -38,6 +38,7 @@ func NewFcmUsecase(
 		devicesRepo:       devicesRepo,
 		notificationsRepo: notificationsRepo,
 		qm:                qm,
+		localizer:         localizer,
 	}
 
 	if os.Getenv("DEBUG") == "" {

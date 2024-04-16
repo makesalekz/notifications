@@ -22,6 +22,7 @@ var ProviderSet = wire.NewSet(
 	NewNatsClient,
 	NewDevicesRepo,
 	NewNotificationsRepo,
+	NewLocalizer,
 )
 
 // Data .

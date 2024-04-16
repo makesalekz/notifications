@@ -75,6 +75,7 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 			SetNillablePluralCount(dto.PluralCount).
 			SetNillableTask(dto.TaskJson).
 			SetNillableType(dto.Type).
+			SetNotificationID(newNotification.ID).
 			Save(ctx)
 		if err != nil {
 			return 0, err
@@ -83,6 +84,11 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 		newNotification.Edges.NotificationData = notificationData
 
 		created++
+	}
+	// commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return 0, err
 	}
 
 	return int32(created), err
@@ -134,7 +140,7 @@ func (r *notificationsRepo) ListNotifications(
 		query = query.Order(ent.Asc(notification.FieldID))
 	}
 
-	notifications, err := query.Limit(int(paginate.Limit)).All(ctx)
+	notifications, err := query.Limit(int(paginate.Limit)).WithNotificationData().All(ctx)
 	if err != nil {
 		return nil, err
 	}

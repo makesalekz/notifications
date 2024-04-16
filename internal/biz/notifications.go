@@ -21,16 +21,19 @@ type NotificationsCounters map[string]int32
 // NotificationsUsecase is a Greeter usecase.
 type NotificationsUsecase struct {
 	jwt               *jwt.JwtProcessor
+	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 }
 
 // NewGreeterUsecase new a Greeter usecase.
 func NewNotificationsUsecase(
 	jwt *jwt.JwtProcessor,
+	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
 		jwt:               jwt,
+		localizer:         localizer,
 		notificationsRepo: notificationsRepo,
 	}, nil
 }
@@ -106,6 +109,21 @@ func (uc *NotificationsUsecase) ListNotifications(
 	notifications, err := uc.notificationsRepo.ListNotifications(ctx, filter, paginate)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, notification := range notifications {
+		dto := data.FromEnt(notification)
+		if dto.NotificationAddInfo.Type == nil {
+			continue
+		}
+
+		localizedText, err := uc.localizer.GetLocalizedMessage(language, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
+		if err != nil {
+			continue
+		}
+
+		notification.Text = localizedText
+
 	}
 
 	total, err := uc.notificationsRepo.CountNotifications(ctx, filter.UserId, notificationType)

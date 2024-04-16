@@ -92,9 +92,9 @@ func (r *devicesRepo) UpdateDevice(ctx context.Context, deviceEnt *ent.Device, d
 }
 
 func (r *devicesRepo) GetDevicesForUser(ctx context.Context, userId int64) ([]*ent.Device, error) {
-	return r.db.Device.Query().Select(device.FieldToken).Where(device.UserID(userId)).All(ctx)
+	return r.db.Device.Query().Where(device.UserID(userId)).All(ctx)
 }
 
 func (r *devicesRepo) GetDevicesForUsers(ctx context.Context, usersIds []int64) ([]*ent.Device, error) {
-	return r.db.Device.Query().Select(device.FieldToken).Where(device.UserIDIn(usersIds...)).All(ctx)
+	return r.db.Device.Query().Where(device.UserIDIn(usersIds...)).All(ctx)
 }

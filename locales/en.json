@@ -1,33 +1,36 @@
 {
-    "NEW_INVITE": "You have been invited to the event",
-    "MEMBER_ROLE_CHANGED":"A role of {{.owner.Name}} has changed to {{.member.Role}}",
-    "MEMBER_DECLINED":"{{.member.Name}} has declined the invitation",
-    "MEMBER_LEFT":"{{.member.Name}} has left the event",
-    "MEMBER_KICKED":"You have been deleted from the event",
-    "MEMBER_MAYBE":"{{.member.Name}} is thinking about the invitation",
-    "MEMBER_ACCEPTED":"{{.member.Name}} has accepted the invitation",
-    "EVENT_UPDATED":"{{.member.Name}} has changed the event's data: {{.metadata}}",
-    "EVENT_DELETED":"{{.member.Name}} has deleted the event",
-    "EVENT_STARTS_SOON":{
-        "one":"The event will start in {{.event.NotifyInAdvance}} minute",
-        "other":"The event will start in {{.event.NotifyInAdvance}} minutes"
+    "NEW_INVITE": {
+        "one": "You has been invited by {{.member.name}}",
+        "other": "You has been invited"
     },
-    "EVENT_STARTS_NOW":{
-        "one":"The event started at {{.event.Location}}",
+    "MEMBER_ROLE_CHANGED": "Your role changed to {{.member.role}}",
+    "MEMBER_DECLINED": "{{.member.name}} has declined the invitation",
+    "MEMBER_LEFT": "{{.member.name}} has left the event",
+    "MEMBER_KICKED": "You have been deleted from the event",
+    "MEMBER_MAYBE": "{{.member.name}} is thinking about the invitation",
+    "MEMBER_ACCEPTED": "{{.member.name}} has accepted the invitation",
+    "EVENT_UPDATED": "{{.member.name}} has changed the event's data: {{.metadata}}",
+    "EVENT_DELETED": "{{.member.name}} has deleted the event",
+    "EVENT_STARTS_SOON": {
+        "one": "The event will start in {{.event.noticeBefore}} minute",
+        "other": "The event will start in {{.event.noticeBefore}} minutes"
+    },
+    "EVENT_STARTS_NOW": {
+        "one": "The event started at {{.event.location.address}}",
         "other": "The event started"
     },
-    "EVENT_REMINDER":"Answer for the invitation",
-    "EVENT_CHAT_CREATED":"The event's chat is created",
-    "ATTACHMENTS_ADDED":"{{.member.Name}} added a new attachment",
-    "ATTACHMENTS_DELETED":"{{.member.Name}} deleted the attachment",
-    "LINKS_ADDED":"{{.member.Name}} added a new link",
-    "LINKS_DELETED":"{{.member.Name}} deleted the link",
-    "CONTACT_CREATED":"Your contact {{.contact.Label}} has signed up for Calendaria",
-    "chat.created":"Chat has been created",
+    "EVENT_REMINDER": "Answer for the invitation",
+    "EVENT_CHAT_CREATED": "The event's chat is created",
+    "ATTACHMENTS_ADDED": "{{.member.name}} added a new attachment",
+    "ATTACHMENTS_DELETED": "{{.member.name}} deleted the attachment",
+    "LINKS_ADDED": "{{.member.name}} added a new link",
+    "LINKS_DELETED": "{{.member.name}} deleted the link",
+    "CONTACT_CREATED": "Your contact {{.contact.label}} has signed up for Calendaria",
+    "chat.created": "Chat has been created",
     "chat.deleted": "Chat has been deleted",
-    "chat.update": "{{.metadata}} have been changed by {{.member.Name}}",
-    "message.new":{
-        "one":"{{.message.Content.Text}}",
-        "other":"New message"
+    "chat.update": "{{.metadata}} have been changed by {{.member.name}}",
+    "message.new": {
+        "one": "{{.message.content.text}}",
+        "other": "New message"
     }
 }

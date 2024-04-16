@@ -14,6 +14,7 @@ type NotificationData struct {
 // Fields of the NotificationData.
 func (NotificationData) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int64("id"),
 		field.String("type").Optional().Nillable(),
 		field.String("event").Optional().Nillable(),
 		field.String("member").Optional().Nillable(),

@@ -1,38 +1,43 @@
 {
-    "NEW_INVITE": "Вас пригласили на событие",
-    "MEMBER_ROLE_CHANGED":"Роль {{.member.Name}} изменилась на {{.member.Role}}",
-    "MEMBER_DECLINED":"{{.member.Name}} отклонил",
-    "MEMBER_LEFT":"{{.member.Name}} покинул событие",
-    "MEMBER_KICKED":"Вас удалили из события",
-    "MEMBER_MAYBE":"{{.member.Name}} думает о приглашении",
-    "MEMBER_ACCEPTED":"{{.member.Name}} принял приглашение на событие",
-    "EVENT_UPDATED":"{{.member.Name}} изменил данные события: {{.metadata}}",
-    "EVENT_DELETED":"{{.member.Name}} удалил событие",
-    "EVENT_STARTS_SOON":{
-        "one":"Событие начнется через {{.event.NotifyInAdvance}} минуту",
-        "few": "Событие начнется через {{.event.NotifyInAdvance}} минуты",
-        "many": "Событие начнется через {{.event.NotifyInAdvance}} минут",
+    "NEW_INVITE": {
+        "one": "{{.member.name}} пригласил вас на событие",
+        "few": "Вы были приглашены на событие",
+        "many": "Вы были приглашены на событие",
+        "other": "Вы были приглашены на событие"
+    },
+    "MEMBER_ROLE_CHANGED": "Ваша роль изменилась на {{.member.role}}",
+    "MEMBER_DECLINED": "{{.member.name}} отклонил",
+    "MEMBER_LEFT": "{{.member.name}} покинул событие",
+    "MEMBER_KICKED": "Вас удалили из события",
+    "MEMBER_MAYBE": "{{.member.name}} думает о приглашении",
+    "MEMBER_ACCEPTED": "{{.member.name}} принял приглашение на событие",
+    "EVENT_UPDATED": "{{.member.name}} изменил данные события: {{.metadata}}",
+    "EVENT_DELETED": "{{.member.name}} удалил событие",
+    "EVENT_STARTS_SOON": {
+        "one": "Событие начнется через {{.event.noticeBefore}} минуту",
+        "few": "Событие начнется через {{.event.noticeBefore}} минуты",
+        "many": "Событие начнется через {{.event.noticeBefore}} минут",
         "other": "Событие скоро начнется"
     },
-    "EVENT_STARTS_NOW":{
-        "one": "Событие началось в {{.event.Location}}",
-        "few": "Событие началось в {{.event.Location}}",
+    "EVENT_STARTS_NOW": {
+        "one": "Событие началось в {{.event.location.address}}",
+        "few": "Событие началось в {{.event.location.address}}",
         "many": "Событие началось",
         "other": "Событие началось"
     },
-    "EVENT_REMINDER":"Ответьте на приглашение",
-    "EVENT_CHAT_CREATED":"Создан чат для события",
-    "ATTACHMENTS_ADDED":"{{.member.Name}} добавил новое вложение",
-    "ATTACHMENTS_DELETED":"{{.member.Name}} удалил вложение",
-    "LINKS_ADDED":"{{.member.Name}} добавил новую ссылку",
-    "LINKS_DELETED":"{{.member.Name}} удалил ссылку",
-    "CONTACT_CREATED":"Ваш контакт {{.contact.Label}} зарегистрировался в Calendaria.",
-    "chat.created":"Чат был создан",
+    "EVENT_REMINDER": "Ответьте на приглашение",
+    "EVENT_CHAT_CREATED": "Создан чат для события",
+    "ATTACHMENTS_ADDED": "{{.member.name}} добавил новое вложение",
+    "ATTACHMENTS_DELETED": "{{.member.name}} удалил вложение",
+    "LINKS_ADDED": "{{.member.name}} добавил новую ссылку",
+    "LINKS_DELETED": "{{.member.name}} удалил ссылку",
+    "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
+    "chat.created": "Чат был создан",
     "chat.deleted": "Чат был удален",
-    "chat.update": "{{.metadata}} были обновлены {{.member.Name}}",
-    "message.new":{
-        "one": "{{.message.Content.Text}}",
-        "few": "{{.message.Content.Text}}",
+    "chat.update": "{{.metadata}} были обновлены {{.member.name}}",
+    "message.new": {
+        "one": "{{.message.content.text}}",
+        "few": "{{.message.content.text}}",
         "many": "Новое сообщение",
         "other": "Новое сообщение"
     }

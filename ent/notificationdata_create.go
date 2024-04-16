@@ -148,6 +148,12 @@ func (ndc *NotificationDataCreate) SetNillablePluralCount(i *int64) *Notificatio
 	return ndc
 }
 
+// SetID sets the "id" field.
+func (ndc *NotificationDataCreate) SetID(i int64) *NotificationDataCreate {
+	ndc.mutation.SetID(i)
+	return ndc
+}
+
 // SetNotificationID sets the "notification" edge to the Notification entity by ID.
 func (ndc *NotificationDataCreate) SetNotificationID(id int64) *NotificationDataCreate {
 	ndc.mutation.SetNotificationID(id)
@@ -215,8 +221,10 @@ func (ndc *NotificationDataCreate) sqlSave(ctx context.Context) (*NotificationDa
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int64(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int64(id)
+	}
 	ndc.mutation.id = &_node.ID
 	ndc.mutation.done = true
 	return _node, nil
@@ -228,6 +236,10 @@ func (ndc *NotificationDataCreate) createSpec() (*NotificationData, *sqlgraph.Cr
 		_spec = sqlgraph.NewCreateSpec(notificationdata.Table, sqlgraph.NewFieldSpec(notificationdata.FieldID, field.TypeInt64))
 	)
 	_spec.OnConflict = ndc.conflict
+	if id, ok := ndc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := ndc.mutation.GetType(); ok {
 		_spec.SetField(notificationdata.FieldType, field.TypeString, value)
 		_node.Type = &value
@@ -500,16 +512,24 @@ func (u *NotificationDataUpsert) ClearPluralCount() *NotificationDataUpsert {
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.NotificationData.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(notificationdata.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *NotificationDataUpsertOne) UpdateNewValues() *NotificationDataUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(notificationdata.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -815,7 +835,7 @@ func (ndcb *NotificationDataCreateBulk) Save(ctx context.Context) ([]*Notificati
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int64(id)
 				}
@@ -905,10 +925,20 @@ type NotificationDataUpsertBulk struct {
 //	client.NotificationData.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(notificationdata.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *NotificationDataUpsertBulk) UpdateNewValues() *NotificationDataUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(notificationdata.FieldID)
+			}
+		}
+	}))
 	return u
 }
 

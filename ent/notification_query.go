@@ -11,17 +11,19 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
 // NotificationQuery is the builder for querying Notification entities.
 type NotificationQuery struct {
 	config
-	ctx        *QueryContext
-	order      []notification.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Notification
-	modifiers  []func(*sql.Selector)
+	ctx                  *QueryContext
+	order                []notification.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.Notification
+	withNotificationData *NotificationDataQuery
+	modifiers            []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +58,28 @@ func (nq *NotificationQuery) Unique(unique bool) *NotificationQuery {
 func (nq *NotificationQuery) Order(o ...notification.OrderOption) *NotificationQuery {
 	nq.order = append(nq.order, o...)
 	return nq
+}
+
+// QueryNotificationData chains the current query on the "notification_data" edge.
+func (nq *NotificationQuery) QueryNotificationData() *NotificationDataQuery {
+	query := (&NotificationDataClient{config: nq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := nq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := nq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(notification.Table, notification.FieldID, selector),
+			sqlgraph.To(notificationdata.Table, notificationdata.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, notification.NotificationDataTable, notification.NotificationDataColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(nq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Notification entity from the query.
@@ -245,15 +269,27 @@ func (nq *NotificationQuery) Clone() *NotificationQuery {
 		return nil
 	}
 	return &NotificationQuery{
-		config:     nq.config,
-		ctx:        nq.ctx.Clone(),
-		order:      append([]notification.OrderOption{}, nq.order...),
-		inters:     append([]Interceptor{}, nq.inters...),
-		predicates: append([]predicate.Notification{}, nq.predicates...),
+		config:               nq.config,
+		ctx:                  nq.ctx.Clone(),
+		order:                append([]notification.OrderOption{}, nq.order...),
+		inters:               append([]Interceptor{}, nq.inters...),
+		predicates:           append([]predicate.Notification{}, nq.predicates...),
+		withNotificationData: nq.withNotificationData.Clone(),
 		// clone intermediate query.
 		sql:  nq.sql.Clone(),
 		path: nq.path,
 	}
+}
+
+// WithNotificationData tells the query-builder to eager-load the nodes that are connected to
+// the "notification_data" edge. The optional arguments are used to configure the query builder of the edge.
+func (nq *NotificationQuery) WithNotificationData(opts ...func(*NotificationDataQuery)) *NotificationQuery {
+	query := (&NotificationDataClient{config: nq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	nq.withNotificationData = query
+	return nq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -332,8 +368,11 @@ func (nq *NotificationQuery) prepareQuery(ctx context.Context) error {
 
 func (nq *NotificationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Notification, error) {
 	var (
-		nodes = []*Notification{}
-		_spec = nq.querySpec()
+		nodes       = []*Notification{}
+		_spec       = nq.querySpec()
+		loadedTypes = [1]bool{
+			nq.withNotificationData != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Notification).scanValues(nil, columns)
@@ -341,6 +380,7 @@ func (nq *NotificationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Notification{config: nq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(nq.modifiers) > 0 {
@@ -355,7 +395,46 @@ func (nq *NotificationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := nq.withNotificationData; query != nil {
+		if err := nq.loadNotificationData(ctx, query, nodes, nil,
+			func(n *Notification, e *NotificationData) { n.Edges.NotificationData = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (nq *NotificationQuery) loadNotificationData(ctx context.Context, query *NotificationDataQuery, nodes []*Notification, init func(*Notification), assign func(*Notification, *NotificationData)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*Notification)
+	for i := range nodes {
+		if nodes[i].NotificationDataID == nil {
+			continue
+		}
+		fk := *nodes[i].NotificationDataID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(notificationdata.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "notification_data_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (nq *NotificationQuery) sqlCount(ctx context.Context) (int, error) {
@@ -385,6 +464,9 @@ func (nq *NotificationQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != notification.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if nq.withNotificationData != nil {
+			_spec.Node.AddColumnOnce(notification.FieldNotificationDataID)
 		}
 	}
 	if ps := nq.predicates; len(ps) > 0 {

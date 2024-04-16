@@ -14,3 +14,6 @@ type LastReadNotification func(*sql.Selector)
 
 // Notification is the predicate function for notification builders.
 type Notification func(*sql.Selector)
+
+// NotificationData is the predicate function for notificationdata builders.
+type NotificationData func(*sql.Selector)

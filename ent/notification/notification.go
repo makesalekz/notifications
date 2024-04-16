@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 )
 
@@ -30,8 +31,19 @@ const (
 	FieldTaskID = "task_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldNotificationDataID holds the string denoting the notification_data_id field in the database.
+	FieldNotificationDataID = "notification_data_id"
+	// EdgeNotificationData holds the string denoting the notification_data edge name in mutations.
+	EdgeNotificationData = "notification_data"
 	// Table holds the table name of the notification in the database.
 	Table = "notifications"
+	// NotificationDataTable is the table that holds the notification_data relation/edge.
+	NotificationDataTable = "notifications"
+	// NotificationDataInverseTable is the table name for the NotificationData entity.
+	// It exists in this package in order to avoid circular dependency with the "notificationdata" package.
+	NotificationDataInverseTable = "notification_data"
+	// NotificationDataColumn is the table column denoting the notification_data relation/edge.
+	NotificationDataColumn = "notification_data_id"
 )
 
 // Columns holds all SQL columns for notification fields.
@@ -45,6 +57,7 @@ var Columns = []string{
 	FieldContactID,
 	FieldTaskID,
 	FieldCreatedAt,
+	FieldNotificationDataID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -116,4 +129,23 @@ func ByTaskID(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByNotificationDataID orders the results by the notification_data_id field.
+func ByNotificationDataID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNotificationDataID, opts...).ToFunc()
+}
+
+// ByNotificationDataField orders the results by notification_data field.
+func ByNotificationDataField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationDataStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newNotificationDataStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationDataInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, NotificationDataTable, NotificationDataColumn),
+	)
 }

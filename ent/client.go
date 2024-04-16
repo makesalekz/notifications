@@ -14,9 +14,11 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.calendaria.team/services/notifications/ent/device"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 )
 
 // Client is the client that holds all ent builders.
@@ -30,6 +32,8 @@ type Client struct {
 	LastReadNotification *LastReadNotificationClient
 	// Notification is the client for interacting with the Notification builders.
 	Notification *NotificationClient
+	// NotificationData is the client for interacting with the NotificationData builders.
+	NotificationData *NotificationDataClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -44,6 +48,7 @@ func (c *Client) init() {
 	c.Device = NewDeviceClient(c.config)
 	c.LastReadNotification = NewLastReadNotificationClient(c.config)
 	c.Notification = NewNotificationClient(c.config)
+	c.NotificationData = NewNotificationDataClient(c.config)
 }
 
 type (
@@ -139,6 +144,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Device:               NewDeviceClient(cfg),
 		LastReadNotification: NewLastReadNotificationClient(cfg),
 		Notification:         NewNotificationClient(cfg),
+		NotificationData:     NewNotificationDataClient(cfg),
 	}, nil
 }
 
@@ -161,6 +167,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Device:               NewDeviceClient(cfg),
 		LastReadNotification: NewLastReadNotificationClient(cfg),
 		Notification:         NewNotificationClient(cfg),
+		NotificationData:     NewNotificationDataClient(cfg),
 	}, nil
 }
 
@@ -192,6 +199,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.Device.Use(hooks...)
 	c.LastReadNotification.Use(hooks...)
 	c.Notification.Use(hooks...)
+	c.NotificationData.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
@@ -200,6 +208,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Device.Intercept(interceptors...)
 	c.LastReadNotification.Intercept(interceptors...)
 	c.Notification.Intercept(interceptors...)
+	c.NotificationData.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -211,6 +220,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.LastReadNotification.mutate(ctx, m)
 	case *NotificationMutation:
 		return c.Notification.mutate(ctx, m)
+	case *NotificationDataMutation:
+		return c.NotificationData.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -590,6 +601,22 @@ func (c *NotificationClient) GetX(ctx context.Context, id int64) *Notification {
 	return obj
 }
 
+// QueryNotificationData queries the notification_data edge of a Notification.
+func (c *NotificationClient) QueryNotificationData(n *Notification) *NotificationDataQuery {
+	query := (&NotificationDataClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := n.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(notification.Table, notification.FieldID, id),
+			sqlgraph.To(notificationdata.Table, notificationdata.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, notification.NotificationDataTable, notification.NotificationDataColumn),
+		)
+		fromV = sqlgraph.Neighbors(n.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *NotificationClient) Hooks() []Hook {
 	return c.hooks.Notification
@@ -615,12 +642,161 @@ func (c *NotificationClient) mutate(ctx context.Context, m *NotificationMutation
 	}
 }
 
+// NotificationDataClient is a client for the NotificationData schema.
+type NotificationDataClient struct {
+	config
+}
+
+// NewNotificationDataClient returns a client for the NotificationData from the given config.
+func NewNotificationDataClient(c config) *NotificationDataClient {
+	return &NotificationDataClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notificationdata.Hooks(f(g(h())))`.
+func (c *NotificationDataClient) Use(hooks ...Hook) {
+	c.hooks.NotificationData = append(c.hooks.NotificationData, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notificationdata.Intercept(f(g(h())))`.
+func (c *NotificationDataClient) Intercept(interceptors ...Interceptor) {
+	c.inters.NotificationData = append(c.inters.NotificationData, interceptors...)
+}
+
+// Create returns a builder for creating a NotificationData entity.
+func (c *NotificationDataClient) Create() *NotificationDataCreate {
+	mutation := newNotificationDataMutation(c.config, OpCreate)
+	return &NotificationDataCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of NotificationData entities.
+func (c *NotificationDataClient) CreateBulk(builders ...*NotificationDataCreate) *NotificationDataCreateBulk {
+	return &NotificationDataCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationDataClient) MapCreateBulk(slice any, setFunc func(*NotificationDataCreate, int)) *NotificationDataCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationDataCreateBulk{err: fmt.Errorf("calling to NotificationDataClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationDataCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationDataCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for NotificationData.
+func (c *NotificationDataClient) Update() *NotificationDataUpdate {
+	mutation := newNotificationDataMutation(c.config, OpUpdate)
+	return &NotificationDataUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationDataClient) UpdateOne(nd *NotificationData) *NotificationDataUpdateOne {
+	mutation := newNotificationDataMutation(c.config, OpUpdateOne, withNotificationData(nd))
+	return &NotificationDataUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationDataClient) UpdateOneID(id int64) *NotificationDataUpdateOne {
+	mutation := newNotificationDataMutation(c.config, OpUpdateOne, withNotificationDataID(id))
+	return &NotificationDataUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for NotificationData.
+func (c *NotificationDataClient) Delete() *NotificationDataDelete {
+	mutation := newNotificationDataMutation(c.config, OpDelete)
+	return &NotificationDataDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationDataClient) DeleteOne(nd *NotificationData) *NotificationDataDeleteOne {
+	return c.DeleteOneID(nd.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationDataClient) DeleteOneID(id int64) *NotificationDataDeleteOne {
+	builder := c.Delete().Where(notificationdata.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationDataDeleteOne{builder}
+}
+
+// Query returns a query builder for NotificationData.
+func (c *NotificationDataClient) Query() *NotificationDataQuery {
+	return &NotificationDataQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotificationData},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a NotificationData entity by its id.
+func (c *NotificationDataClient) Get(ctx context.Context, id int64) (*NotificationData, error) {
+	return c.Query().Where(notificationdata.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationDataClient) GetX(ctx context.Context, id int64) *NotificationData {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryNotification queries the notification edge of a NotificationData.
+func (c *NotificationDataClient) QueryNotification(nd *NotificationData) *NotificationQuery {
+	query := (&NotificationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := nd.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(notificationdata.Table, notificationdata.FieldID, id),
+			sqlgraph.To(notification.Table, notification.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, notificationdata.NotificationTable, notificationdata.NotificationColumn),
+		)
+		fromV = sqlgraph.Neighbors(nd.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationDataClient) Hooks() []Hook {
+	return c.hooks.NotificationData
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationDataClient) Interceptors() []Interceptor {
+	return c.inters.NotificationData
+}
+
+func (c *NotificationDataClient) mutate(ctx context.Context, m *NotificationDataMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationDataCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationDataUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationDataUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationDataDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown NotificationData mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Device, LastReadNotification, Notification []ent.Hook
+		Device, LastReadNotification, Notification, NotificationData []ent.Hook
 	}
 	inters struct {
-		Device, LastReadNotification, Notification []ent.Interceptor
+		Device, LastReadNotification, Notification, NotificationData []ent.Interceptor
 	}
 )

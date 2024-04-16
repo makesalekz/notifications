@@ -36,7 +36,7 @@ func NewNotificationsUsecase(
 }
 
 func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
-	newRecords, err := uc.notificationsRepo.CreateNotifications(ctx, data)
+	newRecords, err := uc.notificationsRepo.CreateNotifications(ctx, toDtos(data))
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return 0, v1.ErrorDatabaseQuery("can't create notifactions: %v", err)
@@ -89,9 +89,14 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context, use
 
 func (uc *NotificationsUsecase) ListNotifications(
 	ctx context.Context,
+	language *string,
 	filter *data.FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) (*NotificationsList, error) {
+	if language == nil || *language == "" {
+		language = &DefaultLanguage
+	}
+
 	var notificationType string
 
 	if enum.NotificationType(filter.Type).IsValid() {
@@ -128,4 +133,20 @@ func (uc *NotificationsUsecase) ListNotifications(
 		Notifications: notifications,
 		Paginate:      paginateReply,
 	}, nil
+}
+
+func toDtos(createDtos []*v1.NotificationDto) []*data.NotificationDto {
+	dtos := make([]*data.NotificationDto, len(createDtos))
+	for i, dto := range createDtos {
+		dtos[i] = &data.NotificationDto{
+			UserId:    dto.UserId,
+			Title:     dto.Title,
+			Text:      dto.Text,
+			EventId:   dto.EventId,
+			ContactId: dto.ContactId,
+			TaskId:    dto.TaskId,
+		}
+	}
+
+	return dtos
 }

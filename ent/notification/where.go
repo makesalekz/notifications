@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
@@ -94,6 +95,11 @@ func TaskID(v int64) predicate.Notification {
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Notification {
 	return predicate.Notification(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// NotificationDataID applies equality check predicate on the "notification_data_id" field. It's identical to NotificationDataIDEQ.
+func NotificationDataID(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldNotificationDataID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
@@ -538,6 +544,59 @@ func CreatedAtLT(v time.Time) predicate.Notification {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Notification {
 	return predicate.Notification(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// NotificationDataIDEQ applies the EQ predicate on the "notification_data_id" field.
+func NotificationDataIDEQ(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldNotificationDataID, v))
+}
+
+// NotificationDataIDNEQ applies the NEQ predicate on the "notification_data_id" field.
+func NotificationDataIDNEQ(v int64) predicate.Notification {
+	return predicate.Notification(sql.FieldNEQ(FieldNotificationDataID, v))
+}
+
+// NotificationDataIDIn applies the In predicate on the "notification_data_id" field.
+func NotificationDataIDIn(vs ...int64) predicate.Notification {
+	return predicate.Notification(sql.FieldIn(FieldNotificationDataID, vs...))
+}
+
+// NotificationDataIDNotIn applies the NotIn predicate on the "notification_data_id" field.
+func NotificationDataIDNotIn(vs ...int64) predicate.Notification {
+	return predicate.Notification(sql.FieldNotIn(FieldNotificationDataID, vs...))
+}
+
+// NotificationDataIDIsNil applies the IsNil predicate on the "notification_data_id" field.
+func NotificationDataIDIsNil() predicate.Notification {
+	return predicate.Notification(sql.FieldIsNull(FieldNotificationDataID))
+}
+
+// NotificationDataIDNotNil applies the NotNil predicate on the "notification_data_id" field.
+func NotificationDataIDNotNil() predicate.Notification {
+	return predicate.Notification(sql.FieldNotNull(FieldNotificationDataID))
+}
+
+// HasNotificationData applies the HasEdge predicate on the "notification_data" edge.
+func HasNotificationData() predicate.Notification {
+	return predicate.Notification(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, NotificationDataTable, NotificationDataColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasNotificationDataWith applies the HasEdge predicate on the "notification_data" edge with a given conditions (other predicates).
+func HasNotificationDataWith(preds ...predicate.NotificationData) predicate.Notification {
+	return predicate.Notification(func(s *sql.Selector) {
+		step := newNotificationDataStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

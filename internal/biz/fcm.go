@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	nnats "github.com/nats-io/nats.go"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
 	"gitlab.calendaria.team/services/utils/v1/nats"
@@ -20,6 +21,7 @@ type FcmUsecase struct {
 	client            *messaging.Client
 	log               *log.Helper
 	devicesRepo       data.DevicesRepo
+	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	qm                *nats.QueueManager
 }
@@ -28,6 +30,7 @@ func NewFcmUsecase(
 	logger log.Logger,
 	devicesRepo data.DevicesRepo,
 	notificationsRepo data.NotificationsRepo,
+	localizer data.Localizer,
 	qm *nats.QueueManager,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
@@ -68,50 +71,18 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 
 	ok := uc.sendMessage(ctx, notification)
 	if ok {
-		listDto := make([]*v1.NotificationDto, len(notification.UsersIds))
+		listDto := make([]*data.NotificationDto, len(notification.UsersIds))
 		type NotificationData struct {
 			Id int64 `json:"id"`
 		}
 		for i, userId := range notification.UsersIds {
-			dto := &v1.NotificationDto{
+			dto := &data.NotificationDto{
 				UserId: userId,
 				Title:  notification.Title,
 				Text:   notification.Body,
 			}
 
-			var notificationData NotificationData
-			if notification.Data["event"] != "" {
-				err := json.Unmarshal([]byte(notification.Data["event"]), &notificationData)
-				if err != nil {
-					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
-				}
-
-				dto.EventId = notificationData.Id
-			} else {
-				dto.EventId = 0
-			}
-
-			if notification.Data["contact"] != "" {
-				err := json.Unmarshal([]byte(notification.Data["contact"]), &notificationData)
-				if err != nil {
-					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
-				}
-
-				dto.ContactId = notificationData.Id
-			} else {
-				dto.ContactId = 0
-			}
-
-			if notification.Data["task"] != "" {
-				err := json.Unmarshal([]byte(notification.Data["task"]), &notificationData)
-				if err != nil {
-					uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
-				}
-
-				dto.TaskId = notificationData.Id
-			} else {
-				dto.TaskId = 0
-			}
+			dto.ParseAndSetNotificationData(notification.Data)
 
 			listDto[i] = dto
 		}
@@ -127,12 +98,26 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 	return ok
 }
 
-func (uc *FcmUsecase) RegisterDevice(ctx context.Context, userId int64, token string) error {
-	return uc.devicesRepo.CreateDevice(ctx, userId, token)
+func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
+	return uc.devicesRepo.CreateDevice(ctx, device)
 }
 
-func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, userId int64, token string) error {
-	_, err := uc.devicesRepo.DeleteDevice(ctx, userId, token)
+func (uc FcmUsecase) UpdateDevice(ctx context.Context, deviceDto data.DeviceDto) error {
+	device, err := uc.devicesRepo.GetDevice(ctx, deviceDto.DeviceKey)
+	if err != nil {
+		return v1.ErrorDatabaseQuery("get device error: %s", err.Error())
+	}
+
+	_, err = uc.devicesRepo.UpdateDevice(ctx, device, deviceDto.DeviceData)
+	if err != nil {
+		return v1.ErrorDatabaseQuery("update device error: %s", err.Error())
+	}
+
+	return nil
+}
+
+func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.DeviceKey) error {
+	_, err := uc.devicesRepo.DeleteDevice(ctx, deviceKey)
 
 	return err
 }
@@ -171,21 +156,66 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 		return true
 	}
 
-	tokens := make([]string, len(devices))
-	for i, device := range devices {
-		tokens[i] = device.Token
-	}
-
-	message.Tokens = tokens
+	messages := uc.splitMessageToLanguages(devices, message)
 
 	if uc.client != nil {
-		_, err = uc.client.SendEachForMulticast(ctx, message)
-		if err != nil {
-			uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+		for _, message := range messages {
+			_, err = uc.client.SendEachForMulticast(ctx, message)
+			if err != nil {
+				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+			}
 		}
 	} else {
 		uc.log.Debug("sendMessage (debug): ", message)
 	}
 
 	return err == nil
+}
+
+func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messaging.MulticastMessage) []*messaging.MulticastMessage {
+	langs := map[string][]string{}
+	for _, device := range devices {
+		lang := "null"
+		if device.Language != nil {
+			lang = *device.Language
+		}
+
+		_, ok := langs[lang]
+		if !ok {
+			langs[lang] = []string{device.Token}
+			continue
+		}
+		langs[lang] = append(langs[lang], device.Token)
+	}
+
+	localizedMsgs := make([]*messaging.MulticastMessage, len(langs))
+	for lang, tokens := range langs {
+		var localizedMessage messaging.MulticastMessage
+		localizedMessage = *msg
+		localizedMessage.Tokens = tokens
+		localizedMsgs = append(localizedMsgs, msg)
+
+		if lang == "null" {
+			continue
+		}
+
+		dto := &data.NotificationDto{}
+		err := dto.ParseAndSetNotificationData(msg.Data)
+		if err != nil {
+			continue
+		}
+
+		if dto.Type == nil {
+			continue
+		}
+
+		localizedBody, err := uc.localizer.GetLocalizedMessage(lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
+		if err != nil {
+			continue
+		}
+
+		localizedMessage.Notification.Body = localizedBody
+	}
+
+	return localizedMsgs
 }

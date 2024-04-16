@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"entgo.io/ent/dialect/sql"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
+	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
@@ -14,26 +14,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type FilterNotificationsDto struct {
-	UserId int64
-	Type   string
-}
-
-type ReadNotificationDto struct {
-	UserId         int64
-	Type           string
-	NotificationId int64
-}
-
-type Counter struct {
-	UserId int    `json:"user_id"`
-	Type   string `json:"type"`
-	Count  int    `json:"count"`
-}
-
 // NotificationsRepo
 type NotificationsRepo interface {
-	CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error)
+	CreateNotifications(ctx context.Context, data []*NotificationDto) (int32, error)
 	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error)
 	CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
@@ -51,11 +34,21 @@ func NewNotificationsRepo(d *Data) NotificationsRepo {
 	}
 }
 
-func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
-	notificationsCreate := make([]*ent.NotificationCreate, len(data))
+func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*NotificationDto) (int32, error) {
+	// creating a transaction and rollback method
+	tx, err := r.db.Tx(ctx)
+	if err != nil {
+		return 0, notifications_v1.ErrorDatabaseQuery("transaction initialize failed")
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
 
-	for i, dto := range data {
-		notificationCreate := r.db.Notification.Create().SetUserID(dto.UserId).SetTitle(dto.Title).SetText(dto.Text)
+	created := 0
+	for _, dto := range data {
+		notificationCreate := tx.Notification.Create().SetUserID(dto.UserId).SetTitle(dto.Title).SetText(dto.Text)
 
 		if dto.EventId != 0 {
 			notificationCreate.SetEventID(dto.EventId).SetType(enum.Event)
@@ -67,12 +60,32 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*v1.
 			notificationCreate.SetType(enum.Common)
 		}
 
-		notificationsCreate[i] = notificationCreate
+		newNotification, err := notificationCreate.Save(ctx)
+		if err != nil {
+			return 0, err
+		}
+
+		notificationData, err := tx.NotificationData.Create().
+			SetNillableChat(dto.ChatJson).
+			SetNillableContact(dto.ContactJson).
+			SetNillableEvent(dto.EventJson).
+			SetNillableMember(dto.MemberJson).
+			SetNillableMessage(dto.MessageJson).
+			SetNillableMetadata(dto.MetadataJson).
+			SetNillablePluralCount(dto.PluralCount).
+			SetNillableTask(dto.TaskJson).
+			SetNillableType(dto.Type).
+			Save(ctx)
+		if err != nil {
+			return 0, err
+		}
+
+		newNotification.Edges.NotificationData = notificationData
+
+		created++
 	}
 
-	notifications, err := r.db.Notification.CreateBulk(notificationsCreate...).Save(ctx)
-
-	return int32(len(notifications)), err
+	return int32(created), err
 }
 
 func (r *notificationsRepo) ReadNotification(ctx context.Context, readDto ReadNotificationDto) error {

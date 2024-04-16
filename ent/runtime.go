@@ -30,6 +30,10 @@ func init() {
 	deviceDescCreatedAt := deviceFields[2].Descriptor()
 	// device.DefaultCreatedAt holds the default value on creation for the created_at field.
 	device.DefaultCreatedAt = deviceDescCreatedAt.Default.(func() time.Time)
+	// deviceDescLanguage is the schema descriptor for language field.
+	deviceDescLanguage := deviceFields[3].Descriptor()
+	// device.DefaultLanguage holds the default value on creation for the language field.
+	device.DefaultLanguage = deviceDescLanguage.Default.(string)
 	lastreadnotificationFields := schema.LastReadNotification{}.Fields()
 	_ = lastreadnotificationFields
 	// lastreadnotificationDescType is the schema descriptor for type field.

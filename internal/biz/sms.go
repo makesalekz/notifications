@@ -28,7 +28,7 @@ func NewSmsUsecase(c *config.Config, logger log.Logger) (*SmsUsecase, error) {
 	}, nil
 }
 
-func (uc *SmsUsecase) getClient(ctx context.Context) (*smsc.Client, error) {
+func (uc *SmsUsecase) getClient(_ context.Context) (*smsc.Client, error) {
 	if uc.client != nil {
 		return uc.client, nil
 	}

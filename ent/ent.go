@@ -15,6 +15,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent/device"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -78,6 +79,7 @@ func checkColumn(table, column string) error {
 			device.Table:               device.ValidColumn,
 			lastreadnotification.Table: lastreadnotification.ValidColumn,
 			notification.Table:         notification.ValidColumn,
+			notificationdata.Table:     notificationdata.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

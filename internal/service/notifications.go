@@ -71,6 +71,7 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 
 	list, err := s.nu.ListNotifications(
 		ctx,
+		req.Language,
 		&data.FilterNotificationsDto{
 			UserId: actorId,
 			Type:   req.Type,

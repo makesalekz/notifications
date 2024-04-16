@@ -49,6 +49,26 @@ func (du *DeviceUpdate) AddUserID(i int64) *DeviceUpdate {
 	return du
 }
 
+// SetLanguage sets the "language" field.
+func (du *DeviceUpdate) SetLanguage(s string) *DeviceUpdate {
+	du.mutation.SetLanguage(s)
+	return du
+}
+
+// SetNillableLanguage sets the "language" field if the given value is not nil.
+func (du *DeviceUpdate) SetNillableLanguage(s *string) *DeviceUpdate {
+	if s != nil {
+		du.SetLanguage(*s)
+	}
+	return du
+}
+
+// ClearLanguage clears the value of the "language" field.
+func (du *DeviceUpdate) ClearLanguage() *DeviceUpdate {
+	du.mutation.ClearLanguage()
+	return du
+}
+
 // Mutation returns the DeviceMutation object of the builder.
 func (du *DeviceUpdate) Mutation() *DeviceMutation {
 	return du.mutation
@@ -115,6 +135,12 @@ func (du *DeviceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := du.mutation.AddedUserID(); ok {
 		_spec.AddField(device.FieldUserID, field.TypeInt64, value)
 	}
+	if value, ok := du.mutation.Language(); ok {
+		_spec.SetField(device.FieldLanguage, field.TypeString, value)
+	}
+	if du.mutation.LanguageCleared() {
+		_spec.ClearField(device.FieldLanguage, field.TypeString)
+	}
 	_spec.AddModifiers(du.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, du.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -155,6 +181,26 @@ func (duo *DeviceUpdateOne) SetNillableUserID(i *int64) *DeviceUpdateOne {
 // AddUserID adds i to the "user_id" field.
 func (duo *DeviceUpdateOne) AddUserID(i int64) *DeviceUpdateOne {
 	duo.mutation.AddUserID(i)
+	return duo
+}
+
+// SetLanguage sets the "language" field.
+func (duo *DeviceUpdateOne) SetLanguage(s string) *DeviceUpdateOne {
+	duo.mutation.SetLanguage(s)
+	return duo
+}
+
+// SetNillableLanguage sets the "language" field if the given value is not nil.
+func (duo *DeviceUpdateOne) SetNillableLanguage(s *string) *DeviceUpdateOne {
+	if s != nil {
+		duo.SetLanguage(*s)
+	}
+	return duo
+}
+
+// ClearLanguage clears the value of the "language" field.
+func (duo *DeviceUpdateOne) ClearLanguage() *DeviceUpdateOne {
+	duo.mutation.ClearLanguage()
 	return duo
 }
 
@@ -253,6 +299,12 @@ func (duo *DeviceUpdateOne) sqlSave(ctx context.Context) (_node *Device, err err
 	}
 	if value, ok := duo.mutation.AddedUserID(); ok {
 		_spec.AddField(device.FieldUserID, field.TypeInt64, value)
+	}
+	if value, ok := duo.mutation.Language(); ok {
+		_spec.SetField(device.FieldLanguage, field.TypeString, value)
+	}
+	if duo.mutation.LanguageCleared() {
+		_spec.ClearField(device.FieldLanguage, field.TypeString)
 	}
 	_spec.AddModifiers(duo.modifiers...)
 	_node = &Device{config: duo.config}

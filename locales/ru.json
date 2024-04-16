@@ -1,36 +1,39 @@
 {
     "NEW_INVITE": "Вас пригласили на событие",
-    "MEMBER_INVITED":"{{.Inviter}} пригласил {{.Invitee}}",
-    "MEMBER_ROLE_CHANGED":"Роль {{.Member}} изменилась на {{.Role}}",
-    "MEMBER_DECLINED":"{{.Invitee}} отклонил",
-    "MEMBER_LEFT":"{{.Member}} покинул событие",
+    "MEMBER_ROLE_CHANGED":"Роль {{.member.Name}} изменилась на {{.member.Role}}",
+    "MEMBER_DECLINED":"{{.member.Name}} отклонил",
+    "MEMBER_LEFT":"{{.member.Name}} покинул событие",
     "MEMBER_KICKED":"Вас удалили из события",
-    "MEMBER_MAYBE":"{{.Invitee}} думает о приглашении",
-    "MEMBER_ACCEPTED":"{{.Invitee}} принял приглашение на событие",
-    "EVENT_UPDATED":"{{.Member}} изменил данные события: {{.NewData}}",
-    "EVENT_DELETED":"{{.Member}} удалил событие",
+    "MEMBER_MAYBE":"{{.member.Name}} думает о приглашении",
+    "MEMBER_ACCEPTED":"{{.member.Name}} принял приглашение на событие",
+    "EVENT_UPDATED":"{{.member.Name}} изменил данные события: {{.metadata}}",
+    "EVENT_DELETED":"{{.member.Name}} удалил событие",
     "EVENT_STARTS_SOON":{
-        "one":"Событие начнется через {{.NotifyInAdvance}} минуту",
-        "few": "Событие начнется через {{.NotifyInAdvance}} минуты",
-        "many": "Событие начнется через {{.NotifyInAdvance}} минут"
+        "one":"Событие начнется через {{.event.NotifyInAdvance}} минуту",
+        "few": "Событие начнется через {{.event.NotifyInAdvance}} минуты",
+        "many": "Событие начнется через {{.event.NotifyInAdvance}} минут",
+        "other": "Событие скоро начнется"
     },
     "EVENT_STARTS_NOW":{
-        "one": "Событие началось в {{.Location}}",
-        "few": "Событие началось в {{.Location}}",
-        "many": "Событие началось"
+        "one": "Событие началось в {{.event.Location}}",
+        "few": "Событие началось в {{.event.Location}}",
+        "many": "Событие началось",
+        "other": "Событие началось"
     },
     "EVENT_REMINDER":"Ответьте на приглашение",
     "EVENT_CHAT_CREATED":"Создан чат для события",
-    "ATTACHMENTS_ADDED":"{{.Member}} добавил новое вложение",
-    "ATTACHMENTS_DELETED":"{{.Member}} удалил вложение",
-    "LINKS_ADDED":"{{.Member}} добавил новую ссылку",
-    "LINKS_DELETED":"{{.Member}} удалил ссылку",
-    "CONTACT_CREATED":"Ваш контакт {{.Contact}} зарегистрировался в Calendaria.",
-    "GROUP_CHAT_CREATED":"Групповой чат создан",
-    "CHAT_DELETED": "Чат был удален",
+    "ATTACHMENTS_ADDED":"{{.member.Name}} добавил новое вложение",
+    "ATTACHMENTS_DELETED":"{{.member.Name}} удалил вложение",
+    "LINKS_ADDED":"{{.member.Name}} добавил новую ссылку",
+    "LINKS_DELETED":"{{.member.Name}} удалил ссылку",
+    "CONTACT_CREATED":"Ваш контакт {{.contact.Label}} зарегистрировался в Calendaria.",
+    "chat.created":"Чат был создан",
+    "chat.deleted": "Чат был удален",
+    "chat.update": "{{.metadata}} были обновлены {{.member.Name}}",
     "message.new":{
-        "one": "{{.Content}}",
-        "few": "{{.Content}}",
-        "many": "Новое сообщение"
+        "one": "{{.message.Content.Text}}",
+        "few": "{{.message.Content.Text}}",
+        "many": "Новое сообщение",
+        "other": "Новое сообщение"
     }
 }

@@ -1,4 +1,4 @@
-package biz
+package data
 
 import (
 	"encoding/json"
@@ -29,7 +29,7 @@ func NewLocalizer() (*Localizer, error) {
 	}, nil
 }
 
-func (loc *Localizer) GetLocalizedMessage(langTag string, id string, templateData map[string]interface{}, plularCount int64) (string, error) {
+func (loc *Localizer) GetLocalizedMessage(langTag string, id string, templateData map[string]interface{}, plularCount interface{}) (string, error) {
 	localizer := i18n.NewLocalizer(loc.bundle, langTag)
 
 	message, err := localizer.Localize(

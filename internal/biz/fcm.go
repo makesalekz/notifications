@@ -97,30 +97,6 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 	return ok
 }
 
-func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
-	return uc.devicesRepo.CreateDevice(ctx, device)
-}
-
-func (uc FcmUsecase) UpdateDevice(ctx context.Context, deviceDto data.DeviceDto) error {
-	device, err := uc.devicesRepo.GetDevice(ctx, deviceDto.DeviceKey)
-	if err != nil {
-		return v1.ErrorDatabaseQuery("get device error: %s", err.Error())
-	}
-
-	_, err = uc.devicesRepo.UpdateDevice(ctx, device, deviceDto.DeviceData)
-	if err != nil {
-		return v1.ErrorDatabaseQuery("update device error: %s", err.Error())
-	}
-
-	return nil
-}
-
-func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.DeviceKey) error {
-	_, err := uc.devicesRepo.DeleteDevice(ctx, deviceKey)
-
-	return err
-}
-
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
 	message := &messaging.MulticastMessage{}
 	empty := true
@@ -187,11 +163,25 @@ func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messag
 		langs[lang] = append(langs[lang], device.Token)
 	}
 
-	localizedMsgs := make([]*messaging.MulticastMessage, len(langs))
+	localizedMsgs := make([]*messaging.MulticastMessage, 0, len(langs))
 	for lang, tokens := range langs {
-		localizedMessage := *msg
-		localizedMessage.Tokens = tokens
-		localizedMsgs = append(localizedMsgs, &localizedMessage)
+		localizedMessage := &messaging.MulticastMessage{
+			Tokens: tokens,
+		}
+
+		if len(msg.Data) > 0 {
+			localizedMessage.Data = msg.Data
+		}
+
+		if msg.Notification != nil {
+			localizedMessage.Notification = &messaging.Notification{
+				Title:    msg.Notification.Title,
+				Body:     msg.Notification.Body,
+				ImageURL: msg.Notification.ImageURL,
+			}
+		}
+
+		localizedMsgs = append(localizedMsgs, localizedMessage)
 
 		if lang == "null" {
 			continue
@@ -212,8 +202,33 @@ func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messag
 			continue
 		}
 
+		// by pointer, also changes value in array
 		localizedMessage.Notification.Body = localizedBody
 	}
 
 	return localizedMsgs
+}
+
+func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
+	return uc.devicesRepo.CreateDevice(ctx, device)
+}
+
+func (uc FcmUsecase) UpdateDevice(ctx context.Context, deviceDto data.DeviceDto) error {
+	device, err := uc.devicesRepo.GetDevice(ctx, deviceDto.DeviceKey)
+	if err != nil {
+		return v1.ErrorDatabaseQuery("get device error: %s", err.Error())
+	}
+
+	_, err = uc.devicesRepo.UpdateDevice(ctx, device, deviceDto.DeviceData)
+	if err != nil {
+		return v1.ErrorDatabaseQuery("update device error: %s", err.Error())
+	}
+
+	return nil
+}
+
+func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.DeviceKey) error {
+	_, err := uc.devicesRepo.DeleteDevice(ctx, deviceKey)
+
+	return err
 }

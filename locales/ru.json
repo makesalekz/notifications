@@ -1,10 +1,5 @@
 {
-    "NEW_INVITE": {
-        "one": "{{.member.name}} пригласил вас на событие",
-        "few": "Вы были приглашены на событие",
-        "many": "Вы были приглашены на событие",
-        "other": "Вы были приглашены на событие"
-    },
+    "NEW_INVITE": "{{.member.name}} пригласил вас на событие",
     "MEMBER_ROLE_CHANGED": "Ваша роль изменилась на {{.member.role}}",
     "MEMBER_DECLINED": "{{.member.name}} отклонил",
     "MEMBER_LEFT": "{{.member.name}} покинул событие",
@@ -26,15 +21,19 @@
         "other": "Событие началось"
     },
     "EVENT_REMINDER": "Ответьте на приглашение",
-    "EVENT_CHAT_CREATED": "Создан чат для события",
+    "EVENT_CHAT_CREATED": "{{.member.name}} создал чат события",
+    "EVENT_CHAT_DELETED": "{{.member.name}} удалил чат события",
     "ATTACHMENTS_ADDED": "{{.member.name}} добавил новое вложение",
     "ATTACHMENTS_DELETED": "{{.member.name}} удалил вложение",
     "LINKS_ADDED": "{{.member.name}} добавил новую ссылку",
     "LINKS_DELETED": "{{.member.name}} удалил ссылку",
     "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
-    "chat.created": "Чат был создан",
-    "chat.deleted": "Чат был удален",
-    "chat.update": "{{.metadata}} были обновлены {{.member.name}}",
+    "chat.update": {
+        "one":"{{.metadata}} был изменен {{.member.name}}",
+        "few":"{{.metadata}} были изменены {{.member.name}}",
+        "many":"{{.metadata}} были изменены {{.member.name}}",
+        "other":"{{.metadata}} были изменены {{.member.name}}"
+    },
     "message.new": {
         "one": "{{.message.content.text}}",
         "few": "{{.message.content.text}}",

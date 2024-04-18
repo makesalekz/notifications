@@ -15,13 +15,13 @@ type Localizer struct {
 func NewLocalizer() (*Localizer, error) {
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
-	files, err := os.ReadDir("locales/")
+	files, err := os.ReadDir("./locales/")
 	if err != nil {
 		return nil, err
 	}
 
 	for _, file := range files {
-		bundle.MustLoadMessageFile("locales/" + file.Name())
+		bundle.MustLoadMessageFile("./locales/" + file.Name())
 	}
 
 	return &Localizer{

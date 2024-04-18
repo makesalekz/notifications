@@ -37,7 +37,7 @@ services:
       - firebase
       - vault_secret_id
     command: ["./app"]
-  dev-service:
+  local-service:
     build:
       context: ./
       dockerfile: Dockerfile

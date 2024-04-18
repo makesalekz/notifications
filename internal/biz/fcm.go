@@ -151,8 +151,8 @@ func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messag
 	langs := map[string][]string{}
 	for _, device := range devices {
 		lang := "null"
-		if device.Language != nil {
-			lang = *device.Language
+		if device.Language != "" {
+			lang = device.Language
 		}
 
 		_, ok := langs[lang]

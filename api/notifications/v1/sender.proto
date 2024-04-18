@@ -20,7 +20,7 @@ message FcmDeviceRequest {
 }
 
 message FcmDataRequest {
-  optional string language = 1;
+  string language = 1;
   string token = 2;
 }
 

@@ -169,7 +169,7 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := dc.mutation.Language(); ok {
 		_spec.SetField(device.FieldLanguage, field.TypeString, value)
-		_node.Language = &value
+		_node.Language = value
 	}
 	return _node, _spec
 }

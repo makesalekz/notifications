@@ -18,7 +18,7 @@ func (Device) Fields() []ent.Field {
 		field.Int64("user_id").Positive(),
 		field.String("token").Immutable().Unique().MinLen(1),
 		field.Time("created_at").Immutable().Default(time.Now),
-		field.String("language").Nillable().Optional().Default("en"),
+		field.String("language").Optional().Default("en"),
 	}
 }
 

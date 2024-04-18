@@ -24,7 +24,7 @@ type Device struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Language holds the value of the "language" field.
-	Language     *string `json:"language,omitempty"`
+	Language     string `json:"language,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -82,8 +82,7 @@ func (d *Device) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field language", values[i])
 			} else if value.Valid {
-				d.Language = new(string)
-				*d.Language = value.String
+				d.Language = value.String
 			}
 		default:
 			d.selectValues.Set(columns[i], values[i])
@@ -130,10 +129,8 @@ func (d *Device) String() string {
 	builder.WriteString("created_at=")
 	builder.WriteString(d.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := d.Language; v != nil {
-		builder.WriteString("language=")
-		builder.WriteString(*v)
-	}
+	builder.WriteString("language=")
+	builder.WriteString(d.Language)
 	builder.WriteByte(')')
 	return builder.String()
 }

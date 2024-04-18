@@ -19,7 +19,7 @@ type DeviceKey struct {
 }
 
 type DeviceData struct {
-	Language *string
+	Language string
 }
 
 // DevicesRepo
@@ -50,8 +50,8 @@ func (r *devicesRepo) CreateDevice(ctx context.Context, deviceDto DeviceDto) err
 		OnConflictColumns(device.FieldToken).
 		UpdateNewValues()
 
-	if deviceDto.Language != nil && *deviceDto.Language != "" {
-		query.SetLanguage(*deviceDto.Language)
+	if deviceDto.Language != "" {
+		query.SetLanguage(deviceDto.Language)
 	}
 
 	return query.Exec(ctx)
@@ -79,10 +79,10 @@ func (r *devicesRepo) UpdateDevice(ctx context.Context, deviceEnt *ent.Device, d
 	query := deviceEnt.Update()
 	mustUpdate := false
 
-	if deviceData.Language != nil && *deviceData.Language != "" &&
-		(deviceEnt.Language == nil || *deviceEnt.Language != *deviceData.Language) {
+	if deviceData.Language != "" &&
+		(deviceEnt.Language != deviceData.Language) {
 		mustUpdate = true
-		query.SetLanguage(*deviceData.Language)
+		query.SetLanguage(deviceData.Language)
 	}
 
 	if mustUpdate {

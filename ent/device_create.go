@@ -48,6 +48,20 @@ func (dc *DeviceCreate) SetNillableCreatedAt(t *time.Time) *DeviceCreate {
 	return dc
 }
 
+// SetLanguage sets the "language" field.
+func (dc *DeviceCreate) SetLanguage(s string) *DeviceCreate {
+	dc.mutation.SetLanguage(s)
+	return dc
+}
+
+// SetNillableLanguage sets the "language" field if the given value is not nil.
+func (dc *DeviceCreate) SetNillableLanguage(s *string) *DeviceCreate {
+	if s != nil {
+		dc.SetLanguage(*s)
+	}
+	return dc
+}
+
 // Mutation returns the DeviceMutation object of the builder.
 func (dc *DeviceCreate) Mutation() *DeviceMutation {
 	return dc.mutation
@@ -86,6 +100,10 @@ func (dc *DeviceCreate) defaults() {
 	if _, ok := dc.mutation.CreatedAt(); !ok {
 		v := device.DefaultCreatedAt()
 		dc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := dc.mutation.Language(); !ok {
+		v := device.DefaultLanguage
+		dc.mutation.SetLanguage(v)
 	}
 }
 
@@ -148,6 +166,10 @@ func (dc *DeviceCreate) createSpec() (*Device, *sqlgraph.CreateSpec) {
 	if value, ok := dc.mutation.CreatedAt(); ok {
 		_spec.SetField(device.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := dc.mutation.Language(); ok {
+		_spec.SetField(device.FieldLanguage, field.TypeString, value)
+		_node.Language = value
 	}
 	return _node, _spec
 }
@@ -219,6 +241,24 @@ func (u *DeviceUpsert) AddUserID(v int64) *DeviceUpsert {
 	return u
 }
 
+// SetLanguage sets the "language" field.
+func (u *DeviceUpsert) SetLanguage(v string) *DeviceUpsert {
+	u.Set(device.FieldLanguage, v)
+	return u
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *DeviceUpsert) UpdateLanguage() *DeviceUpsert {
+	u.SetExcluded(device.FieldLanguage)
+	return u
+}
+
+// ClearLanguage clears the value of the "language" field.
+func (u *DeviceUpsert) ClearLanguage() *DeviceUpsert {
+	u.SetNull(device.FieldLanguage)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -285,6 +325,27 @@ func (u *DeviceUpsertOne) AddUserID(v int64) *DeviceUpsertOne {
 func (u *DeviceUpsertOne) UpdateUserID() *DeviceUpsertOne {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetLanguage sets the "language" field.
+func (u *DeviceUpsertOne) SetLanguage(v string) *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetLanguage(v)
+	})
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *DeviceUpsertOne) UpdateLanguage() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateLanguage()
+	})
+}
+
+// ClearLanguage clears the value of the "language" field.
+func (u *DeviceUpsertOne) ClearLanguage() *DeviceUpsertOne {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearLanguage()
 	})
 }
 
@@ -520,6 +581,27 @@ func (u *DeviceUpsertBulk) AddUserID(v int64) *DeviceUpsertBulk {
 func (u *DeviceUpsertBulk) UpdateUserID() *DeviceUpsertBulk {
 	return u.Update(func(s *DeviceUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetLanguage sets the "language" field.
+func (u *DeviceUpsertBulk) SetLanguage(v string) *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.SetLanguage(v)
+	})
+}
+
+// UpdateLanguage sets the "language" field to the value that was provided on create.
+func (u *DeviceUpsertBulk) UpdateLanguage() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.UpdateLanguage()
+	})
+}
+
+// ClearLanguage clears the value of the "language" field.
+func (u *DeviceUpsertBulk) ClearLanguage() *DeviceUpsertBulk {
+	return u.Update(func(s *DeviceUpsert) {
+		s.ClearLanguage()
 	})
 }
 

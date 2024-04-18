@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 )
 
 // Notification is the model entity for the Notification schema.
@@ -33,8 +34,35 @@ type Notification struct {
 	// TaskID holds the value of the "task_id" field.
 	TaskID *int64 `json:"task_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// NotificationDataID holds the value of the "notification_data_id" field.
+	NotificationDataID *int64 `json:"notification_data_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the NotificationQuery when eager-loading is set.
+	Edges        NotificationEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// NotificationEdges holds the relations/edges for other nodes in the graph.
+type NotificationEdges struct {
+	// NotificationData holds the value of the notification_data edge.
+	NotificationData *NotificationData `json:"notification_data,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// NotificationDataOrErr returns the NotificationData value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e NotificationEdges) NotificationDataOrErr() (*NotificationData, error) {
+	if e.loadedTypes[0] {
+		if e.NotificationData == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: notificationdata.Label}
+		}
+		return e.NotificationData, nil
+	}
+	return nil, &NotLoadedError{edge: "notification_data"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -42,7 +70,7 @@ func (*Notification) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case notification.FieldID, notification.FieldUserID, notification.FieldEventID, notification.FieldContactID, notification.FieldTaskID:
+		case notification.FieldID, notification.FieldUserID, notification.FieldEventID, notification.FieldContactID, notification.FieldTaskID, notification.FieldNotificationDataID:
 			values[i] = new(sql.NullInt64)
 		case notification.FieldType, notification.FieldTitle, notification.FieldText:
 			values[i] = new(sql.NullString)
@@ -120,6 +148,13 @@ func (n *Notification) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				n.CreatedAt = value.Time
 			}
+		case notification.FieldNotificationDataID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field notification_data_id", values[i])
+			} else if value.Valid {
+				n.NotificationDataID = new(int64)
+				*n.NotificationDataID = value.Int64
+			}
 		default:
 			n.selectValues.Set(columns[i], values[i])
 		}
@@ -131,6 +166,11 @@ func (n *Notification) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (n *Notification) Value(name string) (ent.Value, error) {
 	return n.selectValues.Get(name)
+}
+
+// QueryNotificationData queries the "notification_data" edge of the Notification entity.
+func (n *Notification) QueryNotificationData() *NotificationDataQuery {
+	return NewNotificationClient(n.config).QueryNotificationData(n)
 }
 
 // Update returns a builder for updating this Notification.
@@ -185,6 +225,11 @@ func (n *Notification) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(n.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := n.NotificationDataID; v != nil {
+		builder.WriteString("notification_data_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

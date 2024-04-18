@@ -19,6 +19,8 @@ const (
 	FieldToken = "token"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldLanguage holds the string denoting the language field in the database.
+	FieldLanguage = "language"
 	// Table holds the table name of the device in the database.
 	Table = "devices"
 )
@@ -29,6 +31,7 @@ var Columns = []string{
 	FieldUserID,
 	FieldToken,
 	FieldCreatedAt,
+	FieldLanguage,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -48,6 +51,8 @@ var (
 	TokenValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
+	// DefaultLanguage holds the default value on creation for the "language" field.
+	DefaultLanguage string
 )
 
 // OrderOption defines the ordering options for the Device queries.
@@ -71,4 +76,9 @@ func ByToken(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByLanguage orders the results by the language field.
+func ByLanguage(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLanguage, opts...).ToFunc()
 }

@@ -29,6 +29,7 @@ message CreateNotificationsReply {
 }
 
 message ListNotificationsRequest {
+  optional string language = 1;
   string type = 2;
   utils.v1.PaginateRequest paginate = 3;
 }

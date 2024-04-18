@@ -21,22 +21,25 @@ type NotificationsCounters map[string]int32
 // NotificationsUsecase is a Greeter usecase.
 type NotificationsUsecase struct {
 	jwt               *jwt.JwtProcessor
+	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 }
 
 // NewGreeterUsecase new a Greeter usecase.
 func NewNotificationsUsecase(
 	jwt *jwt.JwtProcessor,
+	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
 		jwt:               jwt,
+		localizer:         localizer,
 		notificationsRepo: notificationsRepo,
 	}, nil
 }
 
 func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []*v1.NotificationDto) (int32, error) {
-	newRecords, err := uc.notificationsRepo.CreateNotifications(ctx, data)
+	newRecords, err := uc.notificationsRepo.CreateNotifications(ctx, toDtos(data))
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return 0, v1.ErrorDatabaseQuery("can't create notifactions: %v", err)
@@ -89,6 +92,7 @@ func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context, use
 
 func (uc *NotificationsUsecase) ListNotifications(
 	ctx context.Context,
+	language string,
 	filter *data.FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) (*NotificationsList, error) {
@@ -105,6 +109,21 @@ func (uc *NotificationsUsecase) ListNotifications(
 	notifications, err := uc.notificationsRepo.ListNotifications(ctx, filter, paginate)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, notification := range notifications {
+		dto := data.FromEnt(notification)
+		if dto.NotificationAddInfo.Type == nil {
+			continue
+		}
+
+		localizedText, err := uc.localizer.GetLocalizedMessage(language, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
+		if err != nil {
+			continue
+		}
+
+		notification.Text = localizedText
+
 	}
 
 	total, err := uc.notificationsRepo.CountNotifications(ctx, filter.UserId, notificationType)
@@ -128,4 +147,20 @@ func (uc *NotificationsUsecase) ListNotifications(
 		Notifications: notifications,
 		Paginate:      paginateReply,
 	}, nil
+}
+
+func toDtos(createDtos []*v1.NotificationDto) []*data.NotificationDto {
+	dtos := make([]*data.NotificationDto, len(createDtos))
+	for i, dto := range createDtos {
+		dtos[i] = &data.NotificationDto{
+			UserId:    dto.UserId,
+			Title:     dto.Title,
+			Text:      dto.Text,
+			EventId:   dto.EventId,
+			ContactId: dto.ContactId,
+			TaskId:    dto.TaskId,
+		}
+	}
+
+	return dtos
 }

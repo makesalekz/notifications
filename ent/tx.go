@@ -18,6 +18,8 @@ type Tx struct {
 	LastReadNotification *LastReadNotificationClient
 	// Notification is the client for interacting with the Notification builders.
 	Notification *NotificationClient
+	// NotificationData is the client for interacting with the NotificationData builders.
+	NotificationData *NotificationDataClient
 
 	// lazily loaded.
 	client     *Client
@@ -152,6 +154,7 @@ func (tx *Tx) init() {
 	tx.Device = NewDeviceClient(tx.config)
 	tx.LastReadNotification = NewLastReadNotificationClient(tx.config)
 	tx.Notification = NewNotificationClient(tx.config)
+	tx.NotificationData = NewNotificationDataClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

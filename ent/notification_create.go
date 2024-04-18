@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 )
 
 // NotificationCreate is the builder for creating a Notification entity.
@@ -109,6 +110,25 @@ func (nc *NotificationCreate) SetNillableCreatedAt(t *time.Time) *NotificationCr
 		nc.SetCreatedAt(*t)
 	}
 	return nc
+}
+
+// SetNotificationDataID sets the "notification_data_id" field.
+func (nc *NotificationCreate) SetNotificationDataID(i int64) *NotificationCreate {
+	nc.mutation.SetNotificationDataID(i)
+	return nc
+}
+
+// SetNillableNotificationDataID sets the "notification_data_id" field if the given value is not nil.
+func (nc *NotificationCreate) SetNillableNotificationDataID(i *int64) *NotificationCreate {
+	if i != nil {
+		nc.SetNotificationDataID(*i)
+	}
+	return nc
+}
+
+// SetNotificationData sets the "notification_data" edge to the NotificationData entity.
+func (nc *NotificationCreate) SetNotificationData(n *NotificationData) *NotificationCreate {
+	return nc.SetNotificationDataID(n.ID)
 }
 
 // Mutation returns the NotificationMutation object of the builder.
@@ -246,6 +266,23 @@ func (nc *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 	if value, ok := nc.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if nodes := nc.mutation.NotificationDataIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   notification.NotificationDataTable,
+			Columns: []string{notification.NotificationDataColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationdata.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.NotificationDataID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -434,6 +471,24 @@ func (u *NotificationUpsert) SetCreatedAt(v time.Time) *NotificationUpsert {
 // UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
 func (u *NotificationUpsert) UpdateCreatedAt() *NotificationUpsert {
 	u.SetExcluded(notification.FieldCreatedAt)
+	return u
+}
+
+// SetNotificationDataID sets the "notification_data_id" field.
+func (u *NotificationUpsert) SetNotificationDataID(v int64) *NotificationUpsert {
+	u.Set(notification.FieldNotificationDataID, v)
+	return u
+}
+
+// UpdateNotificationDataID sets the "notification_data_id" field to the value that was provided on create.
+func (u *NotificationUpsert) UpdateNotificationDataID() *NotificationUpsert {
+	u.SetExcluded(notification.FieldNotificationDataID)
+	return u
+}
+
+// ClearNotificationDataID clears the value of the "notification_data_id" field.
+func (u *NotificationUpsert) ClearNotificationDataID() *NotificationUpsert {
+	u.SetNull(notification.FieldNotificationDataID)
 	return u
 }
 
@@ -635,6 +690,27 @@ func (u *NotificationUpsertOne) SetCreatedAt(v time.Time) *NotificationUpsertOne
 func (u *NotificationUpsertOne) UpdateCreatedAt() *NotificationUpsertOne {
 	return u.Update(func(s *NotificationUpsert) {
 		s.UpdateCreatedAt()
+	})
+}
+
+// SetNotificationDataID sets the "notification_data_id" field.
+func (u *NotificationUpsertOne) SetNotificationDataID(v int64) *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.SetNotificationDataID(v)
+	})
+}
+
+// UpdateNotificationDataID sets the "notification_data_id" field to the value that was provided on create.
+func (u *NotificationUpsertOne) UpdateNotificationDataID() *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.UpdateNotificationDataID()
+	})
+}
+
+// ClearNotificationDataID clears the value of the "notification_data_id" field.
+func (u *NotificationUpsertOne) ClearNotificationDataID() *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.ClearNotificationDataID()
 	})
 }
 
@@ -1000,6 +1076,27 @@ func (u *NotificationUpsertBulk) SetCreatedAt(v time.Time) *NotificationUpsertBu
 func (u *NotificationUpsertBulk) UpdateCreatedAt() *NotificationUpsertBulk {
 	return u.Update(func(s *NotificationUpsert) {
 		s.UpdateCreatedAt()
+	})
+}
+
+// SetNotificationDataID sets the "notification_data_id" field.
+func (u *NotificationUpsertBulk) SetNotificationDataID(v int64) *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.SetNotificationDataID(v)
+	})
+}
+
+// UpdateNotificationDataID sets the "notification_data_id" field to the value that was provided on create.
+func (u *NotificationUpsertBulk) UpdateNotificationDataID() *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.UpdateNotificationDataID()
+	})
+}
+
+// ClearNotificationDataID clears the value of the "notification_data_id" field.
+func (u *NotificationUpsertBulk) ClearNotificationDataID() *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.ClearNotificationDataID()
 	})
 }
 

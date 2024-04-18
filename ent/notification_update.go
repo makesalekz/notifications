@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
@@ -188,9 +189,40 @@ func (nu *NotificationUpdate) SetNillableCreatedAt(t *time.Time) *NotificationUp
 	return nu
 }
 
+// SetNotificationDataID sets the "notification_data_id" field.
+func (nu *NotificationUpdate) SetNotificationDataID(i int64) *NotificationUpdate {
+	nu.mutation.SetNotificationDataID(i)
+	return nu
+}
+
+// SetNillableNotificationDataID sets the "notification_data_id" field if the given value is not nil.
+func (nu *NotificationUpdate) SetNillableNotificationDataID(i *int64) *NotificationUpdate {
+	if i != nil {
+		nu.SetNotificationDataID(*i)
+	}
+	return nu
+}
+
+// ClearNotificationDataID clears the value of the "notification_data_id" field.
+func (nu *NotificationUpdate) ClearNotificationDataID() *NotificationUpdate {
+	nu.mutation.ClearNotificationDataID()
+	return nu
+}
+
+// SetNotificationData sets the "notification_data" edge to the NotificationData entity.
+func (nu *NotificationUpdate) SetNotificationData(n *NotificationData) *NotificationUpdate {
+	return nu.SetNotificationDataID(n.ID)
+}
+
 // Mutation returns the NotificationMutation object of the builder.
 func (nu *NotificationUpdate) Mutation() *NotificationMutation {
 	return nu.mutation
+}
+
+// ClearNotificationData clears the "notification_data" edge to the NotificationData entity.
+func (nu *NotificationUpdate) ClearNotificationData() *NotificationUpdate {
+	nu.mutation.ClearNotificationData()
+	return nu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -302,6 +334,35 @@ func (nu *NotificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := nu.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
+	}
+	if nu.mutation.NotificationDataCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   notification.NotificationDataTable,
+			Columns: []string{notification.NotificationDataColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationdata.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := nu.mutation.NotificationDataIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   notification.NotificationDataTable,
+			Columns: []string{notification.NotificationDataColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationdata.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(nu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, nu.driver, _spec); err != nil {
@@ -483,9 +544,40 @@ func (nuo *NotificationUpdateOne) SetNillableCreatedAt(t *time.Time) *Notificati
 	return nuo
 }
 
+// SetNotificationDataID sets the "notification_data_id" field.
+func (nuo *NotificationUpdateOne) SetNotificationDataID(i int64) *NotificationUpdateOne {
+	nuo.mutation.SetNotificationDataID(i)
+	return nuo
+}
+
+// SetNillableNotificationDataID sets the "notification_data_id" field if the given value is not nil.
+func (nuo *NotificationUpdateOne) SetNillableNotificationDataID(i *int64) *NotificationUpdateOne {
+	if i != nil {
+		nuo.SetNotificationDataID(*i)
+	}
+	return nuo
+}
+
+// ClearNotificationDataID clears the value of the "notification_data_id" field.
+func (nuo *NotificationUpdateOne) ClearNotificationDataID() *NotificationUpdateOne {
+	nuo.mutation.ClearNotificationDataID()
+	return nuo
+}
+
+// SetNotificationData sets the "notification_data" edge to the NotificationData entity.
+func (nuo *NotificationUpdateOne) SetNotificationData(n *NotificationData) *NotificationUpdateOne {
+	return nuo.SetNotificationDataID(n.ID)
+}
+
 // Mutation returns the NotificationMutation object of the builder.
 func (nuo *NotificationUpdateOne) Mutation() *NotificationMutation {
 	return nuo.mutation
+}
+
+// ClearNotificationData clears the "notification_data" edge to the NotificationData entity.
+func (nuo *NotificationUpdateOne) ClearNotificationData() *NotificationUpdateOne {
+	nuo.mutation.ClearNotificationData()
+	return nuo
 }
 
 // Where appends a list predicates to the NotificationUpdate builder.
@@ -627,6 +719,35 @@ func (nuo *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificat
 	}
 	if value, ok := nuo.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
+	}
+	if nuo.mutation.NotificationDataCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   notification.NotificationDataTable,
+			Columns: []string{notification.NotificationDataColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationdata.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := nuo.mutation.NotificationDataIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   notification.NotificationDataTable,
+			Columns: []string{notification.NotificationDataColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(notificationdata.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(nuo.modifiers...)
 	_node = &Notification{config: nuo.config}

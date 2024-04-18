@@ -11,6 +11,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent/device"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
 )
 
@@ -151,6 +152,33 @@ func (f TraverseNotification) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.NotificationQuery", q)
 }
 
+// The NotificationDataFunc type is an adapter to allow the use of ordinary function as a Querier.
+type NotificationDataFunc func(context.Context, *ent.NotificationDataQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f NotificationDataFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.NotificationDataQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.NotificationDataQuery", q)
+}
+
+// The TraverseNotificationData type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseNotificationData func(context.Context, *ent.NotificationDataQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseNotificationData) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseNotificationData) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.NotificationDataQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.NotificationDataQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
@@ -160,6 +188,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.LastReadNotificationQuery, predicate.LastReadNotification, lastreadnotification.OrderOption]{typ: ent.TypeLastReadNotification, tq: q}, nil
 	case *ent.NotificationQuery:
 		return &query[*ent.NotificationQuery, predicate.Notification, notification.OrderOption]{typ: ent.TypeNotification, tq: q}, nil
+	case *ent.NotificationDataQuery:
+		return &query[*ent.NotificationDataQuery, predicate.NotificationData, notificationdata.OrderOption]{typ: ent.TypeNotificationData, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

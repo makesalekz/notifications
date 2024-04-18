@@ -6,6 +6,8 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent/device"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
+	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
+	"gitlab.calendaria.team/services/notifications/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -15,7 +17,7 @@ import (
 
 // schemaGraph holds a representation of ent/schema at runtime.
 var schemaGraph = func() *sqlgraph.Schema {
-	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 3)}
+	graph := &sqlgraph.Schema{Nodes: make([]*sqlgraph.Node, 4)}
 	graph.Nodes[0] = &sqlgraph.Node{
 		NodeSpec: sqlgraph.NodeSpec{
 			Table:   device.Table,
@@ -30,6 +32,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			device.FieldUserID:    {Type: field.TypeInt64, Column: device.FieldUserID},
 			device.FieldToken:     {Type: field.TypeString, Column: device.FieldToken},
 			device.FieldCreatedAt: {Type: field.TypeTime, Column: device.FieldCreatedAt},
+			device.FieldLanguage:  {Type: field.TypeString, Column: device.FieldLanguage},
 		},
 	}
 	graph.Nodes[1] = &sqlgraph.Node{
@@ -59,16 +62,63 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "Notification",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			notification.FieldUserID:    {Type: field.TypeInt64, Column: notification.FieldUserID},
-			notification.FieldType:      {Type: field.TypeString, Column: notification.FieldType},
-			notification.FieldTitle:     {Type: field.TypeString, Column: notification.FieldTitle},
-			notification.FieldText:      {Type: field.TypeString, Column: notification.FieldText},
-			notification.FieldEventID:   {Type: field.TypeInt64, Column: notification.FieldEventID},
-			notification.FieldContactID: {Type: field.TypeInt64, Column: notification.FieldContactID},
-			notification.FieldTaskID:    {Type: field.TypeInt64, Column: notification.FieldTaskID},
-			notification.FieldCreatedAt: {Type: field.TypeTime, Column: notification.FieldCreatedAt},
+			notification.FieldUserID:             {Type: field.TypeInt64, Column: notification.FieldUserID},
+			notification.FieldType:               {Type: field.TypeString, Column: notification.FieldType},
+			notification.FieldTitle:              {Type: field.TypeString, Column: notification.FieldTitle},
+			notification.FieldText:               {Type: field.TypeString, Column: notification.FieldText},
+			notification.FieldEventID:            {Type: field.TypeInt64, Column: notification.FieldEventID},
+			notification.FieldContactID:          {Type: field.TypeInt64, Column: notification.FieldContactID},
+			notification.FieldTaskID:             {Type: field.TypeInt64, Column: notification.FieldTaskID},
+			notification.FieldCreatedAt:          {Type: field.TypeTime, Column: notification.FieldCreatedAt},
+			notification.FieldNotificationDataID: {Type: field.TypeInt64, Column: notification.FieldNotificationDataID},
 		},
 	}
+	graph.Nodes[3] = &sqlgraph.Node{
+		NodeSpec: sqlgraph.NodeSpec{
+			Table:   notificationdata.Table,
+			Columns: notificationdata.Columns,
+			ID: &sqlgraph.FieldSpec{
+				Type:   field.TypeInt64,
+				Column: notificationdata.FieldID,
+			},
+		},
+		Type: "NotificationData",
+		Fields: map[string]*sqlgraph.FieldSpec{
+			notificationdata.FieldType:        {Type: field.TypeString, Column: notificationdata.FieldType},
+			notificationdata.FieldEvent:       {Type: field.TypeString, Column: notificationdata.FieldEvent},
+			notificationdata.FieldMember:      {Type: field.TypeString, Column: notificationdata.FieldMember},
+			notificationdata.FieldChat:        {Type: field.TypeString, Column: notificationdata.FieldChat},
+			notificationdata.FieldMessage:     {Type: field.TypeString, Column: notificationdata.FieldMessage},
+			notificationdata.FieldContact:     {Type: field.TypeString, Column: notificationdata.FieldContact},
+			notificationdata.FieldTask:        {Type: field.TypeString, Column: notificationdata.FieldTask},
+			notificationdata.FieldMetadata:    {Type: field.TypeString, Column: notificationdata.FieldMetadata},
+			notificationdata.FieldPluralCount: {Type: field.TypeInt64, Column: notificationdata.FieldPluralCount},
+		},
+	}
+	graph.MustAddE(
+		"notification_data",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   notification.NotificationDataTable,
+			Columns: []string{notification.NotificationDataColumn},
+			Bidi:    false,
+		},
+		"Notification",
+		"NotificationData",
+	)
+	graph.MustAddE(
+		"notification",
+		&sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   notificationdata.NotificationTable,
+			Columns: []string{notificationdata.NotificationColumn},
+			Bidi:    false,
+		},
+		"NotificationData",
+		"Notification",
+	)
 	return graph
 }()
 
@@ -131,6 +181,11 @@ func (f *DeviceFilter) WhereToken(p entql.StringP) {
 // WhereCreatedAt applies the entql time.Time predicate on the created_at field.
 func (f *DeviceFilter) WhereCreatedAt(p entql.TimeP) {
 	f.Where(p.Field(device.FieldCreatedAt))
+}
+
+// WhereLanguage applies the entql string predicate on the language field.
+func (f *DeviceFilter) WhereLanguage(p entql.StringP) {
+	f.Where(p.Field(device.FieldLanguage))
 }
 
 // addPredicate implements the predicateAdder interface.
@@ -266,4 +321,122 @@ func (f *NotificationFilter) WhereTaskID(p entql.Int64P) {
 // WhereCreatedAt applies the entql time.Time predicate on the created_at field.
 func (f *NotificationFilter) WhereCreatedAt(p entql.TimeP) {
 	f.Where(p.Field(notification.FieldCreatedAt))
+}
+
+// WhereNotificationDataID applies the entql int64 predicate on the notification_data_id field.
+func (f *NotificationFilter) WhereNotificationDataID(p entql.Int64P) {
+	f.Where(p.Field(notification.FieldNotificationDataID))
+}
+
+// WhereHasNotificationData applies a predicate to check if query has an edge notification_data.
+func (f *NotificationFilter) WhereHasNotificationData() {
+	f.Where(entql.HasEdge("notification_data"))
+}
+
+// WhereHasNotificationDataWith applies a predicate to check if query has an edge notification_data with a given conditions (other predicates).
+func (f *NotificationFilter) WhereHasNotificationDataWith(preds ...predicate.NotificationData) {
+	f.Where(entql.HasEdgeWith("notification_data", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
+}
+
+// addPredicate implements the predicateAdder interface.
+func (ndq *NotificationDataQuery) addPredicate(pred func(s *sql.Selector)) {
+	ndq.predicates = append(ndq.predicates, pred)
+}
+
+// Filter returns a Filter implementation to apply filters on the NotificationDataQuery builder.
+func (ndq *NotificationDataQuery) Filter() *NotificationDataFilter {
+	return &NotificationDataFilter{config: ndq.config, predicateAdder: ndq}
+}
+
+// addPredicate implements the predicateAdder interface.
+func (m *NotificationDataMutation) addPredicate(pred func(s *sql.Selector)) {
+	m.predicates = append(m.predicates, pred)
+}
+
+// Filter returns an entql.Where implementation to apply filters on the NotificationDataMutation builder.
+func (m *NotificationDataMutation) Filter() *NotificationDataFilter {
+	return &NotificationDataFilter{config: m.config, predicateAdder: m}
+}
+
+// NotificationDataFilter provides a generic filtering capability at runtime for NotificationDataQuery.
+type NotificationDataFilter struct {
+	predicateAdder
+	config
+}
+
+// Where applies the entql predicate on the query filter.
+func (f *NotificationDataFilter) Where(p entql.P) {
+	f.addPredicate(func(s *sql.Selector) {
+		if err := schemaGraph.EvalP(schemaGraph.Nodes[3].Type, p, s); err != nil {
+			s.AddError(err)
+		}
+	})
+}
+
+// WhereID applies the entql int64 predicate on the id field.
+func (f *NotificationDataFilter) WhereID(p entql.Int64P) {
+	f.Where(p.Field(notificationdata.FieldID))
+}
+
+// WhereType applies the entql string predicate on the type field.
+func (f *NotificationDataFilter) WhereType(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldType))
+}
+
+// WhereEvent applies the entql string predicate on the event field.
+func (f *NotificationDataFilter) WhereEvent(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldEvent))
+}
+
+// WhereMember applies the entql string predicate on the member field.
+func (f *NotificationDataFilter) WhereMember(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldMember))
+}
+
+// WhereChat applies the entql string predicate on the chat field.
+func (f *NotificationDataFilter) WhereChat(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldChat))
+}
+
+// WhereMessage applies the entql string predicate on the message field.
+func (f *NotificationDataFilter) WhereMessage(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldMessage))
+}
+
+// WhereContact applies the entql string predicate on the contact field.
+func (f *NotificationDataFilter) WhereContact(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldContact))
+}
+
+// WhereTask applies the entql string predicate on the task field.
+func (f *NotificationDataFilter) WhereTask(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldTask))
+}
+
+// WhereMetadata applies the entql string predicate on the metadata field.
+func (f *NotificationDataFilter) WhereMetadata(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldMetadata))
+}
+
+// WherePluralCount applies the entql int64 predicate on the plural_count field.
+func (f *NotificationDataFilter) WherePluralCount(p entql.Int64P) {
+	f.Where(p.Field(notificationdata.FieldPluralCount))
+}
+
+// WhereHasNotification applies a predicate to check if query has an edge notification.
+func (f *NotificationDataFilter) WhereHasNotification() {
+	f.Where(entql.HasEdge("notification"))
+}
+
+// WhereHasNotificationWith applies a predicate to check if query has an edge notification with a given conditions (other predicates).
+func (f *NotificationDataFilter) WhereHasNotificationWith(preds ...predicate.Notification) {
+	f.Where(entql.HasEdgeWith("notification", sqlgraph.WrapFunc(func(s *sql.Selector) {
+		for _, p := range preds {
+			p(s)
+		}
+	})))
 }

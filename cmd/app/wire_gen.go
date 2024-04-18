@@ -45,20 +45,25 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)
 	notificationsRepo := data.NewNotificationsRepo(dataData)
+	localizer, err := data.NewLocalizer()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	encodedConn, cleanup2, err := data.NewNatsClient(bootstrap)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	queueManager := nats.NewQueueManager(configConfig, encodedConn, logger)
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, queueManager)
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, queueManager)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	senderService := service.NewSenderService(smsUsecase, fcmUsecase)
-	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, notificationsRepo)
+	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, localizer, notificationsRepo)
 	if err != nil {
 		cleanup2()
 		cleanup()

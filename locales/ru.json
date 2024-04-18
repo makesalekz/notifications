@@ -1,0 +1,43 @@
+{
+    "NEW_INVITE": "{{.member.name}} пригласил вас на событие",
+    "MEMBER_ROLE_CHANGED": "Ваша роль изменилась на {{.member.role}}",
+    "MEMBER_DECLINED": "{{.member.name}} отклонил",
+    "MEMBER_LEFT": "{{.member.name}} покинул событие",
+    "MEMBER_KICKED": "Вас удалили из события",
+    "MEMBER_MAYBE": "{{.member.name}} думает о приглашении",
+    "MEMBER_ACCEPTED": "{{.member.name}} принял приглашение на событие",
+    "EVENT_UPDATED": "{{.member.name}} изменил данные события: {{.metadata}}",
+    "EVENT_DELETED": "{{.member.name}} удалил событие",
+    "EVENT_STARTS_SOON": {
+        "one": "Событие начнется через {{.event.noticeBefore}} минуту",
+        "few": "Событие начнется через {{.event.noticeBefore}} минуты",
+        "many": "Событие начнется через {{.event.noticeBefore}} минут",
+        "other": "Событие скоро начнется"
+    },
+    "EVENT_STARTS_NOW": {
+        "one": "Событие началось в {{.event.location.address}}",
+        "few": "Событие началось в {{.event.location.address}}",
+        "many": "Событие началось",
+        "other": "Событие началось"
+    },
+    "EVENT_REMINDER": "Ответьте на приглашение",
+    "EVENT_CHAT_CREATED": "{{.member.name}} создал чат события",
+    "EVENT_CHAT_DELETED": "{{.member.name}} удалил чат события",
+    "ATTACHMENTS_ADDED": "{{.member.name}} добавил новое вложение",
+    "ATTACHMENTS_DELETED": "{{.member.name}} удалил вложение",
+    "LINKS_ADDED": "{{.member.name}} добавил новую ссылку",
+    "LINKS_DELETED": "{{.member.name}} удалил ссылку",
+    "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
+    "chat.update": {
+        "one":"{{.metadata}} был изменен {{.member.name}}",
+        "few":"{{.metadata}} были изменены {{.member.name}}",
+        "many":"{{.metadata}} были изменены {{.member.name}}",
+        "other":"{{.metadata}} были изменены {{.member.name}}"
+    },
+    "message.new": {
+        "one": "{{.message.content.text}}",
+        "few": "{{.message.content.text}}",
+        "many": "Новое сообщение",
+        "other": "Новое сообщение"
+    }
+}

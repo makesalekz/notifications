@@ -14,6 +14,7 @@ var (
 		{Name: "user_id", Type: field.TypeInt64},
 		{Name: "token", Type: field.TypeString, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "language", Type: field.TypeString, Nullable: true, Default: "en"},
 	}
 	// DevicesTable holds the schema information for the "devices" table.
 	DevicesTable = &schema.Table{
@@ -52,12 +53,21 @@ var (
 		{Name: "contact_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "task_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "notification_data_id", Type: field.TypeInt64, Unique: true, Nullable: true},
 	}
 	// NotificationsTable holds the schema information for the "notifications" table.
 	NotificationsTable = &schema.Table{
 		Name:       "notifications",
 		Columns:    NotificationsColumns,
 		PrimaryKey: []*schema.Column{NotificationsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "notifications_notification_data_notification",
+				Columns:    []*schema.Column{NotificationsColumns[9]},
+				RefColumns: []*schema.Column{NotificationDataColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "notification_user_id_type",
@@ -66,13 +76,34 @@ var (
 			},
 		},
 	}
+	// NotificationDataColumns holds the columns for the "notification_data" table.
+	NotificationDataColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "type", Type: field.TypeString, Nullable: true},
+		{Name: "event", Type: field.TypeString, Nullable: true},
+		{Name: "member", Type: field.TypeString, Nullable: true},
+		{Name: "chat", Type: field.TypeString, Nullable: true},
+		{Name: "message", Type: field.TypeString, Nullable: true},
+		{Name: "contact", Type: field.TypeString, Nullable: true},
+		{Name: "task", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeString, Nullable: true},
+		{Name: "plural_count", Type: field.TypeInt64, Nullable: true},
+	}
+	// NotificationDataTable holds the schema information for the "notification_data" table.
+	NotificationDataTable = &schema.Table{
+		Name:       "notification_data",
+		Columns:    NotificationDataColumns,
+		PrimaryKey: []*schema.Column{NotificationDataColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		DevicesTable,
 		LastReadNotificationsTable,
 		NotificationsTable,
+		NotificationDataTable,
 	}
 )
 
 func init() {
+	NotificationsTable.ForeignKeys[0].RefTable = NotificationDataTable
 }

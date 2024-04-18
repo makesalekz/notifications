@@ -22,7 +22,9 @@ type Device struct {
 	// Token holds the value of the "token" field.
 	Token string `json:"token,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// Language holds the value of the "language" field.
+	Language     string `json:"language,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -33,7 +35,7 @@ func (*Device) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case device.FieldID, device.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case device.FieldToken:
+		case device.FieldToken, device.FieldLanguage:
 			values[i] = new(sql.NullString)
 		case device.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -75,6 +77,12 @@ func (d *Device) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				d.CreatedAt = value.Time
+			}
+		case device.FieldLanguage:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field language", values[i])
+			} else if value.Valid {
+				d.Language = value.String
 			}
 		default:
 			d.selectValues.Set(columns[i], values[i])
@@ -120,6 +128,9 @@ func (d *Device) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(d.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("language=")
+	builder.WriteString(d.Language)
 	builder.WriteByte(')')
 	return builder.String()
 }

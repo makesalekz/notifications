@@ -69,6 +69,11 @@ func CreatedAt(v time.Time) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// Language applies equality check predicate on the "language" field. It's identical to LanguageEQ.
+func Language(v string) predicate.Device {
+	return predicate.Device(sql.FieldEQ(FieldLanguage, v))
+}
+
 // UserIDEQ applies the EQ predicate on the "user_id" field.
 func UserIDEQ(v int64) predicate.Device {
 	return predicate.Device(sql.FieldEQ(FieldUserID, v))
@@ -212,6 +217,81 @@ func CreatedAtLT(v time.Time) predicate.Device {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Device {
 	return predicate.Device(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// LanguageEQ applies the EQ predicate on the "language" field.
+func LanguageEQ(v string) predicate.Device {
+	return predicate.Device(sql.FieldEQ(FieldLanguage, v))
+}
+
+// LanguageNEQ applies the NEQ predicate on the "language" field.
+func LanguageNEQ(v string) predicate.Device {
+	return predicate.Device(sql.FieldNEQ(FieldLanguage, v))
+}
+
+// LanguageIn applies the In predicate on the "language" field.
+func LanguageIn(vs ...string) predicate.Device {
+	return predicate.Device(sql.FieldIn(FieldLanguage, vs...))
+}
+
+// LanguageNotIn applies the NotIn predicate on the "language" field.
+func LanguageNotIn(vs ...string) predicate.Device {
+	return predicate.Device(sql.FieldNotIn(FieldLanguage, vs...))
+}
+
+// LanguageGT applies the GT predicate on the "language" field.
+func LanguageGT(v string) predicate.Device {
+	return predicate.Device(sql.FieldGT(FieldLanguage, v))
+}
+
+// LanguageGTE applies the GTE predicate on the "language" field.
+func LanguageGTE(v string) predicate.Device {
+	return predicate.Device(sql.FieldGTE(FieldLanguage, v))
+}
+
+// LanguageLT applies the LT predicate on the "language" field.
+func LanguageLT(v string) predicate.Device {
+	return predicate.Device(sql.FieldLT(FieldLanguage, v))
+}
+
+// LanguageLTE applies the LTE predicate on the "language" field.
+func LanguageLTE(v string) predicate.Device {
+	return predicate.Device(sql.FieldLTE(FieldLanguage, v))
+}
+
+// LanguageContains applies the Contains predicate on the "language" field.
+func LanguageContains(v string) predicate.Device {
+	return predicate.Device(sql.FieldContains(FieldLanguage, v))
+}
+
+// LanguageHasPrefix applies the HasPrefix predicate on the "language" field.
+func LanguageHasPrefix(v string) predicate.Device {
+	return predicate.Device(sql.FieldHasPrefix(FieldLanguage, v))
+}
+
+// LanguageHasSuffix applies the HasSuffix predicate on the "language" field.
+func LanguageHasSuffix(v string) predicate.Device {
+	return predicate.Device(sql.FieldHasSuffix(FieldLanguage, v))
+}
+
+// LanguageIsNil applies the IsNil predicate on the "language" field.
+func LanguageIsNil() predicate.Device {
+	return predicate.Device(sql.FieldIsNull(FieldLanguage))
+}
+
+// LanguageNotNil applies the NotNil predicate on the "language" field.
+func LanguageNotNil() predicate.Device {
+	return predicate.Device(sql.FieldNotNull(FieldLanguage))
+}
+
+// LanguageEqualFold applies the EqualFold predicate on the "language" field.
+func LanguageEqualFold(v string) predicate.Device {
+	return predicate.Device(sql.FieldEqualFold(FieldLanguage, v))
+}
+
+// LanguageContainsFold applies the ContainsFold predicate on the "language" field.
+func LanguageContainsFold(v string) predicate.Device {
+	return predicate.Device(sql.FieldContainsFold(FieldLanguage, v))
 }
 
 // And groups predicates with the AND operator between them.

@@ -7,6 +7,8 @@ import (
 
 const QueueFCM = "fcm"
 
+var DefaultLanguage = "en"
+
 // ProviderSet is biz providers.
 var ProviderSet = wire.NewSet(
 	NewSmsUsecase,

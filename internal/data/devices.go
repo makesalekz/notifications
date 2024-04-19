@@ -25,7 +25,6 @@ type DeviceData struct {
 // DevicesRepo
 type DevicesRepo interface {
 	CreateDevice(ctx context.Context, deviceDto DeviceDto) error
-	UpdateDevice(ctx context.Context, deviceEnt *ent.Device, deviceData DeviceData) (*ent.Device, error)
 	GetDevice(ctx context.Context, deviceKey DeviceKey) (*ent.Device, error)
 	DeleteDevice(ctx context.Context, deviceKey DeviceKey) (int, error)
 	GetDevicesForUser(ctx context.Context, userId int64) ([]*ent.Device, error)
@@ -73,22 +72,6 @@ func (r *devicesRepo) GetDevice(ctx context.Context, deviceKey DeviceKey) (*ent.
 			device.Token(deviceKey.Token),
 		).
 		First(ctx)
-}
-
-func (r *devicesRepo) UpdateDevice(ctx context.Context, deviceEnt *ent.Device, deviceData DeviceData) (*ent.Device, error) {
-	query := deviceEnt.Update()
-	mustUpdate := false
-
-	if deviceData.Language != "" &&
-		(deviceEnt.Language != deviceData.Language) {
-		mustUpdate = true
-		query.SetLanguage(deviceData.Language)
-	}
-
-	if mustUpdate {
-		return query.Save(ctx)
-	}
-	return deviceEnt, nil
 }
 
 func (r *devicesRepo) GetDevicesForUser(ctx context.Context, userId int64) ([]*ent.Device, error) {

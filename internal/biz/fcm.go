@@ -9,7 +9,6 @@ import (
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
 	nnats "github.com/nats-io/nats.go"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
@@ -211,20 +210,6 @@ func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messag
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
 	return uc.devicesRepo.CreateDevice(ctx, device)
-}
-
-func (uc FcmUsecase) UpdateDevice(ctx context.Context, deviceDto data.DeviceDto) error {
-	device, err := uc.devicesRepo.GetDevice(ctx, deviceDto.DeviceKey)
-	if err != nil {
-		return v1.ErrorDatabaseQuery("get device error: %s", err.Error())
-	}
-
-	_, err = uc.devicesRepo.UpdateDevice(ctx, device, deviceDto.DeviceData)
-	if err != nil {
-		return v1.ErrorDatabaseQuery("update device error: %s", err.Error())
-	}
-
-	return nil
 }
 
 func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.DeviceKey) error {

@@ -21,7 +21,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Sender_CreateFcmDevice_FullMethodName   = "/notifications.v1.Sender/CreateFcmDevice"
-	Sender_UpdateFcmDevice_FullMethodName   = "/notifications.v1.Sender/UpdateFcmDevice"
 	Sender_DeleteFcmDevice_FullMethodName   = "/notifications.v1.Sender/DeleteFcmDevice"
 	Sender_PersonalSmsSender_FullMethodName = "/notifications.v1.Sender/PersonalSmsSender"
 )
@@ -31,7 +30,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SenderClient interface {
 	CreateFcmDevice(ctx context.Context, in *FcmDataRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
-	UpdateFcmDevice(ctx context.Context, in *FcmDataRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 }
@@ -47,15 +45,6 @@ func NewSenderClient(cc grpc.ClientConnInterface) SenderClient {
 func (c *senderClient) CreateFcmDevice(ctx context.Context, in *FcmDataRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
 	out := new(v1.EmptyReply)
 	err := c.cc.Invoke(ctx, Sender_CreateFcmDevice_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *senderClient) UpdateFcmDevice(ctx context.Context, in *FcmDataRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
-	out := new(v1.EmptyReply)
-	err := c.cc.Invoke(ctx, Sender_UpdateFcmDevice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +74,6 @@ func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSen
 // for forward compatibility
 type SenderServer interface {
 	CreateFcmDevice(context.Context, *FcmDataRequest) (*v1.EmptyReply, error)
-	UpdateFcmDevice(context.Context, *FcmDataRequest) (*v1.EmptyReply, error)
 	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error)
 	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*v1.EmptyReply, error)
 	mustEmbedUnimplementedSenderServer()
@@ -97,9 +85,6 @@ type UnimplementedSenderServer struct {
 
 func (UnimplementedSenderServer) CreateFcmDevice(context.Context, *FcmDataRequest) (*v1.EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFcmDevice not implemented")
-}
-func (UnimplementedSenderServer) UpdateFcmDevice(context.Context, *FcmDataRequest) (*v1.EmptyReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateFcmDevice not implemented")
 }
 func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFcmDevice not implemented")
@@ -134,24 +119,6 @@ func _Sender_CreateFcmDevice_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SenderServer).CreateFcmDevice(ctx, req.(*FcmDataRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Sender_UpdateFcmDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FcmDataRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SenderServer).UpdateFcmDevice(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Sender_UpdateFcmDevice_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SenderServer).UpdateFcmDevice(ctx, req.(*FcmDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -202,10 +169,6 @@ var Sender_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateFcmDevice",
 			Handler:    _Sender_CreateFcmDevice_Handler,
-		},
-		{
-			MethodName: "UpdateFcmDevice",
-			Handler:    _Sender_UpdateFcmDevice_Handler,
 		},
 		{
 			MethodName: "DeleteFcmDevice",

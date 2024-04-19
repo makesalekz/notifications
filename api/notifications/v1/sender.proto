@@ -10,7 +10,6 @@ option java_package = "notifications.v1";
 
 service Sender {
   rpc CreateFcmDevice(FcmDataRequest) returns (utils.v1.EmptyReply);
-  rpc UpdateFcmDevice(FcmDataRequest) returns (utils.v1.EmptyReply);
   rpc DeleteFcmDevice(FcmDeviceRequest) returns (utils.v1.EmptyReply);
   rpc PersonalSmsSender(PersonalSmsSenderRequest) returns (utils.v1.EmptyReply);
 }

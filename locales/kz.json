@@ -1,0 +1,30 @@
+{
+  "message.photo": {
+    "one": "1 сурет",
+    "other": "{{.plural_count}} сурет"
+  },
+  "message.video": {
+    "one": "1 бейне",
+    "other": "{{.plural_count}} бейне"
+  },
+  "message.media": {
+    "one": "1 медиа",
+    "other": "{{.plural_count}} медиа"
+  },
+  "message.file": {
+    "one": "Файл жіберді",
+    "other": "{{.plural_count}} файл жіберді"
+  },
+  "message.event": {
+    "one": "Іс-шараны жіберді",
+    "other": "{{.plural_count}} іс-шара жіберді"
+  },
+  "message.location": {
+    "one": "Мекен-жайды жіберді",
+    "other": "{{.plural_count}} мекен-жай жіберді"
+  },
+  "message.contact": {
+    "one": "Контактты жіберді",
+    "other": "{{.plural_count}} контакт жіберді"
+  }
+}

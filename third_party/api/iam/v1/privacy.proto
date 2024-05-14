@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package iam.v1;
+
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/iam/api/iam/v1;iam_v1";
+option java_multiple_files = true;
+option java_package = "iam.v1";
+
+service Privacy {
+  rpc GetPrivacy(utils.v1.EmptyRequest) returns (PrivacyReply);
+  rpc GetUsersPrivacies(UsersPrivaciesRequest) returns (UsersPrivaciesReply);
+  rpc UpdatePrivacy(PrivacyRequest) returns (PrivacyReply);
+}
+
+message PrivacyRequest {
+  map<string, string> settings = 1;
+}
+
+message PrivacyReply {
+  map<string, string> settings = 1;
+}
+
+message UsersPrivaciesRequest {
+  repeated int64 ids = 1;
+}
+
+message UsersPrivaciesReply {
+  repeated UserPrivacies users = 1;
+}
+
+message UserPrivacies {
+  int64 id = 1;
+  map<string, string> privacies = 2;
+}

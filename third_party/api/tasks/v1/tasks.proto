@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package tasks.v1;
+
+import "api/tasks/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/pms/tasks/api/tasks/v1;tasks_v1";
+option java_multiple_files = true;
+option java_package = "tasks.v1";
+
+service Tasks {
+  rpc CreateTask(CreateTaskRequest) returns (TaskReply);
+  rpc UpdateTasks(UpdateTaskRequest) returns (TaskReply);
+  rpc DeleteTasks(DeleteTaskRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteTasksWithTag(DeleteTaskWithTagRequest)
+      returns (utils.v1.EmptyReply);
+  rpc GetTask(GetTaskRequest) returns (TaskTreeReply);
+  rpc ListTasks(ListTasksRequest) returns (ListTasksReply);
+  rpc DoActionOnTask(DoActionOnTaskRequest) returns (utils.v1.EmptyReply);
+}
+
+message DoActionOnTaskRequest {
+  int64 taskId = 2;
+  string action = 1;
+}
+
+message TaskReply {
+  Task task = 1;
+}
+
+message TasksReply {
+  repeated Task tasks = 1;
+}
+
+message CreateTaskRequest {
+  TaskDto task = 2;
+}
+
+message UpdateTaskRequest {
+  int64 taskId = 2;
+  TaskDto task = 3;
+}
+
+message DeleteTaskRequest {
+  int64 taskId = 2;
+  int64 projectId = 3;
+}
+
+message DeleteTaskWithTagRequest {
+  int64 tagId = 1;
+}
+
+message GetTaskRequest {
+  int64 taskId = 2;
+  bool withSubtasks = 3;
+}
+
+message ListTasksRequest {
+  int64 projectId = 2;
+  string title = 3;
+  int64 assigneeId = 4;
+  string status = 5;
+  string priority = 6;
+  string type = 7;
+  int64 parentId = 8;
+  int64 createdById = 9;
+  string startDate = 10;
+  string endDate = 11;
+  bool onlyIncoming = 14;
+  bool withTags = 16;
+  int64 tagId = 15;
+  // A general string which will be used for search, similar to DB %LIKE%
+  string query = 17;
+
+  utils.v1.PaginateRequest paginate = 12;
+  utils.v1.SortRequest sort = 13;
+}
+
+message ListTasksReply {
+  repeated Task tasks = 1;
+  repeated Tag tags = 3;
+  utils.v1.PaginateReply paginate = 2;
+}
+
+message TaskTreeReply {
+  Task parent = 1;
+  repeated Task subTasks = 2;
+  repeated Tag tags = 3;
+}

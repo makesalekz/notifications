@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package contacts.v1;
+
+import "api/contacts/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/contacts/api/contacts/v1;contacts_v1";
+option java_multiple_files = true;
+option java_package = "contacts.v1";
+
+service Contacts {
+  rpc CreateContact(CreateContactRequest) returns (ContactReply);
+  rpc CreateContacts(CreateContactsRequest) returns (utils.v1.EmptyReply);
+  rpc UpdateContact(UpdateContactRequest) returns (ContactReply);
+  rpc DeleteContact(DeleteContactRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteUser(UserIdRequest) returns (utils.v1.EmptyReply);
+  rpc GetContact(GetContactRequest) returns (ContactReply);
+  rpc GetContacts(GetContactsRequest) returns (GetContactsReply);
+
+  // ListContacts
+  // Request: pagination request and query
+  rpc ListContacts(ListContactsRequest) returns (ListContactsReply);
+
+  // GetLabels
+  // Request: userId of whom we need to get all labels
+  // Returns: list of labels which user has in our contacts, including the empty
+  // ones
+  rpc GetLabelsByUserId(UserIdRequest) returns (GetLabelsByUserIdResponse);
+  rpc GetContactsByUserId(UserIdRequest) returns (GetContactsReply);
+  rpc GetContactsByUserIds(UserIdsRequest) returns (GetContactsReply);
+}
+
+message CreateContactRequest {
+  ContactDto contact = 2;
+}
+
+message CreateContactsRequest {
+  repeated ContactDto contacts = 2;
+}
+
+message ContactDto {
+  string phone = 1;
+  optional string email = 2;
+  optional string label = 3;
+}
+
+message UpdateContactRequest {
+  int64 contactId = 1;
+  optional string label = 2;
+}
+
+message DeleteContactRequest {
+  int64 contactId = 2;
+}
+
+message GetContactRequest {
+  int64 contactId = 1;
+}
+
+message ContactReply {
+  Contact contact = 1;
+}
+
+message GetContactsRequest {
+  repeated int64 ids = 1;
+  string search = 2;
+}
+
+message GetContactsReply {
+  repeated Contact contacts = 1;
+}
+
+message ListContactsRequest {
+  // A general string which will be used for search, similar to DB %LIKE%
+  optional string query = 5;
+  optional bool withBlocked = 6;
+  PaginateRequest paginate = 7;
+}
+
+message ListContactsReply {
+  repeated Contact contacts = 1;
+  PaginateReply paginate = 2;
+}
+
+message UserIdRequest {
+  int64 userId = 2;
+}
+
+message UserIdsRequest {
+  repeated int64 userIds = 2;
+}
+
+message GetLabelsByUserIdResponse {
+  repeated string labels = 1;
+}

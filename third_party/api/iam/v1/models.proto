@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package iam.v1;
+
+option go_package = "gitlab.calendaria.team/services/iam/api/iam/v1;iam_v1";
+option java_multiple_files = true;
+option java_package = "iam.v1";
+
+message User {
+  int64 id = 1;
+  string name = 2;
+  string bio = 3;
+  string timezone = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+  string lastLoginAt = 7;
+  bool isActive = 8;
+  optional string phone = 9;
+  optional string email = 10;
+  optional string username = 15;
+  optional string avatar = 11;
+  optional string bioUpdatedAt = 12;
+  optional bool isPhoneVerified = 13;
+  optional bool isEmailVerified = 14;
+}
+
+message UserShort {
+  int64 id = 1;
+  string phone = 2;
+  string email = 3;
+  string username = 12;
+  string name = 4;
+  string avatar = 6;
+  string lastLoginAt = 7;
+  optional bool isPhoneVerified = 10;
+  optional bool isEmailVerified = 11;
+
+  // Deprecated. Marked for deletion
+  optional Relation relation = 8;
+  map<string, string> privacies = 9;
+}
+
+message Relation {
+  bool isBlocked = 1;
+  bool isMuted = 2;
+}
+
+message TenantShort {
+  int64 id = 1;
+  string name = 3;
+}

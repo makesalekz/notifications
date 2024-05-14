@@ -188,8 +188,8 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 		dto.Type = &dataType
 	}
 
-	if plularCount, ok := notificationData["plural_count"]; ok && plularCount != "" {
-		count, err := strconv.Atoi(plularCount)
+	if pluralCount, ok := notificationData["plural_count"]; ok && pluralCount != "" {
+		count, err := strconv.Atoi(pluralCount)
 		if err != nil {
 			return fmt.Errorf("notificationData[plural_count]->strconv.Atoi, err: %s", err.Error())
 		}

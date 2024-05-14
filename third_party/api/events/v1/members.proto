@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "google/api/annotations.proto";
+import "api/events/v1/models.proto";
+import "api/iam/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_multiple_files = true;
+option java_package = "events.v1";
+
+service Members {
+  rpc InviteMembers(InviteMembersRequest) returns (InviteMembersReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/members"
+      body: "*"
+    };
+  };
+  rpc UpdateMemberStatus(UpdateMemberStatusRequest)
+      returns (utils.v1.EmptyReply) {
+    option (google.api.http) = {
+      put: "/v1/events/{eventId}/members/status"
+      body: "*"
+    };
+  };
+  rpc UpdateMemberRemind(UpdateMemberRemindRequest)
+      returns (utils.v1.EmptyReply) {
+    option (google.api.http) = {
+      put: "/v1/events/{eventId}/members/remind"
+      body: "*"
+    };
+  };
+  rpc UpdateMemberRole(UpdateMemberRoleRequest) returns (utils.v1.EmptyReply) {
+    option (google.api.http) = {
+      put: "/v1/events/{eventId}/members/role"
+      body: "*"
+    };
+  };
+  rpc KickMember(KickMemberRequest) returns (utils.v1.EmptyReply) {
+    option (google.api.http) = {
+      put: "/v1/events/{eventId}/members/kick"
+      body: "*"
+    };
+  };
+  rpc GetMember(GetMemberRequest) returns (GetMemberReply) {
+    option (google.api.http) = {
+      get: "/v1/events/{eventId}/members/{userId}"
+    };
+  };
+  rpc ListMembers(ListMembersRequest) returns (ListMembersReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/members/list"
+      body: "*"
+    };
+  };
+  rpc GetMemberHistory(GetMemberHistoryRequest)
+      returns (GetMemberHistoryReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/members/history"
+      body: "*"
+    };
+  };
+}
+
+message InviteMembersRequest {
+  int64 eventId = 1;
+  repeated int64 members = 2;
+  int64 actorId = 3;
+}
+
+message InviteMembersReply {
+  bool status = 1;
+  repeated int64 privateUsers = 2;
+}
+
+message UpdateMemberStatusRequest {
+  int64 eventId = 1;
+  string status = 2;
+  int64 actorId = 3;
+}
+
+message UpdateMemberRemindRequest {
+  int64 eventId = 1;
+  int32 remind = 2;
+  int64 actorId = 3;
+}
+
+message UpdateMemberRoleRequest {
+  int64 eventId = 1;
+  int64 userId = 2;
+  string role = 3;
+  int64 actorId = 4;
+}
+
+message KickMemberRequest {
+  int64 eventId = 1;
+  int64 userId = 2;
+  int64 actorId = 3;
+}
+
+message GetMemberRequest {
+  int64 eventId = 1;
+  int64 userId = 2;
+}
+
+message GetMemberReply {
+  Member member = 1;
+}
+
+message ListMembersRequest {
+  int64 eventId = 1;
+  repeated string statuses = 2;
+  utils.v1.PaginateRequest paginate = 3;
+}
+
+message ListMembersReply {
+  repeated Member members = 1;
+  utils.v1.PaginateReply paginate = 2;
+}
+
+message GetMemberHistoryRequest {
+  int64 eventId = 1;
+  utils.v1.PaginateRequest paginate = 2;
+}
+
+message GetMemberHistoryReply {
+  repeated MemberHistory history = 1;
+  repeated iam.v1.UserShort users = 2;
+  utils.v1.PaginateReply paginate = 3;
+}

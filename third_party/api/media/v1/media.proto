@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package media.v1;
+
+import "google/api/httpbody.proto";
+import "api/media/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/media/api/media/v1;media_v1";
+option java_multiple_files = true;
+option java_package = "media.v1";
+
+service MediaService {
+  rpc UploadMedia(UploadMediaRequest) returns (MediaReply);
+  rpc GetMedia(GetMediaRequest) returns (MediaReply);
+  rpc GetMediaList(GetMediaListRequest) returns (MediaListReply);
+}
+
+message UploadMediaRequest {
+  int64 actorId = 1;
+  google.api.HttpBody content = 2;
+  string fileName = 3;  // header: X-File-Name
+  string filePath = 4;  // header: X-File-Path
+}
+
+message MediaReply {
+  Media media = 1;
+}
+
+message GetMediaRequest {
+  int64 mediaId = 1;
+}
+
+message GetMediaListRequest {
+  int64 actorId = 1;
+  repeated int64 mediaIds = 2;
+  bool ownOnly = 3;
+}
+
+message MediaListReply {
+  repeated Media media = 1;
+}

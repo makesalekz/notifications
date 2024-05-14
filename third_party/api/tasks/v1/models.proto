@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package tasks.v1;
+
+option go_package = "gitlab.calendaria.team/services/pms/tasks/api/tasks/v1;tasks_v1";
+option java_multiple_files = true;
+option java_package = "tasks.v1";
+
+message TaskDto {
+  int64 projectId = 1;
+  string title = 2;
+  int64 assigneeId = 3;
+  string description = 4;
+  string status = 5;    // default = CREATED
+  string type = 6;      // default = TASK
+  string priority = 7;  // default = MEDIUM
+  string startDate = 8;
+  string endDate = 9;
+  int64 parentId = 10;
+  string iteration = 11;
+  repeated int64 tagIds = 13;
+  string assigneeStatus = 15;
+
+  optional LocationDto location = 14;
+}
+
+message LocationDto {
+  optional string address = 1;
+  float latitude = 2;
+  float longitude = 3;
+}
+
+// reply
+message Task {
+  int64 id = 1;
+  int64 projectId = 2;
+  int64 tenantId = 3;
+  string title = 4;
+  optional string description = 5;
+  optional string status = 6;    // default = CREATED
+  optional string type = 7;      // default = TASK
+  optional string priority = 8;  // default = MEDIUM
+  optional string startDate = 9;
+  optional string endDate = 10;
+  optional int32 noticeBefore = 17;
+  optional int64 parentId = 11;
+  optional string iteration = 12;
+  optional int64 assigneeId = 13;
+  optional string assigneeAt = 14;
+  optional string assigneeStatus = 20;
+  int64 createdById = 15;
+  string createdAt = 16;
+  repeated int64 tagIds = 19;
+
+  optional LocationDto location = 18;
+}
+
+message Tag {
+  int64 id = 1;
+  string name = 2;
+  string type = 3;
+}

@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "google/api/annotations.proto";
+import "api/events/v1/models.proto";
+import "api/iam/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_multiple_files = true;
+option java_package = "events.v1";
+
+service Links {
+  rpc CreateLinks(CreateLinksRequest) returns (CreateLinksReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/links"
+      body: "*"
+    };
+  };
+  rpc DeleteLinks(DeleteLinksRequest) returns (utils.v1.EmptyReply) {
+    option (google.api.http) = {
+      delete: "/v1/events/{eventId}/links/{linkId}"
+    };
+  };
+  rpc ListLinks(ListLinksRequest) returns (ListLinksReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/links/list"
+      body: "*"
+    };
+  };
+}
+
+message CreateLinksRequest {
+  int64 eventId = 1;
+  repeated LinkDto links = 2;
+  int64 actorId = 3;
+}
+
+message CreateLinksReply {
+  repeated Link links = 1;
+}
+
+message DeleteLinksRequest {
+  int64 eventId = 1;
+  int64 linkId = 2;
+  int64 actorId = 3;
+}
+
+message ListLinksRequest {
+  int64 eventId = 1;
+  utils.v1.PaginateRequest paginate = 2;
+}
+
+message ListLinksReply {
+  repeated Link links = 1;
+  repeated iam.v1.UserShort users = 2;
+  utils.v1.PaginateReply paginate = 3;
+}

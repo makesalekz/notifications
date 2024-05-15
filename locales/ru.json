@@ -42,44 +42,44 @@
     },
     "message.photo": {
         "one": "1 фото",
-        "few": "{{.count}} фото",
-        "many": "{{.count}} фото",
-        "other": "{{.count}} фото"
+        "few": "{{.plural_count}} фото",
+        "many": "{{.plural_count}} фото",
+        "other": "{{.plural_count}} фото"
     },
     "message.video": {
         "one": "1 видео",
-        "few": "{{.count}} видео",
-        "many": "{{.count}} видео",
-        "other": "{{.count}} видео"
+        "few": "{{.plural_count}} видео",
+        "many": "{{.plural_count}} видео",
+        "other": "{{.plural_count}} видео"
     },
     "message.media": {
         "one": "1 медиа",
-        "few": "{{.count}} медиа",
-        "many": "{{.count}} медиа",
-        "other": "{{.count}} медиа"
+        "few": "{{.plural_count}} медиа",
+        "many": "{{.plural_count}} медиа",
+        "other": "{{.plural_count}} медиа"
     },
     "message.file": {
         "one": "Отправил(-а) файл",
-        "few": "Отправил(-а) {{.count}} файла",
-        "many": "Отправил(-а) {{.count}} файлов",
-        "other": "Отправил(-а) {{.count}} файлов"
+        "few": "Отправил(-а) {{.plural_count}} файла",
+        "many": "Отправил(-а) {{.plural_count}} файлов",
+        "other": "Отправил(-а) {{.plural_count}} файлов"
     },
     "message.event": {
         "one": "Отправил(-а) событие",
-        "few": "Отправил(-а) {{.count}} события",
-        "many": "Отправил(-а) {{.count}} событий",
-        "other": "Отправил(-а) {{.count}} событий"
+        "few": "Отправил(-а) {{.plural_count}} события",
+        "many": "Отправил(-а) {{.plural_count}} событий",
+        "other": "Отправил(-а) {{.plural_count}} событий"
     },
     "message.location": {
         "one": "Отправил(-а) адрес",
-        "few": "Отправил(-а) {{.count}} адреса",
-        "many": "Отправил(-а) {{.count}} адресов",
-        "other": "Отправил(-а) {{.count}} адресов"
+        "few": "Отправил(-а) {{.plural_count}} адреса",
+        "many": "Отправил(-а) {{.plural_count}} адресов",
+        "other": "Отправил(-а) {{.plural_count}} адресов"
     },
     "message.contact": {
         "one": "Отправил(-а) контакт",
-        "few": "Отправил(-а) {{.count}} контакта",
-        "many": "Отправил(-а) {{.count}} контактов",
-        "other": "Отправил(-а) {{.count}} контактов"
+        "few": "Отправил(-а) {{.plural_count}} контакта",
+        "many": "Отправил(-а) {{.plural_count}} контактов",
+        "other": "Отправил(-а) {{.plural_count}} контактов"
     }
 }

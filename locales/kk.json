@@ -34,30 +34,30 @@
   },
   "message.photo": {
     "one": "1 сурет",
-    "other": "{{.count}} сурет"
+    "other": "{{.plural_count}} сурет"
   },
   "message.video": {
     "one": "1 бейне",
-    "other": "{{.count}} бейне"
+    "other": "{{.plural_count}} бейне"
   },
   "message.media": {
     "one": "1 медиа",
-    "other": "{{.count}} медиа"
+    "other": "{{.plural_count}} медиа"
   },
   "message.file": {
     "one": "Файл жіберді",
-    "other": "{{.count}} файл жіберді"
+    "other": "{{.plural_count}} файл жіберді"
   },
   "message.event": {
     "one": "Іс-шараны жіберді",
-    "other": "{{.count}} іс-шара жіберді"
+    "other": "{{.plural_count}} іс-шара жіберді"
   },
   "message.location": {
     "one": "Мекен-жайды жіберді",
-    "other": "{{.count}} мекен-жай жіберді"
+    "other": "{{.plural_count}} мекен-жай жіберді"
   },
   "message.contact": {
     "one": "Контактты жіберді",
-    "other": "{{.count}} контакт жіберді"
+    "other": "{{.plural_count}} контакт жіберді"
   }
 }

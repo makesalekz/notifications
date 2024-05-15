@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "errors/errors.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_package = "events.v1";
+
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+
+  // ----------------- Bad Request --------------------
+  INVALID_REQUEST = 10 [(errors.code) = 400];
+  INVALID_DATE_TIME_FORMAT = 11 [(errors.code) = 400];
+  INVALID_DATE_RANGE = 12 [(errors.code) = 400];
+  // ----------------- Unauthorized --------------------
+  UNAUTHORIZED = 13 [(errors.code) = 401];
+  // ----------------- Forbidden --------------------
+  FORBIDDEN = 14 [(errors.code) = 403];
+  INVALID_UPDATE_MEMBER_STATUS = 15 [(errors.code) = 403];
+
+  // ----------------- Not Found --------------------
+  EVENT_NOT_FOUND = 100 [(errors.code) = 404];
+  USER_NOT_FOUND = 101 [(errors.code) = 404];
+  ATTACHMENT_NOT_FOUND = 102 [(errors.code) = 404];
+  LINK_NOT_FOUND = 103 [(errors.code) = 404];
+  MEMBER_NOT_FOUND = 104 [(errors.code) = 404];
+  MEMBER_HISTORY_NOT_FOUND = 105 [(errors.code) = 404];
+  CHAT_NOT_FOUND = 106 [(errors.code) = 404];
+  MEDIA_NOT_FOUND = 107 [(errors.code) = 404];
+}

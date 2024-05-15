@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package iam.v1;
+
+option go_package = "gitlab.calendaria.team/services/iam/api/iam/v1;iam_v1";
+option java_multiple_files = true;
+option java_package = "iam.v1";
+
+service Auth {
+  // Auth by Phone
+  // request: phone number
+  // returns: id of newly created otp user
+  rpc AuthByPhone(AuthByPhoneRequest) returns (AuthByPhoneReply);
+  // Auth by Code
+  // after you authorized bu phone, you suppose to enter code that you've got
+  // here request: id from AuthByPhone, code from message returns: bearer token
+  rpc AuthByCode(AuthByCodeRequest) returns (TokenReply);
+  rpc RefreshToken(TenantRequest) returns (TokenReply);
+}
+
+message AuthByPhoneRequest {
+  string phone = 1;
+}
+
+message AuthByPhoneReply {
+  int64 userId = 1;
+}
+
+message AuthByCodeRequest {
+  int64 userId = 1;
+  string code = 2;
+}
+
+message TenantRequest {
+  int64 tenantId = 1;
+}
+
+message TokenReply {
+  string accessToken = 1;
+  string refreshToken = 2;
+}

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package contacts.v1;
+
+import "errors/errors.proto";
+
+option go_package = "gitlab.calendaria.team/services/contacts/api/contacts/v1;contacts_v1";
+option java_multiple_files = true;
+option java_package = "contacts.v1";
+
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+  FORBIDDEN = 4 [(errors.code) = 403];
+  EMPTY_ACTOR_ID = 5;
+
+  UNAUTHORIZED = 10 [(errors.code) = 401];
+  NOT_FOUND = 11 [(errors.code) = 404];
+  CREATE_SELF_CONTACT = 12 [(errors.code) = 400];
+  SELF_BLOCK = 13 [(errors.code) = 403];
+  SELF_MUTE = 14 [(errors.code) = 403];
+
+  INVALID_REQUEST = 20 [(errors.code) = 400];
+  CONTACT_ALREADY_EXISTS = 21 [(errors.code) = 409];
+}

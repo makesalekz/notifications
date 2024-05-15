@@ -34,30 +34,30 @@
     },
     "message.photo": {
         "one": "1 photo",
-        "other": "{{.plural_count}} photos"
+        "other": "{{.count}} photos"
     },
     "message.video": {
         "one": "1 video",
-        "other": "{{.plural_count}} videos"
+        "other": "{{.count}} videos"
     },
     "message.media": {
         "one": "1 media",
-        "other": "{{.plural_count}} media"
+        "other": "{{.count}} media"
     },
     "message.file": {
         "one": "Sent a file",
-        "other": "Sent {{.plural_count}} files"
+        "other": "Sent {{.count}} files"
     },
     "message.event": {
         "one": "Sent an event",
-        "other": "Sent {{.plural_count}} events"
+        "other": "Sent {{.count}} events"
     },
     "message.location": {
         "one": "Sent a location",
-        "other": "Sent {{.plural_count}} locations"
+        "other": "Sent {{.count}} locations"
     },
     "message.contact": {
         "one": "Sent a contact",
-        "other": "Sent {{.plural_count}} contacts"
+        "other": "Sent {{.count}} contacts"
     }
 }

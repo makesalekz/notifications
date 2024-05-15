@@ -110,6 +110,9 @@ func (dto *NotificationDto) generateConvertedMap() {
 	if dto.NotificationAddInfo.MessageJson != nil {
 		dto.setConvertedMap("message", *dto.NotificationAddInfo.MessageJson)
 	}
+	if dto.NotificationAddInfo.PluralCount != nil {
+		dto.setConvertedMap("count", strconv.FormatInt(*dto.NotificationAddInfo.PluralCount, 10))
+	}
 	if dto.NotificationAddInfo.MetadataJson != nil {
 		dto.setConvertedMap("metadata", *dto.NotificationAddInfo.MetadataJson)
 	}
@@ -195,6 +198,7 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 		}
 		i64Count := int64(count)
 		dto.PluralCount = &i64Count
+		dto.setConvertedMap("count", pluralCount)
 	}
 
 	return nil

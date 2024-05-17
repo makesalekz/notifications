@@ -411,8 +411,8 @@ gitlab.calendaria.team/services/iam v1.6.0 h1:WfKd5AmzPBTccFFjfx1HSPjvy/uQtX2KwT
 gitlab.calendaria.team/services/iam v1.6.0/go.mod h1:hpZ16G8IyaiHxjKmPZJOa7Dj3j5v73mj2X0GzBsOX3I=
 gitlab.calendaria.team/services/media v1.1.0 h1:AhZ9nA40BsPJlfOTfyHBeFu9rslG4AvQvYeHVWlwHpQ=
 gitlab.calendaria.team/services/media v1.1.0/go.mod h1:7wC/hlCxX+uabKazK+RZ37B2H8txdur/7V9E0E0ds2k=
-gitlab.calendaria.team/services/pms/projects v0.0.0-20240503055038-6324147f40fe h1:kL7CoGiNQzs31Bg2XbkQx3ge3LTsxphGHuFXzvY//Og=
-gitlab.calendaria.team/services/pms/projects v0.0.0-20240503055038-6324147f40fe/go.mod h1:ZPg5Ngy1MnGgviefV0bhGckWYp2vMy2OgAoPjjtYPws=
+gitlab.calendaria.team/services/pms/projects v0.0.1 h1:uAA+JNwMXNkkGsa8wtp8ljEidNhrpzrXFb+kdWVOptg=
+gitlab.calendaria.team/services/pms/projects v0.0.1/go.mod h1:ZPg5Ngy1MnGgviefV0bhGckWYp2vMy2OgAoPjjtYPws=
 gitlab.calendaria.team/services/pms/tasks v0.1.1 h1:K/YwK/dNJGERX/R9H//vDchFOcs20RtuARQEkUZ6D4g=
 gitlab.calendaria.team/services/pms/tasks v0.1.1/go.mod h1:zn5V/CI3fO5sSit2TXIgK4YCGXapYiKjJmy4SXMK2qw=
 gitlab.calendaria.team/services/utils v0.2.16 h1:yAdcltB+kQtbs3ZVatFUZUj2zBUe7X+fCo3SiXwj7L4=

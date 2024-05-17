@@ -15,7 +15,7 @@ require (
 	github.com/prometheus/client_golang v1.18.0
 	gitlab.calendaria.team/services/contacts v1.6.1
 	gitlab.calendaria.team/services/events v0.3.1
-	gitlab.calendaria.team/services/pms/projects v0.0.0-20240503055038-6324147f40fe
+	gitlab.calendaria.team/services/pms/projects v0.0.1
 	gitlab.calendaria.team/services/pms/tasks v0.1.1
 	gitlab.calendaria.team/services/utils v0.2.16
 	go.uber.org/automaxprocs v1.5.3

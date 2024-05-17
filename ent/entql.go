@@ -69,6 +69,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			notification.FieldEventID:            {Type: field.TypeInt64, Column: notification.FieldEventID},
 			notification.FieldContactID:          {Type: field.TypeInt64, Column: notification.FieldContactID},
 			notification.FieldTaskID:             {Type: field.TypeInt64, Column: notification.FieldTaskID},
+			notification.FieldProjectID:          {Type: field.TypeInt64, Column: notification.FieldProjectID},
 			notification.FieldCreatedAt:          {Type: field.TypeTime, Column: notification.FieldCreatedAt},
 			notification.FieldNotificationDataID: {Type: field.TypeInt64, Column: notification.FieldNotificationDataID},
 		},
@@ -316,6 +317,11 @@ func (f *NotificationFilter) WhereContactID(p entql.Int64P) {
 // WhereTaskID applies the entql int64 predicate on the task_id field.
 func (f *NotificationFilter) WhereTaskID(p entql.Int64P) {
 	f.Where(p.Field(notification.FieldTaskID))
+}
+
+// WhereProjectID applies the entql int64 predicate on the project_id field.
+func (f *NotificationFilter) WhereProjectID(p entql.Int64P) {
+	f.Where(p.Field(notification.FieldProjectID))
 }
 
 // WhereCreatedAt applies the entql time.Time predicate on the created_at field.

@@ -26,6 +26,7 @@ func (Notification) Fields() []ent.Field {
 		field.Int64("event_id").Optional().Nillable(),
 		field.Int64("contact_id").Optional().Nillable(),
 		field.Int64("task_id").Optional().Nillable(),
+		field.Int64("project_id").Optional().Nillable(),
 		field.Time("created_at").Default(time.Now),
 		field.Int64("notification_data_id").Optional().Nillable(),
 	}

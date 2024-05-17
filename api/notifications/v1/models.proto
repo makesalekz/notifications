@@ -14,6 +14,7 @@ message Notification {
   int64 eventId = 5;
   int64 contactId = 6;
   int64 taskId = 8;
+  int64 projectId = 9;
   string createdAt = 7;
 }
 
@@ -24,4 +25,5 @@ message NotificationDto {
   int64 eventId = 4;
   int64 contactId = 5;
   int64 taskId = 6;
+  int64 projectId = 7;
 }

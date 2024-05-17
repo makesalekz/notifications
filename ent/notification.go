@@ -33,6 +33,8 @@ type Notification struct {
 	ContactID *int64 `json:"contact_id,omitempty"`
 	// TaskID holds the value of the "task_id" field.
 	TaskID *int64 `json:"task_id,omitempty"`
+	// ProjectID holds the value of the "project_id" field.
+	ProjectID *int64 `json:"project_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// NotificationDataID holds the value of the "notification_data_id" field.
@@ -55,12 +57,10 @@ type NotificationEdges struct {
 // NotificationDataOrErr returns the NotificationData value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e NotificationEdges) NotificationDataOrErr() (*NotificationData, error) {
-	if e.loadedTypes[0] {
-		if e.NotificationData == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: notificationdata.Label}
-		}
+	if e.NotificationData != nil {
 		return e.NotificationData, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: notificationdata.Label}
 	}
 	return nil, &NotLoadedError{edge: "notification_data"}
 }
@@ -70,7 +70,7 @@ func (*Notification) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case notification.FieldID, notification.FieldUserID, notification.FieldEventID, notification.FieldContactID, notification.FieldTaskID, notification.FieldNotificationDataID:
+		case notification.FieldID, notification.FieldUserID, notification.FieldEventID, notification.FieldContactID, notification.FieldTaskID, notification.FieldProjectID, notification.FieldNotificationDataID:
 			values[i] = new(sql.NullInt64)
 		case notification.FieldType, notification.FieldTitle, notification.FieldText:
 			values[i] = new(sql.NullString)
@@ -141,6 +141,13 @@ func (n *Notification) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				n.TaskID = new(int64)
 				*n.TaskID = value.Int64
+			}
+		case notification.FieldProjectID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field project_id", values[i])
+			} else if value.Valid {
+				n.ProjectID = new(int64)
+				*n.ProjectID = value.Int64
 			}
 		case notification.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -220,6 +227,11 @@ func (n *Notification) String() string {
 	builder.WriteString(", ")
 	if v := n.TaskID; v != nil {
 		builder.WriteString("task_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := n.ProjectID; v != nil {
+		builder.WriteString("project_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

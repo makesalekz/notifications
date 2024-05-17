@@ -53,12 +53,10 @@ type NotificationDataEdges struct {
 // NotificationOrErr returns the Notification value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e NotificationDataEdges) NotificationOrErr() (*Notification, error) {
-	if e.loadedTypes[0] {
-		if e.Notification == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: notification.Label}
-		}
+	if e.Notification != nil {
 		return e.Notification, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: notification.Label}
 	}
 	return nil, &NotLoadedError{edge: "notification"}
 }

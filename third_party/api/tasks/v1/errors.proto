@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package tasks.v1;
+
+import "errors/errors.proto";
+
+option go_package = "gitlab.calendaria.team/services/pms/tasks/api/tasks/v1;tasks_v1";
+option java_multiple_files = true;
+option java_package = "tasks.v1";
+
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+  EMPTY_ACTOR_ID = 5;
+  EMPTY_TENANT_ID = 6;
+  EMPTY_APP_ID = 7;
+
+  INVALID_REQUEST = 10 [(errors.code) = 400];
+  UNAUTHORIZED = 11 [(errors.code) = 401];
+  FORBIDDEN = 13 [(errors.code) = 403];
+  NOT_FOUND = 14 [(errors.code) = 404];
+}

@@ -31,6 +31,12 @@ init:
 	go install github.com/golang/mock/mockgen@v1.6.0
 	npm install widdershins -g
 
+.PHONY: doc
+doc:
+	go run -mod=mod entgo.io/ent/cmd/ent describe ./ent/schema > ./doc/schema.md
+	doc/sed.sh doc/schema.md
+	widdershins openapi.yaml -o ./doc/openapi.md --l --code --omitHeader --summary --resolve
+
 .PHONY: run
 # run locally
 run:	
@@ -82,7 +88,7 @@ hash:
 # copy proto files from vendor to third_party/api
 proto:
 	go mod vendor;
-	find vendor/gitlab.calendaria.team -name 'models.proto' -exec sh -c 'f="{}"; d="third_party/api/$$(dirname "$$f" | awk -F/ "{print \$$(NF-1)\"/\"\$$NF}")"; mkdir -p "$$d"; rsync -a "$$f" "$$d"' \;
+	find vendor/gitlab.calendaria.team -name '*.proto' -exec sh -c 'f="{}"; d="third_party/api/$$(dirname "$$f" | awk -F/ "{print \$$(NF-1)\"/\"\$$NF}")"; mkdir -p "$$d"; rsync -a "$$f" "$$d"' \;
 
 .PHONY: api
 # generate api proto files

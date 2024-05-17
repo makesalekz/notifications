@@ -44,7 +44,7 @@ deploy dev:
     - echo ${SERVICE_NAME} deployed successfully on dev
 
 build:
-  extends: .build
+  extends: .build-shell
 
 migration-build:
   extends: .migration-build

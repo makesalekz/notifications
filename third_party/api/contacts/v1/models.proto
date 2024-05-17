@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package contacts.v1;
+
+option go_package = "gitlab.calendaria.team/services/contacts/api/contacts/v1;contacts_v1";
+option java_multiple_files = true;
+option java_package = "contacts.v1";
+
+// PaginationRequest: set both FromId and FromLabel
+// \t use returned ToId and ToLabel in next request to get next page
+message PaginateRequest {
+  int32 limit = 1;
+  int64 fromId = 2;
+  string fromLabel = 3;
+  optional int64 fromUserId = 4;
+}
+
+message PaginateReply {
+  optional int32 total = 1;
+  optional string fromLabel = 2;
+  optional int64 fromId = 3;
+  optional int64 fromUserId = 4;
+}
+
+message Contact {
+  int64 id = 1;
+  string phone = 2;
+  string label = 3;
+  string updatedAt = 4;
+  optional string email = 5;
+  optional int64 userId = 6;
+  string createdAt = 7;
+}
+
+message Relation {
+  int64 userId = 1;
+  bool isMuted = 2;
+  bool isBlocked = 3;
+  bool isExistInContacts = 4;
+}

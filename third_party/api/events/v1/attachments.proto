@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "google/api/annotations.proto";
+import "api/events/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_multiple_files = true;
+option java_package = "events.v1";
+
+service Attachments {
+  rpc CreateAttachments(CreateAttachmentsRequest) returns (AttachmentsReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/attachments"
+      body: "*"
+    };
+  };
+  rpc DeleteAttachment(DeleteAttachmentRequest) returns (utils.v1.EmptyReply) {
+    option (google.api.http) = {
+      delete: "/v1/events/{eventId}/attachments/{attachmentId}"
+    };
+  };
+  rpc ListAttachments(ListAttachmentsRequest) returns (ListAttachmentsReply) {
+    option (google.api.http) = {
+      post: "/v1/events/{eventId}/attachments/list"
+      body: "*"
+    };
+  };
+}
+
+message CreateAttachmentsRequest {
+  int64 eventId = 1;
+  repeated int64 mediaIds = 2;
+  int64 actorId = 3;
+}
+
+message AttachmentsReply {
+  repeated AttachmentShort attachments = 1;
+}
+
+message DeleteAttachmentRequest {
+  int64 eventId = 1;
+  int64 attachmentId = 2;
+  int64 actorId = 3;
+}
+
+message ListAttachmentsRequest {
+  int64 eventId = 1;
+  repeated string types = 2;
+  utils.v1.PaginateRequest paginate = 3;
+}
+
+message ListAttachmentsReply {
+  repeated Attachment attachments = 1;
+  repeated Member members = 2;
+
+  utils.v1.PaginateReply paginate = 3;
+}

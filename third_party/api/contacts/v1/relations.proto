@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package contacts.v1;
+
+import "api/contacts/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/contacts/api/contacts/v1;contacts_v1";
+option java_multiple_files = true;
+option java_package = "contacts.v1";
+
+service Relations {
+  rpc GetBlockedUsers(UserRequest) returns (UsersReply);
+  rpc UpdateRelation(RelationUserRequest) returns (utils.v1.EmptyReply);
+  rpc GetRelations(GetRelationsRequest) returns (UserRelationsReply);
+  rpc GetIncomingRelations(GetRelationsRequest) returns (UserRelationsReply);
+  rpc GetBlockingUsers(UserRequest) returns (UsersReply);
+}
+
+message RelationUserRequest {
+  int64 userId = 2;
+  string action = 3;
+}
+
+message UserRequest {
+  int64 userId = 1;
+}
+
+message UsersReply {
+  repeated int64 userIds = 1;
+}
+
+message GetRelationsRequest {
+  repeated int64 userIds = 2;
+}
+
+message UserRelationsReply {
+  repeated Relation relations = 1;
+}

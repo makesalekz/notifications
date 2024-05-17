@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "api/iam/v1/models.proto";
+import "api/media/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_package = "events.v1";
+
+//---------------------------------- Models ----------------------------------
+// request/reply
+message EventRequest {
+  int64 eventId = 1;
+  int64 actorId = 2;
+}
+message EventReply {
+  Event event = 1;
+}
+
+// dto
+message EventDto {
+  string title = 2;
+  string description = 3;
+  optional int64 mediaId = 4;
+  string startDateTime = 5;
+  string endDateTime = 6;
+  bool isAllDay = 7;
+  int32 noticeBefore = 8;
+  string type = 9;
+  string recurrenceRule = 10;
+  bool isChatOn = 11;
+
+  optional LocationDto location = 12;
+}
+
+message LocationDto {
+  optional string address = 1;
+  float latitude = 2;
+  float longitude = 3;
+}
+
+message LinkDto {
+  string title = 1;
+  string url = 2;
+}
+
+// reply
+message Event {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  optional string coverUrl = 5;
+  string startDateTime = 6;
+  string endDateTime = 7;
+  bool isAllDay = 8;
+  int32 noticeBefore = 9;
+  optional int64 chatId = 10;
+  optional int64 locationId = 11;
+  string type = 12;
+  optional string recurrenceRule = 13;
+  repeated string avatars = 14;
+  int32 membersCount = 15;
+  int64 ownerId = 16;
+
+  iam.v1.UserShort owner = 17;  // TODO: remove DEPRECATED
+  optional Membership membership = 18;
+  optional LocationDto location = 19;
+}
+
+message AttachmentShort {
+  int64 id = 1;
+  int64 mediaId = 2;
+}
+
+message Attachment {
+  int64 id = 1;
+  string type = 2;
+  int64 eventId = 3;
+
+  media.v1.Media media = 4;
+}
+
+message Link {
+  int64 id = 1;
+  string title = 2;
+  string url = 3;
+  int64 ownerId = 4;
+  int64 eventId = 5;
+}
+
+message Member {
+  int64 id = 1;
+  int64 eventId = 2;
+  int64 userId = 3;
+  string status = 4;
+  string role = 5;
+  int32 remind = 6;
+  optional string remindAt = 7;
+
+  iam.v1.UserShort user = 8;  // TODO: remove DEPRECATED
+}
+
+message Membership {
+  int64 id = 1;
+  string status = 2;
+  string role = 3;
+  optional int32 remind = 4;
+  optional string remindAt = 5;
+}
+
+message MemberHistory {
+  int64 id = 1;
+  int64 userId = 2;
+  optional string statusFrom = 3;
+  string statusTo = 4;
+  string createdAt = 5;
+}

@@ -14,10 +14,14 @@ service Projects {
   rpc UpdateProjects(UpdateProjectRequest) returns (ProjectReply);
   rpc DeleteProjects(ProjectRequest) returns (utils.v1.EmptyReply);
   rpc GetProject(ProjectRequest) returns (ProjectReply);
+  rpc AssignTeam(AssignTeamRequest) returns (utils.v1.EmptyReply);
+  rpc UnassignTeam(ProjectRequest) returns (utils.v1.EmptyReply);
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsReply);
 }
 
-message ProjectReply {
-  Project project = 1;
+message AssignTeamRequest {
+  int64 projectId = 1;
+  int64 teamId = 2;
 }
 
 message CreateProjectRequest {
@@ -34,8 +38,30 @@ message ProjectDto {
   string mainGoal = 2;
   string businessGoal = 3;
   string status = 4;
+  optional string startDate = 5;
+  optional string endDate = 6;
+  string visibility = 7;
 }
 
-message ProjectRequest {
-  int64 projectId = 1;
+message ListProjectsRequest {
+  PaginateRequest paginate = 1;
+}
+
+message ListProjectsReply {
+  repeated Project projects = 1;
+  PaginateReply paginate = 2;
+}
+
+message PaginateRequest {
+  int64 limit = 1;
+  optional bool fromPinned = 2;
+  optional int64 fromTeamId = 3;
+  int64 fromId = 4;
+}
+
+message PaginateReply {
+  int64 total = 1;
+  bool fromPinned = 2;
+  int64 fromTeamId = 3;
+  int64 fromId = 4;
 }

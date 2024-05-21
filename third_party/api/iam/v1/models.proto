@@ -49,3 +49,21 @@ message TenantShort {
   int64 id = 1;
   string name = 3;
 }
+
+message UserCredentialsShort {
+  int64 id = 1;
+  optional string mail = 3;
+  optional string displayName = 4;
+  optional string provider = 5;
+}
+
+message UserCredentials {
+  int64 id = 1;
+  string accessToken = 2;
+  optional string mail = 3;
+  optional string displayName = 4;
+  optional string provider = 5;
+  optional string tokenType = 6;
+  optional string refreshToken = 7;
+  optional string expiresAt = 8;
+}

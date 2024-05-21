@@ -2232,6 +2232,7 @@ type NotificationDataMutation struct {
 	message             *string
 	contact             *string
 	task                *string
+	project             *string
 	metadata            *string
 	plural_count        *int64
 	addplural_count     *int64
@@ -2690,6 +2691,55 @@ func (m *NotificationDataMutation) ResetTask() {
 	delete(m.clearedFields, notificationdata.FieldTask)
 }
 
+// SetProject sets the "project" field.
+func (m *NotificationDataMutation) SetProject(s string) {
+	m.project = &s
+}
+
+// Project returns the value of the "project" field in the mutation.
+func (m *NotificationDataMutation) Project() (r string, exists bool) {
+	v := m.project
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProject returns the old "project" field's value of the NotificationData entity.
+// If the NotificationData object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *NotificationDataMutation) OldProject(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProject is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProject requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProject: %w", err)
+	}
+	return oldValue.Project, nil
+}
+
+// ClearProject clears the value of the "project" field.
+func (m *NotificationDataMutation) ClearProject() {
+	m.project = nil
+	m.clearedFields[notificationdata.FieldProject] = struct{}{}
+}
+
+// ProjectCleared returns if the "project" field was cleared in this mutation.
+func (m *NotificationDataMutation) ProjectCleared() bool {
+	_, ok := m.clearedFields[notificationdata.FieldProject]
+	return ok
+}
+
+// ResetProject resets all changes to the "project" field.
+func (m *NotificationDataMutation) ResetProject() {
+	m.project = nil
+	delete(m.clearedFields, notificationdata.FieldProject)
+}
+
 // SetMetadata sets the "metadata" field.
 func (m *NotificationDataMutation) SetMetadata(s string) {
 	m.metadata = &s
@@ -2882,7 +2932,7 @@ func (m *NotificationDataMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *NotificationDataMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m._type != nil {
 		fields = append(fields, notificationdata.FieldType)
 	}
@@ -2903,6 +2953,9 @@ func (m *NotificationDataMutation) Fields() []string {
 	}
 	if m.task != nil {
 		fields = append(fields, notificationdata.FieldTask)
+	}
+	if m.project != nil {
+		fields = append(fields, notificationdata.FieldProject)
 	}
 	if m.metadata != nil {
 		fields = append(fields, notificationdata.FieldMetadata)
@@ -2932,6 +2985,8 @@ func (m *NotificationDataMutation) Field(name string) (ent.Value, bool) {
 		return m.Contact()
 	case notificationdata.FieldTask:
 		return m.Task()
+	case notificationdata.FieldProject:
+		return m.Project()
 	case notificationdata.FieldMetadata:
 		return m.Metadata()
 	case notificationdata.FieldPluralCount:
@@ -2959,6 +3014,8 @@ func (m *NotificationDataMutation) OldField(ctx context.Context, name string) (e
 		return m.OldContact(ctx)
 	case notificationdata.FieldTask:
 		return m.OldTask(ctx)
+	case notificationdata.FieldProject:
+		return m.OldProject(ctx)
 	case notificationdata.FieldMetadata:
 		return m.OldMetadata(ctx)
 	case notificationdata.FieldPluralCount:
@@ -3020,6 +3077,13 @@ func (m *NotificationDataMutation) SetField(name string, value ent.Value) error 
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTask(v)
+		return nil
+	case notificationdata.FieldProject:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProject(v)
 		return nil
 	case notificationdata.FieldMetadata:
 		v, ok := value.(string)
@@ -3101,6 +3165,9 @@ func (m *NotificationDataMutation) ClearedFields() []string {
 	if m.FieldCleared(notificationdata.FieldTask) {
 		fields = append(fields, notificationdata.FieldTask)
 	}
+	if m.FieldCleared(notificationdata.FieldProject) {
+		fields = append(fields, notificationdata.FieldProject)
+	}
 	if m.FieldCleared(notificationdata.FieldMetadata) {
 		fields = append(fields, notificationdata.FieldMetadata)
 	}
@@ -3142,6 +3209,9 @@ func (m *NotificationDataMutation) ClearField(name string) error {
 	case notificationdata.FieldTask:
 		m.ClearTask()
 		return nil
+	case notificationdata.FieldProject:
+		m.ClearProject()
+		return nil
 	case notificationdata.FieldMetadata:
 		m.ClearMetadata()
 		return nil
@@ -3176,6 +3246,9 @@ func (m *NotificationDataMutation) ResetField(name string) error {
 		return nil
 	case notificationdata.FieldTask:
 		m.ResetTask()
+		return nil
+	case notificationdata.FieldProject:
+		m.ResetProject()
 		return nil
 	case notificationdata.FieldMetadata:
 		m.ResetMetadata()

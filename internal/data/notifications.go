@@ -78,6 +78,7 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 			SetNillableTask(dto.TaskJson).
 			SetNillableType(dto.Type).
 			SetNotificationID(newNotification.ID).
+			SetNillableProject(dto.ProjectJson).
 			Save(ctx)
 		if err != nil {
 			return 0, err

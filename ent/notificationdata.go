@@ -31,6 +31,8 @@ type NotificationData struct {
 	Contact *string `json:"contact,omitempty"`
 	// Task holds the value of the "task" field.
 	Task *string `json:"task,omitempty"`
+	// Project holds the value of the "project" field.
+	Project *string `json:"project,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata *string `json:"metadata,omitempty"`
 	// PluralCount holds the value of the "plural_count" field.
@@ -68,7 +70,7 @@ func (*NotificationData) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case notificationdata.FieldID, notificationdata.FieldPluralCount:
 			values[i] = new(sql.NullInt64)
-		case notificationdata.FieldType, notificationdata.FieldEvent, notificationdata.FieldMember, notificationdata.FieldChat, notificationdata.FieldMessage, notificationdata.FieldContact, notificationdata.FieldTask, notificationdata.FieldMetadata:
+		case notificationdata.FieldType, notificationdata.FieldEvent, notificationdata.FieldMember, notificationdata.FieldChat, notificationdata.FieldMessage, notificationdata.FieldContact, notificationdata.FieldTask, notificationdata.FieldProject, notificationdata.FieldMetadata:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -139,6 +141,13 @@ func (nd *NotificationData) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				nd.Task = new(string)
 				*nd.Task = value.String
+			}
+		case notificationdata.FieldProject:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field project", values[i])
+			} else if value.Valid {
+				nd.Project = new(string)
+				*nd.Project = value.String
 			}
 		case notificationdata.FieldMetadata:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -227,6 +236,11 @@ func (nd *NotificationData) String() string {
 	builder.WriteString(", ")
 	if v := nd.Task; v != nil {
 		builder.WriteString("task=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := nd.Project; v != nil {
+		builder.WriteString("project=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")

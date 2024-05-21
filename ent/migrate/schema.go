@@ -87,6 +87,7 @@ var (
 		{Name: "message", Type: field.TypeString, Nullable: true},
 		{Name: "contact", Type: field.TypeString, Nullable: true},
 		{Name: "task", Type: field.TypeString, Nullable: true},
+		{Name: "project", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeString, Nullable: true},
 		{Name: "plural_count", Type: field.TypeInt64, Nullable: true},
 	}

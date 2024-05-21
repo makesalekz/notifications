@@ -15,9 +15,9 @@ require (
 	github.com/prometheus/client_golang v1.18.0
 	gitlab.calendaria.team/services/contacts v1.6.1
 	gitlab.calendaria.team/services/events v0.3.1
-	gitlab.calendaria.team/services/pms/projects v0.0.1
+	gitlab.calendaria.team/services/pms/projects v0.1.0-dev
 	gitlab.calendaria.team/services/pms/tasks v0.1.1
-	gitlab.calendaria.team/services/utils v0.2.16
+	gitlab.calendaria.team/services/utils v0.2.18
 	go.uber.org/automaxprocs v1.5.3
 	golang.org/x/text v0.14.0
 	google.golang.org/grpc v1.61.1
@@ -52,7 +52,7 @@ require (
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.1.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -93,7 +93,7 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
-	gitlab.calendaria.team/services/iam v1.6.0 // indirect
+	gitlab.calendaria.team/services/iam v1.7.0 // indirect
 	gitlab.calendaria.team/services/media v1.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
@@ -105,7 +105,7 @@ require (
 	golang.org/x/exp v0.0.0-20240110193028-0dcbfd608b1e // indirect
 	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
-	golang.org/x/oauth2 v0.14.0 // indirect
+	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/time v0.3.0 // indirect

@@ -6,6 +6,7 @@ import (
 )
 
 const QueueFCM = "fcm"
+const QueueEmail = "email"
 
 var DefaultLanguage = "en"
 
@@ -14,5 +15,6 @@ var ProviderSet = wire.NewSet(
 	NewSmsUsecase,
 	NewFcmUsecase,
 	NewNotificationsUsecase,
+	NewEmailUsecase,
 	nats.NewQueueManager,
 )

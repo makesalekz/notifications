@@ -12,6 +12,7 @@ service Sender {
   rpc CreateFcmDevice(FcmDataRequest) returns (utils.v1.EmptyReply);
   rpc DeleteFcmDevice(FcmDeviceRequest) returns (utils.v1.EmptyReply);
   rpc PersonalSmsSender(PersonalSmsSenderRequest) returns (utils.v1.EmptyReply);
+  rpc InviteEmailSender(InviteEmailSenderRequest) returns (utils.v1.EmptyReply);
 }
 
 message FcmDeviceRequest {
@@ -26,4 +27,11 @@ message FcmDataRequest {
 message PersonalSmsSenderRequest {
   string phone = 1;
   string message = 2;
+}
+
+message InviteEmailSenderRequest {
+  string appId = 1;
+  int64 userId = 2;
+  string inviteId = 3;
+  string email = 4;
 }

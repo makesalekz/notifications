@@ -13,8 +13,9 @@ import (
 type SenderService struct {
 	v1.UnimplementedSenderServer
 
-	sms *biz.SmsUsecase
-	fcm *biz.FcmUsecase
+	sms   *biz.SmsUsecase
+	fcm   *biz.FcmUsecase
+	email *biz.EmailUsecase
 }
 
 func NewSenderService(
@@ -71,6 +72,22 @@ func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalS
 		Phone:   req.Phone,
 		Message: req.Message,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &utils_v1.EmptyReply{}, nil
+}
+
+func (s *SenderService) InviteEmailSender(ctx context.Context, req *v1.InviteEmailSenderRequest) (*utils_v1.EmptyReply, error) {
+
+	err := s.email.SendInviteEmail(ctx, &biz.InviteEmail{
+		AppId:    req.AppId,
+		Email:    req.Email,
+		UserId:   req.UserId,
+		InviteId: req.InviteId,
+	})
+
 	if err != nil {
 		return nil, err
 	}

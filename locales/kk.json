@@ -49,15 +49,15 @@
     "other": "{{.plural_count}} файл жіберді"
   },
   "message.event": {
-    "one": "Іс-шара жіберді",
+    "one": "📅 Іс-шара жіберді",
     "other": "{{.plural_count}} іс-шара жіберді"
   },
   "message.location": {
-    "one": "Мекен-жай жіберді",
+    "one": "📍 Мекен-жай жіберді",
     "other": "{{.plural_count}} мекен-жай жіберді"
   },
   "message.contact": {
-    "one": "Контакт жіберді",
+    "one": "🗿 Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
   }
 }

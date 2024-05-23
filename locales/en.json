@@ -49,15 +49,15 @@
         "other": "Sent {{.plural_count}} files"
     },
     "message.event": {
-        "one": "Sent an event",
+        "one": "📅 Sent an event",
         "other": "Sent {{.plural_count}} events"
     },
     "message.location": {
-        "one": "Sent a location",
+        "one": "📍 Sent a location",
         "other": "Sent {{.plural_count}} locations"
     },
     "message.contact": {
-        "one": "Sent a contact",
+        "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
     }
 }

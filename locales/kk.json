@@ -3,14 +3,14 @@
   "MEMBER_ROLE_CHANGED": "Сіздің рөліңіз {{.member.role}} деп өзгерілді",
   "MEMBER_DECLINED": "{{.member.name}} шақырудан бас тартты",
   "MEMBER_LEFT": "{{.member.name}} іс-шарадан шығып кетті",
-  "MEMBER_KICKED": "Сіз іс-шарадан жойылдыныз",
+  "MEMBER_KICKED": "Сіз іс-шарадан жойылдыңыз",
   "MEMBER_MAYBE": "{{.member.name}} шақыру туралы ойлануда",
   "MEMBER_ACCEPTED": "{{.member.name}} іс-шараға шақыруды қабылдады",
-  "EVENT_UPDATED": "{{.member.name}} іс-шаранын деректерін өзгертті: {{.metadata}}",
+  "EVENT_UPDATED": "{{.member.name}} іс-шараның деректерін өзгертті: {{.metadata}}",
   "EVENT_DELETED": "{{.member.name}} іс-шараны жойды",
   "EVENT_STARTS_SOON": {
-    "one": "Іс-шара {{.event.noticeBefore}} минуттан кеін басталады",
-    "other": "Іс-шара {{.event.noticeBefore}} минуттан кеін басталады"
+    "one": "Іс-шара {{.event.noticeBefore}} минуттан кейін басталады",
+    "other": "Іс-шара {{.event.noticeBefore}} минуттан кейін басталады"
   },
   "EVENT_STARTS_NOW": {
     "one": "Іс-шара басталды {{.event.location.address}}",
@@ -23,7 +23,7 @@
   "ATTACHMENTS_DELETED": "{{.member.name}} тіркемені жойды",
   "LINKS_ADDED": "{{.member.name}} жаңа сілтеме қосты",
   "LINKS_DELETED": "{{.member.name}} сілтемені жойды",
-  "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-ға тіркелді",
+  "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-да тіркелді",
   "chat.update": {
     "one": "{{.member.name}} чат деректерін өзгертті: {{.metadata}}",
     "other": "{{.member.name}} чат деректерін өзгертті: {{.metadata}}"
@@ -33,31 +33,31 @@
     "other": "Жаңа хабарлама"
   },
   "message.photo": {
-    "one": "1 сурет",
+    "one": "🖼 1 сурет",
     "other": "{{.plural_count}} сурет"
   },
   "message.video": {
-    "one": "1 бейне",
+    "one": "📹 1 бейне",
     "other": "{{.plural_count}} бейне"
   },
   "message.media": {
-    "one": "1 медиа",
+    "one": "📎 1 медиа",
     "other": "{{.plural_count}} медиа"
   },
   "message.file": {
-    "one": "Файл жіберді",
+    "one": "📎 Файл жіберді",
     "other": "{{.plural_count}} файл жіберді"
   },
   "message.event": {
-    "one": "Іс-шараны жіберді",
+    "one": "Іс-шара жіберді",
     "other": "{{.plural_count}} іс-шара жіберді"
   },
   "message.location": {
-    "one": "Мекен-жайды жіберді",
+    "one": "Мекен-жай жіберді",
     "other": "{{.plural_count}} мекен-жай жіберді"
   },
   "message.contact": {
-    "one": "Контактты жіберді",
+    "one": "Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
   }
 }

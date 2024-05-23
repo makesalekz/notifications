@@ -41,25 +41,25 @@
         "other": "Новое сообщение"
     },
     "message.photo": {
-        "one": "1 фото",
+        "one": "🖼️ 1 фото",
         "few": "{{.plural_count}} фото",
         "many": "{{.plural_count}} фото",
         "other": "{{.plural_count}} фото"
     },
     "message.video": {
-        "one": "1 видео",
+        "one": "📹 1 видео",
         "few": "{{.plural_count}} видео",
         "many": "{{.plural_count}} видео",
         "other": "{{.plural_count}} видео"
     },
     "message.media": {
-        "one": "1 медиа",
+        "one": "📎 1 медиа",
         "few": "{{.plural_count}} медиа",
         "many": "{{.plural_count}} медиа",
         "other": "{{.plural_count}} медиа"
     },
     "message.file": {
-        "one": "Отправил(-а) файл",
+        "one": "📎 Отправил(-а) файл",
         "few": "Отправил(-а) {{.plural_count}} файла",
         "many": "Отправил(-а) {{.plural_count}} файлов",
         "other": "Отправил(-а) {{.plural_count}} файлов"

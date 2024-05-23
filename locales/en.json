@@ -33,19 +33,19 @@
         "other": "New message"
     },
     "message.photo": {
-        "one": "1 photo",
+        "one": "🖼️ 1 photo",
         "other": "{{.plural_count}} photos"
     },
     "message.video": {
-        "one": "1 video",
+        "one": "📹 1 video",
         "other": "{{.plural_count}} videos"
     },
     "message.media": {
-        "one": "1 media",
+        "one": "📎 1 media",
         "other": "{{.plural_count}} media"
     },
     "message.file": {
-        "one": "Sent a file",
+        "one": "📎 Sent a file",
         "other": "Sent {{.plural_count}} files"
     },
     "message.event": {

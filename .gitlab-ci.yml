@@ -32,6 +32,8 @@ deploy dev:
     - export VAULT_ADDRESS=http://vault:8200
     - export VAULT_ROLE_ID=$(docker exec vault vault read -field=role_id auth/approle/role/app-${SERVICE_NAME}/role-id)
     - export VAULT_SECRET_ID=$(docker exec vault vault write -field=secret_id -f auth/approle/role/app-${SERVICE_NAME}/secret-id)
+    - export AWS_ACCESS_KEY_ID=$(docker exec vault vault kv get -mount=secret -field=access_key_id app/notifications/awscredentials)
+    - export AWS_SECRET_ACCESS_KEY=$(docker exec vault vault kv get -mount=secret -field=secret_access_key app/notifications/awscredentials)
     - docker compose down
     # database up
     - docker volume create ${SERVICE_NAME}_db || true
@@ -39,6 +41,7 @@ deploy dev:
     # migrations up
     - docker pull arigaio/atlas
     - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${NETWORK} arigaio/atlas migrate apply --url "postgres://me:password@${SERVICE_NAME}_db:5432/api?search_path=public&sslmode=disable"
+    - docker exec -it ${SERVICE_NAME}_service cp -r /go/src/${SERVICE_NAME}/templates /go/src/${SERVICE_NAME}/templates
     # service up
     - docker compose up -d service
     - echo ${SERVICE_NAME} deployed successfully on dev

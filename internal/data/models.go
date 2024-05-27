@@ -8,6 +8,7 @@ import (
 	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
 	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
+	projects_v1 "gitlab.calendaria.team/services/pms/projects/api/projects/v1"
 	tasks_v1 "gitlab.calendaria.team/services/pms/tasks/api/tasks/v1"
 )
 
@@ -35,6 +36,7 @@ type NotificationDto struct {
 	EventId   int64
 	ContactId int64
 	TaskId    int64
+	ProjectId int64
 
 	NotificationAddInfo
 }
@@ -42,6 +44,7 @@ type NotificationDto struct {
 type NotificationAddInfo struct {
 	Type         *string
 	TaskJson     *string
+	ProjectJson  *string
 	ContactJson  *string
 	EventJson    *string
 	MemberJson   *string
@@ -68,6 +71,9 @@ func FromEnt(n_ent *ent.Notification) *NotificationDto {
 	}
 	if n_ent.TaskID != nil {
 		dto.TaskId = *n_ent.TaskID
+	}
+	if n_ent.ProjectID != nil {
+		dto.ProjectId = *n_ent.ProjectID
 	}
 
 	if n_ent.Edges.NotificationData != nil {
@@ -168,6 +174,19 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 		dto.TaskJson = &taskJson
 
 		dto.setConvertedMap("task", taskJson)
+	}
+
+	if projectJson, ok := notificationData["project"]; ok && projectJson != "" {
+		var project *projects_v1.Project
+		err := json.Unmarshal([]byte(projectJson), &project)
+		if err != nil {
+			return fmt.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+		}
+
+		dto.ProjectId = project.Id
+		dto.ProjectJson = &projectJson
+
+		dto.setConvertedMap("project", projectJson)
 	}
 
 	if memberJson, ok := notificationData["member"]; ok && memberJson != "" {

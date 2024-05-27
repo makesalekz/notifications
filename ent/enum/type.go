@@ -3,14 +3,15 @@ package enum
 type NotificationType string
 
 const (
-	Common  NotificationType = "COMMON"
-	Event   NotificationType = "EVENT"
-	Contact NotificationType = "CONTACT"
-	Tasks   NotificationType = "TASKS"
+	Common   NotificationType = "COMMON"
+	Event    NotificationType = "EVENT"
+	Contact  NotificationType = "CONTACT"
+	Tasks    NotificationType = "TASKS"
+	Projects NotificationType = "PROJECTS"
 )
 
 func notificationTypeValues() []NotificationType {
-	return []NotificationType{Common, Event, Contact, Tasks}
+	return []NotificationType{Common, Event, Contact, Tasks, Projects}
 }
 
 func (NotificationType) Values() (kinds []string) {

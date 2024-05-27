@@ -52,6 +52,7 @@ var (
 		{Name: "event_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "contact_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "task_id", Type: field.TypeInt64, Nullable: true},
+		{Name: "project_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "notification_data_id", Type: field.TypeInt64, Unique: true, Nullable: true},
 	}
@@ -63,7 +64,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "notifications_notification_data_notification",
-				Columns:    []*schema.Column{NotificationsColumns[9]},
+				Columns:    []*schema.Column{NotificationsColumns[10]},
 				RefColumns: []*schema.Column{NotificationDataColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -86,6 +87,7 @@ var (
 		{Name: "message", Type: field.TypeString, Nullable: true},
 		{Name: "contact", Type: field.TypeString, Nullable: true},
 		{Name: "task", Type: field.TypeString, Nullable: true},
+		{Name: "project", Type: field.TypeString, Nullable: true},
 		{Name: "metadata", Type: field.TypeString, Nullable: true},
 		{Name: "plural_count", Type: field.TypeInt64, Nullable: true},
 	}

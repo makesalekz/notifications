@@ -69,6 +69,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			notification.FieldEventID:            {Type: field.TypeInt64, Column: notification.FieldEventID},
 			notification.FieldContactID:          {Type: field.TypeInt64, Column: notification.FieldContactID},
 			notification.FieldTaskID:             {Type: field.TypeInt64, Column: notification.FieldTaskID},
+			notification.FieldProjectID:          {Type: field.TypeInt64, Column: notification.FieldProjectID},
 			notification.FieldCreatedAt:          {Type: field.TypeTime, Column: notification.FieldCreatedAt},
 			notification.FieldNotificationDataID: {Type: field.TypeInt64, Column: notification.FieldNotificationDataID},
 		},
@@ -91,6 +92,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			notificationdata.FieldMessage:     {Type: field.TypeString, Column: notificationdata.FieldMessage},
 			notificationdata.FieldContact:     {Type: field.TypeString, Column: notificationdata.FieldContact},
 			notificationdata.FieldTask:        {Type: field.TypeString, Column: notificationdata.FieldTask},
+			notificationdata.FieldProject:     {Type: field.TypeString, Column: notificationdata.FieldProject},
 			notificationdata.FieldMetadata:    {Type: field.TypeString, Column: notificationdata.FieldMetadata},
 			notificationdata.FieldPluralCount: {Type: field.TypeInt64, Column: notificationdata.FieldPluralCount},
 		},
@@ -318,6 +320,11 @@ func (f *NotificationFilter) WhereTaskID(p entql.Int64P) {
 	f.Where(p.Field(notification.FieldTaskID))
 }
 
+// WhereProjectID applies the entql int64 predicate on the project_id field.
+func (f *NotificationFilter) WhereProjectID(p entql.Int64P) {
+	f.Where(p.Field(notification.FieldProjectID))
+}
+
 // WhereCreatedAt applies the entql time.Time predicate on the created_at field.
 func (f *NotificationFilter) WhereCreatedAt(p entql.TimeP) {
 	f.Where(p.Field(notification.FieldCreatedAt))
@@ -415,6 +422,11 @@ func (f *NotificationDataFilter) WhereContact(p entql.StringP) {
 // WhereTask applies the entql string predicate on the task field.
 func (f *NotificationDataFilter) WhereTask(p entql.StringP) {
 	f.Where(p.Field(notificationdata.FieldTask))
+}
+
+// WhereProject applies the entql string predicate on the project field.
+func (f *NotificationDataFilter) WhereProject(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldProject))
 }
 
 // WhereMetadata applies the entql string predicate on the metadata field.

@@ -88,6 +88,11 @@ func Task(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldEQ(FieldTask, v))
 }
 
+// Project applies equality check predicate on the "project" field. It's identical to ProjectEQ.
+func Project(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEQ(FieldProject, v))
+}
+
 // Metadata applies equality check predicate on the "metadata" field. It's identical to MetadataEQ.
 func Metadata(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldEQ(FieldMetadata, v))
@@ -621,6 +626,81 @@ func TaskEqualFold(v string) predicate.NotificationData {
 // TaskContainsFold applies the ContainsFold predicate on the "task" field.
 func TaskContainsFold(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldContainsFold(FieldTask, v))
+}
+
+// ProjectEQ applies the EQ predicate on the "project" field.
+func ProjectEQ(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEQ(FieldProject, v))
+}
+
+// ProjectNEQ applies the NEQ predicate on the "project" field.
+func ProjectNEQ(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNEQ(FieldProject, v))
+}
+
+// ProjectIn applies the In predicate on the "project" field.
+func ProjectIn(vs ...string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldIn(FieldProject, vs...))
+}
+
+// ProjectNotIn applies the NotIn predicate on the "project" field.
+func ProjectNotIn(vs ...string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNotIn(FieldProject, vs...))
+}
+
+// ProjectGT applies the GT predicate on the "project" field.
+func ProjectGT(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldGT(FieldProject, v))
+}
+
+// ProjectGTE applies the GTE predicate on the "project" field.
+func ProjectGTE(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldGTE(FieldProject, v))
+}
+
+// ProjectLT applies the LT predicate on the "project" field.
+func ProjectLT(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldLT(FieldProject, v))
+}
+
+// ProjectLTE applies the LTE predicate on the "project" field.
+func ProjectLTE(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldLTE(FieldProject, v))
+}
+
+// ProjectContains applies the Contains predicate on the "project" field.
+func ProjectContains(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldContains(FieldProject, v))
+}
+
+// ProjectHasPrefix applies the HasPrefix predicate on the "project" field.
+func ProjectHasPrefix(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldHasPrefix(FieldProject, v))
+}
+
+// ProjectHasSuffix applies the HasSuffix predicate on the "project" field.
+func ProjectHasSuffix(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldHasSuffix(FieldProject, v))
+}
+
+// ProjectIsNil applies the IsNil predicate on the "project" field.
+func ProjectIsNil() predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldIsNull(FieldProject))
+}
+
+// ProjectNotNil applies the NotNil predicate on the "project" field.
+func ProjectNotNil() predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNotNull(FieldProject))
+}
+
+// ProjectEqualFold applies the EqualFold predicate on the "project" field.
+func ProjectEqualFold(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEqualFold(FieldProject, v))
+}
+
+// ProjectContainsFold applies the ContainsFold predicate on the "project" field.
+func ProjectContainsFold(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldContainsFold(FieldProject, v))
 }
 
 // MetadataEQ applies the EQ predicate on the "metadata" field.

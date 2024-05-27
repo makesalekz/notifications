@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package projects.v1;
+
+import "api/projects/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/pms/projects/api/projects/v1;projects_v1";
+option java_multiple_files = true;
+option java_package = "projects.v1";
+
+service ProjectGoals {
+  rpc CreateProjectGoal(CreateProjectGoalRequest) returns (GoalReply);
+  rpc UpdateProjectGoal(UpdateProjectGoalRequest) returns (GoalReply);
+  rpc DeleteProjectGoal(ProjectGoalRequest) returns (utils.v1.EmptyReply);
+  rpc GetProjectGoals(ProjectRequest) returns (GoalsReply);
+}
+
+message CreateProjectGoalRequest {
+  int64 projectId = 1;
+  ProjectGoalDto goal = 2;
+}
+
+message UpdateProjectGoalRequest {
+  int64 projectGoalId = 1;
+  ProjectGoalDto goal = 2;
+}
+
+message ProjectGoalRequest {
+  int64 projectGoalId = 1;
+}
+
+message ProjectGoalDto {
+  optional double goal = 3;
+  string name = 4;
+  string deadline = 5;
+}
+
+message GoalsReply {
+  repeated ProjectGoal goals = 1;
+}
+
+message GoalReply {
+  ProjectGoal goal = 1;
+}

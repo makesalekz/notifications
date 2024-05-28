@@ -98,6 +98,20 @@ func (nc *NotificationCreate) SetNillableTaskID(i *int64) *NotificationCreate {
 	return nc
 }
 
+// SetProjectID sets the "project_id" field.
+func (nc *NotificationCreate) SetProjectID(i int64) *NotificationCreate {
+	nc.mutation.SetProjectID(i)
+	return nc
+}
+
+// SetNillableProjectID sets the "project_id" field if the given value is not nil.
+func (nc *NotificationCreate) SetNillableProjectID(i *int64) *NotificationCreate {
+	if i != nil {
+		nc.SetProjectID(*i)
+	}
+	return nc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (nc *NotificationCreate) SetCreatedAt(t time.Time) *NotificationCreate {
 	nc.mutation.SetCreatedAt(t)
@@ -262,6 +276,10 @@ func (nc *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 	if value, ok := nc.mutation.TaskID(); ok {
 		_spec.SetField(notification.FieldTaskID, field.TypeInt64, value)
 		_node.TaskID = &value
+	}
+	if value, ok := nc.mutation.ProjectID(); ok {
+		_spec.SetField(notification.FieldProjectID, field.TypeInt64, value)
+		_node.ProjectID = &value
 	}
 	if value, ok := nc.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
@@ -459,6 +477,30 @@ func (u *NotificationUpsert) AddTaskID(v int64) *NotificationUpsert {
 // ClearTaskID clears the value of the "task_id" field.
 func (u *NotificationUpsert) ClearTaskID() *NotificationUpsert {
 	u.SetNull(notification.FieldTaskID)
+	return u
+}
+
+// SetProjectID sets the "project_id" field.
+func (u *NotificationUpsert) SetProjectID(v int64) *NotificationUpsert {
+	u.Set(notification.FieldProjectID, v)
+	return u
+}
+
+// UpdateProjectID sets the "project_id" field to the value that was provided on create.
+func (u *NotificationUpsert) UpdateProjectID() *NotificationUpsert {
+	u.SetExcluded(notification.FieldProjectID)
+	return u
+}
+
+// AddProjectID adds v to the "project_id" field.
+func (u *NotificationUpsert) AddProjectID(v int64) *NotificationUpsert {
+	u.Add(notification.FieldProjectID, v)
+	return u
+}
+
+// ClearProjectID clears the value of the "project_id" field.
+func (u *NotificationUpsert) ClearProjectID() *NotificationUpsert {
+	u.SetNull(notification.FieldProjectID)
 	return u
 }
 
@@ -676,6 +718,34 @@ func (u *NotificationUpsertOne) UpdateTaskID() *NotificationUpsertOne {
 func (u *NotificationUpsertOne) ClearTaskID() *NotificationUpsertOne {
 	return u.Update(func(s *NotificationUpsert) {
 		s.ClearTaskID()
+	})
+}
+
+// SetProjectID sets the "project_id" field.
+func (u *NotificationUpsertOne) SetProjectID(v int64) *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.SetProjectID(v)
+	})
+}
+
+// AddProjectID adds v to the "project_id" field.
+func (u *NotificationUpsertOne) AddProjectID(v int64) *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.AddProjectID(v)
+	})
+}
+
+// UpdateProjectID sets the "project_id" field to the value that was provided on create.
+func (u *NotificationUpsertOne) UpdateProjectID() *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.UpdateProjectID()
+	})
+}
+
+// ClearProjectID clears the value of the "project_id" field.
+func (u *NotificationUpsertOne) ClearProjectID() *NotificationUpsertOne {
+	return u.Update(func(s *NotificationUpsert) {
+		s.ClearProjectID()
 	})
 }
 
@@ -1062,6 +1132,34 @@ func (u *NotificationUpsertBulk) UpdateTaskID() *NotificationUpsertBulk {
 func (u *NotificationUpsertBulk) ClearTaskID() *NotificationUpsertBulk {
 	return u.Update(func(s *NotificationUpsert) {
 		s.ClearTaskID()
+	})
+}
+
+// SetProjectID sets the "project_id" field.
+func (u *NotificationUpsertBulk) SetProjectID(v int64) *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.SetProjectID(v)
+	})
+}
+
+// AddProjectID adds v to the "project_id" field.
+func (u *NotificationUpsertBulk) AddProjectID(v int64) *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.AddProjectID(v)
+	})
+}
+
+// UpdateProjectID sets the "project_id" field to the value that was provided on create.
+func (u *NotificationUpsertBulk) UpdateProjectID() *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.UpdateProjectID()
+	})
+}
+
+// ClearProjectID clears the value of the "project_id" field.
+func (u *NotificationUpsertBulk) ClearProjectID() *NotificationUpsertBulk {
+	return u.Update(func(s *NotificationUpsert) {
+		s.ClearProjectID()
 	})
 }
 

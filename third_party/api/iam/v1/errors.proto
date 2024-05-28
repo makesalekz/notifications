@@ -25,10 +25,13 @@ enum ErrorReason {
   INVALID_CODE = 13 [(errors.code) = 401];
   INVALID_EMAIL = 14 [(errors.code) = 400];
   INVALID_TIMEZONE = 15 [(errors.code) = 400];
+  INVALID_USERNAME = 16 [(errors.code) = 400];
+  INVALID_PROVIDER = 17 [(errors.code) = 400];
 
   USER_NOT_FOUND = 20 [(errors.code) = 404];
   INVALID_REQUEST = 21 [(errors.code) = 400];
   CONTACT_NOT_FOUND = 22 [(errors.code) = 404];
   RELATION_NOT_FOUND = 23 [(errors.code) = 404];
   COMMON_CHAT_NOT_FOUND = 24 [(errors.code) = 404];
+  CREDENTIAL_NOT_FOUND = 25 [(errors.code) = 404];
 }

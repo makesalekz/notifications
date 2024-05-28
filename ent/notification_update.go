@@ -175,6 +175,33 @@ func (nu *NotificationUpdate) ClearTaskID() *NotificationUpdate {
 	return nu
 }
 
+// SetProjectID sets the "project_id" field.
+func (nu *NotificationUpdate) SetProjectID(i int64) *NotificationUpdate {
+	nu.mutation.ResetProjectID()
+	nu.mutation.SetProjectID(i)
+	return nu
+}
+
+// SetNillableProjectID sets the "project_id" field if the given value is not nil.
+func (nu *NotificationUpdate) SetNillableProjectID(i *int64) *NotificationUpdate {
+	if i != nil {
+		nu.SetProjectID(*i)
+	}
+	return nu
+}
+
+// AddProjectID adds i to the "project_id" field.
+func (nu *NotificationUpdate) AddProjectID(i int64) *NotificationUpdate {
+	nu.mutation.AddProjectID(i)
+	return nu
+}
+
+// ClearProjectID clears the value of the "project_id" field.
+func (nu *NotificationUpdate) ClearProjectID() *NotificationUpdate {
+	nu.mutation.ClearProjectID()
+	return nu
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (nu *NotificationUpdate) SetCreatedAt(t time.Time) *NotificationUpdate {
 	nu.mutation.SetCreatedAt(t)
@@ -331,6 +358,15 @@ func (nu *NotificationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nu.mutation.TaskIDCleared() {
 		_spec.ClearField(notification.FieldTaskID, field.TypeInt64)
+	}
+	if value, ok := nu.mutation.ProjectID(); ok {
+		_spec.SetField(notification.FieldProjectID, field.TypeInt64, value)
+	}
+	if value, ok := nu.mutation.AddedProjectID(); ok {
+		_spec.AddField(notification.FieldProjectID, field.TypeInt64, value)
+	}
+	if nu.mutation.ProjectIDCleared() {
+		_spec.ClearField(notification.FieldProjectID, field.TypeInt64)
 	}
 	if value, ok := nu.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)
@@ -530,6 +566,33 @@ func (nuo *NotificationUpdateOne) ClearTaskID() *NotificationUpdateOne {
 	return nuo
 }
 
+// SetProjectID sets the "project_id" field.
+func (nuo *NotificationUpdateOne) SetProjectID(i int64) *NotificationUpdateOne {
+	nuo.mutation.ResetProjectID()
+	nuo.mutation.SetProjectID(i)
+	return nuo
+}
+
+// SetNillableProjectID sets the "project_id" field if the given value is not nil.
+func (nuo *NotificationUpdateOne) SetNillableProjectID(i *int64) *NotificationUpdateOne {
+	if i != nil {
+		nuo.SetProjectID(*i)
+	}
+	return nuo
+}
+
+// AddProjectID adds i to the "project_id" field.
+func (nuo *NotificationUpdateOne) AddProjectID(i int64) *NotificationUpdateOne {
+	nuo.mutation.AddProjectID(i)
+	return nuo
+}
+
+// ClearProjectID clears the value of the "project_id" field.
+func (nuo *NotificationUpdateOne) ClearProjectID() *NotificationUpdateOne {
+	nuo.mutation.ClearProjectID()
+	return nuo
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (nuo *NotificationUpdateOne) SetCreatedAt(t time.Time) *NotificationUpdateOne {
 	nuo.mutation.SetCreatedAt(t)
@@ -716,6 +779,15 @@ func (nuo *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificat
 	}
 	if nuo.mutation.TaskIDCleared() {
 		_spec.ClearField(notification.FieldTaskID, field.TypeInt64)
+	}
+	if value, ok := nuo.mutation.ProjectID(); ok {
+		_spec.SetField(notification.FieldProjectID, field.TypeInt64, value)
+	}
+	if value, ok := nuo.mutation.AddedProjectID(); ok {
+		_spec.AddField(notification.FieldProjectID, field.TypeInt64, value)
+	}
+	if nuo.mutation.ProjectIDCleared() {
+		_spec.ClearField(notification.FieldProjectID, field.TypeInt64)
 	}
 	if value, ok := nuo.mutation.CreatedAt(); ok {
 		_spec.SetField(notification.FieldCreatedAt, field.TypeTime, value)

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package iam.v1;
 
+import "api/utils/v1/models.proto";
+
 option go_package = "gitlab.calendaria.team/services/iam/api/iam/v1;iam_v1";
 option java_multiple_files = true;
 option java_package = "iam.v1";
@@ -16,6 +18,8 @@ service Auth {
   // here request: id from AuthByPhone, code from message returns: bearer token
   rpc AuthByCode(AuthByCodeRequest) returns (TokenReply);
   rpc RefreshToken(TenantRequest) returns (TokenReply);
+  rpc TempAddDefaultTenants(utils.v1.EmptyRequest)
+      returns (utils.v1.EmptyReply);
 }
 
 message AuthByPhoneRequest {

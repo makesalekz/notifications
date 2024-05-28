@@ -159,6 +159,7 @@ func toDtos(createDtos []*v1.NotificationDto) []*data.NotificationDto {
 			EventId:   dto.EventId,
 			ContactId: dto.ContactId,
 			TaskId:    dto.TaskId,
+			ProjectId: dto.ProjectId,
 		}
 	}
 

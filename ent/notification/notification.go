@@ -29,6 +29,8 @@ const (
 	FieldContactID = "contact_id"
 	// FieldTaskID holds the string denoting the task_id field in the database.
 	FieldTaskID = "task_id"
+	// FieldProjectID holds the string denoting the project_id field in the database.
+	FieldProjectID = "project_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldNotificationDataID holds the string denoting the notification_data_id field in the database.
@@ -56,6 +58,7 @@ var Columns = []string{
 	FieldEventID,
 	FieldContactID,
 	FieldTaskID,
+	FieldProjectID,
 	FieldCreatedAt,
 	FieldNotificationDataID,
 }
@@ -124,6 +127,11 @@ func ByContactID(opts ...sql.OrderTermOption) OrderOption {
 // ByTaskID orders the results by the task_id field.
 func ByTaskID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTaskID, opts...).ToFunc()
+}
+
+// ByProjectID orders the results by the project_id field.
+func ByProjectID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProjectID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

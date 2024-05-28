@@ -26,6 +26,8 @@ const (
 	FieldContact = "contact"
 	// FieldTask holds the string denoting the task field in the database.
 	FieldTask = "task"
+	// FieldProject holds the string denoting the project field in the database.
+	FieldProject = "project"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// FieldPluralCount holds the string denoting the plural_count field in the database.
@@ -53,6 +55,7 @@ var Columns = []string{
 	FieldMessage,
 	FieldContact,
 	FieldTask,
+	FieldProject,
 	FieldMetadata,
 	FieldPluralCount,
 }
@@ -108,6 +111,11 @@ func ByContact(opts ...sql.OrderTermOption) OrderOption {
 // ByTask orders the results by the task field.
 func ByTask(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTask, opts...).ToFunc()
+}
+
+// ByProject orders the results by the project field.
+func ByProject(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProject, opts...).ToFunc()
 }
 
 // ByMetadata orders the results by the metadata field.

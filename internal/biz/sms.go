@@ -170,7 +170,7 @@ func (uc *SmsUsecase) sendRequest(_ context.Context, endpoint string, request *r
 	}
 
 	if response.Balance != nil {
-		balance, err := strconv.ParseFloat(*response.Balance, 10)
+		balance, err := strconv.ParseFloat(*response.Balance, 64)
 		if err != nil {
 			log.Errorf("smsc.kz balance parse error: %v", err)
 		} else if balance < 100 {

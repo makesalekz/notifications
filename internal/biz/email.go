@@ -11,17 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/go-kratos/kratos/v2/log"
 	nnats "github.com/nats-io/nats.go"
+	"gitlab.calendaria.team/services/notifications/messages"
 	"gitlab.calendaria.team/services/utils/v1/config"
 	"gitlab.calendaria.team/services/utils/v1/nats"
 	"os"
 )
-
-type EmailDetails struct {
-	Language string                 `json:"language"`
-	Type     string                 `json:"type"`
-	Email    string                 `json:"email"`
-	Data     map[string]interface{} `json:"data"`
-}
 
 type EmailUsecase struct {
 	client    *ses.Client
@@ -85,7 +79,7 @@ func loadAWSConfig(c *config.Config) (aws.Config, error) {
 }
 
 func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m *nnats.Msg) bool {
-	var request EmailDetails
+	var request messages.EmailDetails
 	if err := json.Unmarshal(m.Data, &request); err != nil {
 		uc.log.Errorf("handleEmailRequest: json.Unmarshal: %uc", err)
 		return true
@@ -97,29 +91,26 @@ func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m *nnats.Msg) bo
 	return true
 }
 
-func (uc *EmailUsecase) SendEmail(ctx context.Context, req *EmailDetails) error {
+func (uc *EmailUsecase) SendEmail(ctx context.Context, emailDetails *messages.EmailDetails) error {
 	sourceEmail, subject, err := uc.loadEmailConfig()
 	if err != nil {
 		uc.log.Errorf("loading email configuration failed: %v", err)
 		return err
 	}
 
-	// Convert string type to TemplateType
-	templateType, err := getTypeFromString(req.Type)
+	templateType, err := getTypeFromString(emailDetails.Type)
 	if err != nil {
 		uc.log.Errorf("resolving template type failed: %v", err)
 		return err
 	}
 
-	// Execute the template
-	body, err := uc.templates.ExecuteTemplate(Lang(req.Language), templateType, req.Data)
+	body, err := uc.templates.ExecuteTemplate(Lang(emailDetails.Language), templateType, emailDetails.Data)
 	if err != nil {
 		uc.log.Errorf("executing email template failed: %v", err)
 		return err
 	}
 
-	// Send email through SES
-	return uc.sendSESEmail(ctx, req.Email, sourceEmail, subject, body)
+	return uc.sendSESEmail(ctx, emailDetails.Email, sourceEmail, subject, body)
 }
 
 func (uc *EmailUsecase) loadEmailConfig() (sourceEmail, subject string, err error) {

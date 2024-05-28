@@ -33,7 +33,7 @@ func NewLocalizedEmailTemplates() (*LocalizedEmailTemplates, error) {
 	return &LocalizedEmailTemplates{EmailTemplates: tmpls}, nil
 }
 
-func (t *LocalizedEmailTemplates) ExecuteTemplate(lang Lang, tType TemplateType, templateData map[string]interface{}) (string, error) {
+func (t *LocalizedEmailTemplates) ExecuteTemplate(lang Lang, tType TemplateType, templateData map[string]string) (string, error) {
 	templatesByLang, ok := t.EmailTemplates[lang]
 	if !ok {
 		return "", fmt.Errorf("no templates found for language %s", lang)

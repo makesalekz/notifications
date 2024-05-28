@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"gitlab.calendaria.team/services/notifications/messages"
 
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
@@ -80,24 +81,16 @@ func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalS
 }
 
 func (s *SenderService) EmailSender(ctx context.Context, req *v1.EmailSenderRequest) (*utils_v1.EmptyReply, error) {
-	// Default language handling
 	language := req.Language
 	if language == nil || *language == "" {
 		language = &biz.DefaultLanguage
 	}
 
-	// Convert map[string]string to map[string]interface{}
-	templateData := make(map[string]interface{})
-	for key, value := range req.Data {
-		templateData[key] = value
-	}
-
-	// Calling SendEmail with converted data
-	err := s.email.SendEmail(ctx, &biz.EmailDetails{
+	err := s.email.SendEmail(ctx, &messages.EmailDetails{
 		Language: *language,
 		Type:     req.Type,
 		Email:    req.Email,
-		Data:     templateData,
+		Data:     req.Data,
 	})
 
 	if err != nil {

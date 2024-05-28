@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package projects.v1;
+
+option go_package = "gitlab.calendaria.team/services/pms/projects/api/projects/v1;projects_v1";
+option java_multiple_files = true;
+option java_package = "projects.v1";
+
+message ProjectRequest {
+  int64 projectId = 1;
+}
+
+message ProjectReply {
+  Project project = 1;
+}
+
+message Project {
+  int64 id = 1;
+  string title = 2;
+  string mainGoal = 3;
+  string businessGoal = 4;
+  int64 progress = 5;
+  string status = 6;
+  string startDate = 7;
+  string endDate = 8;
+  string createdAt = 9;
+  int64 createdBy = 10;
+  int64 teamId = 11;
+  string access = 13;
+
+  bool isPinned = 12;
+}
+
+message ProjectGoal {
+  int64 id = 1;
+  int64 projectId = 2;
+  double goal = 3;
+  string name = 4;
+  string deadline = 5;
+}
+
+message ProjectRisk {
+  int64 id = 1;
+  int64 projectId = 2;
+  string name = 4;
+  string keyResults = 5;
+}
+
+message Team {
+  int64 teamId = 1;
+  int64 projectId = 2;
+}

@@ -120,6 +120,20 @@ func (ndc *NotificationDataCreate) SetNillableTask(s *string) *NotificationDataC
 	return ndc
 }
 
+// SetProject sets the "project" field.
+func (ndc *NotificationDataCreate) SetProject(s string) *NotificationDataCreate {
+	ndc.mutation.SetProject(s)
+	return ndc
+}
+
+// SetNillableProject sets the "project" field if the given value is not nil.
+func (ndc *NotificationDataCreate) SetNillableProject(s *string) *NotificationDataCreate {
+	if s != nil {
+		ndc.SetProject(*s)
+	}
+	return ndc
+}
+
 // SetMetadata sets the "metadata" field.
 func (ndc *NotificationDataCreate) SetMetadata(s string) *NotificationDataCreate {
 	ndc.mutation.SetMetadata(s)
@@ -267,6 +281,10 @@ func (ndc *NotificationDataCreate) createSpec() (*NotificationData, *sqlgraph.Cr
 	if value, ok := ndc.mutation.Task(); ok {
 		_spec.SetField(notificationdata.FieldTask, field.TypeString, value)
 		_node.Task = &value
+	}
+	if value, ok := ndc.mutation.Project(); ok {
+		_spec.SetField(notificationdata.FieldProject, field.TypeString, value)
+		_node.Project = &value
 	}
 	if value, ok := ndc.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)
@@ -467,6 +485,24 @@ func (u *NotificationDataUpsert) UpdateTask() *NotificationDataUpsert {
 // ClearTask clears the value of the "task" field.
 func (u *NotificationDataUpsert) ClearTask() *NotificationDataUpsert {
 	u.SetNull(notificationdata.FieldTask)
+	return u
+}
+
+// SetProject sets the "project" field.
+func (u *NotificationDataUpsert) SetProject(v string) *NotificationDataUpsert {
+	u.Set(notificationdata.FieldProject, v)
+	return u
+}
+
+// UpdateProject sets the "project" field to the value that was provided on create.
+func (u *NotificationDataUpsert) UpdateProject() *NotificationDataUpsert {
+	u.SetExcluded(notificationdata.FieldProject)
+	return u
+}
+
+// ClearProject clears the value of the "project" field.
+func (u *NotificationDataUpsert) ClearProject() *NotificationDataUpsert {
+	u.SetNull(notificationdata.FieldProject)
 	return u
 }
 
@@ -704,6 +740,27 @@ func (u *NotificationDataUpsertOne) UpdateTask() *NotificationDataUpsertOne {
 func (u *NotificationDataUpsertOne) ClearTask() *NotificationDataUpsertOne {
 	return u.Update(func(s *NotificationDataUpsert) {
 		s.ClearTask()
+	})
+}
+
+// SetProject sets the "project" field.
+func (u *NotificationDataUpsertOne) SetProject(v string) *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.SetProject(v)
+	})
+}
+
+// UpdateProject sets the "project" field to the value that was provided on create.
+func (u *NotificationDataUpsertOne) UpdateProject() *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.UpdateProject()
+	})
+}
+
+// ClearProject clears the value of the "project" field.
+func (u *NotificationDataUpsertOne) ClearProject() *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.ClearProject()
 	})
 }
 
@@ -1113,6 +1170,27 @@ func (u *NotificationDataUpsertBulk) UpdateTask() *NotificationDataUpsertBulk {
 func (u *NotificationDataUpsertBulk) ClearTask() *NotificationDataUpsertBulk {
 	return u.Update(func(s *NotificationDataUpsert) {
 		s.ClearTask()
+	})
+}
+
+// SetProject sets the "project" field.
+func (u *NotificationDataUpsertBulk) SetProject(v string) *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.SetProject(v)
+	})
+}
+
+// UpdateProject sets the "project" field to the value that was provided on create.
+func (u *NotificationDataUpsertBulk) UpdateProject() *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.UpdateProject()
+	})
+}
+
+// ClearProject clears the value of the "project" field.
+func (u *NotificationDataUpsertBulk) ClearProject() *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.ClearProject()
 	})
 }
 

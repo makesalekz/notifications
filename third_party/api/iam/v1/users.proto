@@ -36,8 +36,8 @@ service Users {
   // t.m if you declare labels,emails,ids this method will return all
   // users that has these fields
   rpc GetUsers(GetUsersRequest) returns (UsersReply);
-
   rpc ListUsers(ListUsersRequest) returns (UsersReply);
+  rpc AppendDefaultTenants(utils.v1.EmptyRequest) returns (utils.v1.EmptyReply);
 }
 
 message UserFullReply {
@@ -81,8 +81,6 @@ message GetUsersRequest {
   repeated string emails = 3;
   bool withPrivacies = 6;
   bool withVerified = 9;
-  // TODO. Deprecated. Marked for deletion
-  bool withRelation = 5;
 }
 
 message ListUsersRequest {

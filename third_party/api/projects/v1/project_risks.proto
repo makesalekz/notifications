@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package projects.v1;
+
+import "api/projects/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/pms/projects/api/projects/v1;projects_v1";
+option java_multiple_files = true;
+option java_package = "projects.v1";
+
+service ProjectRisks {
+  rpc CreateProjectRisk(CreateProjectRiskRequest) returns (RiskReply);
+  rpc UpdateProjectRisk(UpdateProjectRiskRequest) returns (RiskReply);
+  rpc DeleteProjectRisk(ProjectRiskRequest) returns (utils.v1.EmptyReply);
+  rpc GetProjectRisks(ProjectRequest) returns (RisksReply);
+}
+
+message CreateProjectRiskRequest {
+  int64 projectId = 1;
+  ProjectRiskDto risk = 2;
+}
+
+message UpdateProjectRiskRequest {
+  int64 projectRiskId = 1;
+  ProjectRiskDto risk = 2;
+}
+
+message ProjectRiskRequest {
+  int64 projectRiskId = 1;
+}
+
+message ProjectRiskDto {
+  string name = 1;
+  string keyResults = 2;
+}
+
+message RiskReply {
+  ProjectRisk risk = 1;
+}
+
+message RisksReply {
+  repeated ProjectRisk risks = 1;
+}

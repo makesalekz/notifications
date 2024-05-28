@@ -169,6 +169,26 @@ func (ndu *NotificationDataUpdate) ClearTask() *NotificationDataUpdate {
 	return ndu
 }
 
+// SetProject sets the "project" field.
+func (ndu *NotificationDataUpdate) SetProject(s string) *NotificationDataUpdate {
+	ndu.mutation.SetProject(s)
+	return ndu
+}
+
+// SetNillableProject sets the "project" field if the given value is not nil.
+func (ndu *NotificationDataUpdate) SetNillableProject(s *string) *NotificationDataUpdate {
+	if s != nil {
+		ndu.SetProject(*s)
+	}
+	return ndu
+}
+
+// ClearProject clears the value of the "project" field.
+func (ndu *NotificationDataUpdate) ClearProject() *NotificationDataUpdate {
+	ndu.mutation.ClearProject()
+	return ndu
+}
+
 // SetMetadata sets the "metadata" field.
 func (ndu *NotificationDataUpdate) SetMetadata(s string) *NotificationDataUpdate {
 	ndu.mutation.SetMetadata(s)
@@ -329,6 +349,12 @@ func (ndu *NotificationDataUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if ndu.mutation.TaskCleared() {
 		_spec.ClearField(notificationdata.FieldTask, field.TypeString)
+	}
+	if value, ok := ndu.mutation.Project(); ok {
+		_spec.SetField(notificationdata.FieldProject, field.TypeString, value)
+	}
+	if ndu.mutation.ProjectCleared() {
+		_spec.ClearField(notificationdata.FieldProject, field.TypeString)
 	}
 	if value, ok := ndu.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)
@@ -536,6 +562,26 @@ func (nduo *NotificationDataUpdateOne) ClearTask() *NotificationDataUpdateOne {
 	return nduo
 }
 
+// SetProject sets the "project" field.
+func (nduo *NotificationDataUpdateOne) SetProject(s string) *NotificationDataUpdateOne {
+	nduo.mutation.SetProject(s)
+	return nduo
+}
+
+// SetNillableProject sets the "project" field if the given value is not nil.
+func (nduo *NotificationDataUpdateOne) SetNillableProject(s *string) *NotificationDataUpdateOne {
+	if s != nil {
+		nduo.SetProject(*s)
+	}
+	return nduo
+}
+
+// ClearProject clears the value of the "project" field.
+func (nduo *NotificationDataUpdateOne) ClearProject() *NotificationDataUpdateOne {
+	nduo.mutation.ClearProject()
+	return nduo
+}
+
 // SetMetadata sets the "metadata" field.
 func (nduo *NotificationDataUpdateOne) SetMetadata(s string) *NotificationDataUpdateOne {
 	nduo.mutation.SetMetadata(s)
@@ -726,6 +772,12 @@ func (nduo *NotificationDataUpdateOne) sqlSave(ctx context.Context) (_node *Noti
 	}
 	if nduo.mutation.TaskCleared() {
 		_spec.ClearField(notificationdata.FieldTask, field.TypeString)
+	}
+	if value, ok := nduo.mutation.Project(); ok {
+		_spec.SetField(notificationdata.FieldProject, field.TypeString, value)
+	}
+	if nduo.mutation.ProjectCleared() {
+		_spec.ClearField(notificationdata.FieldProject, field.TypeString)
 	}
 	if value, ok := nduo.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)

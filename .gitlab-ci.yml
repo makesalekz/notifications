@@ -41,7 +41,6 @@ deploy dev:
     # migrations up
     - docker pull arigaio/atlas
     - docker run --rm -v $(pwd)/ent/migrate/migrations:/migrations --network ${NETWORK} arigaio/atlas migrate apply --url "postgres://me:password@${SERVICE_NAME}_db:5432/api?search_path=public&sslmode=disable"
-    - docker exec -it ${SERVICE_NAME}_service cp -r /go/src/${SERVICE_NAME}/templates /go/src/${SERVICE_NAME}/templates
     # service up
     - docker compose up -d service
     - echo ${SERVICE_NAME} deployed successfully on dev

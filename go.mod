@@ -5,6 +5,11 @@ go 1.21.3
 require (
 	entgo.io/ent v0.12.5
 	firebase.google.com/go/v4 v4.13.0
+	github.com/aws/aws-sdk-go-v2 v1.27.0
+	github.com/aws/aws-sdk-go-v2/config v1.27.15
+	github.com/aws/aws-sdk-go-v2/credentials v1.17.15
+	github.com/aws/aws-sdk-go-v2/service/ses v1.22.8
+	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-kratos/kratos/contrib/metrics/prometheus/v2 v2.0.0-20240119085030-a556a2b53120
 	github.com/go-kratos/kratos/v2 v2.7.2
 	github.com/google/wire v0.6.0
@@ -36,16 +41,12 @@ require (
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.27.0 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.27.15 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.17.15 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.11.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.11.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ses v1.22.8 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.20.8 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.24.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.9 // indirect

@@ -17,10 +17,10 @@ import (
 )
 
 type EmailDetails struct {
-	Language string
-	Type     string
-	Email    string
-	Data     map[string]interface{}
+	Language string                 `json:"language"`
+	Type     string                 `json:"type"`
+	Email    string                 `json:"email"`
+	Data     map[string]interface{} `json:"data"`
 }
 
 type EmailUsecase struct {
@@ -32,19 +32,19 @@ type EmailUsecase struct {
 }
 
 func NewEmailUsecase(config *config.Config, logger log.Logger, qm *nats.QueueManager, templates *LocalizedEmailTemplates) (*EmailUsecase, error) {
-	service := &EmailUsecase{
+	uc := &EmailUsecase{
 		config:    config,
 		log:       log.NewHelper(logger),
 		qm:        qm,
 		templates: templates,
 	}
 	if os.Getenv("DEBUG") == "" {
-		if err := service.setupAWSClient(); err != nil {
+		if err := uc.setupAWSClient(); err != nil {
 			return nil, err
 		}
 	}
-	qm.AddConsumer(QueueEmail, service.handleEmailRequest)
-	return service, nil
+	qm.AddConsumer(QueueEmail, uc.handleEmailRequest)
+	return uc, nil
 }
 
 func (uc *EmailUsecase) setupAWSClient() error {

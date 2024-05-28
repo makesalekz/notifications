@@ -3,6 +3,7 @@ syntax = "proto3";
 package notifications.v1;
 
 import "api/utils/v1/models.proto";
+import "validate/validate.proto";
 
 option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;
@@ -12,7 +13,7 @@ service Sender {
   rpc CreateFcmDevice(FcmDataRequest) returns (utils.v1.EmptyReply);
   rpc DeleteFcmDevice(FcmDeviceRequest) returns (utils.v1.EmptyReply);
   rpc PersonalSmsSender(PersonalSmsSenderRequest) returns (utils.v1.EmptyReply);
-  rpc InviteEmailSender(InviteEmailSenderRequest) returns (utils.v1.EmptyReply);
+  rpc EmailSender(EmailSenderRequest) returns (utils.v1.EmptyReply);
 }
 
 message FcmDeviceRequest {
@@ -29,9 +30,9 @@ message PersonalSmsSenderRequest {
   string message = 2;
 }
 
-message InviteEmailSenderRequest {
-  string appId = 1;
-  int64 userId = 2;
-  string inviteId = 3;
-  string email = 4;
+message EmailSenderRequest {
+  optional string language = 1 [(validate.rules).string = {in: ["en", "ru", "kk"]}];
+  string type = 2 [(validate.rules).string = {in: ["invite"]}];
+  string email = 3 [(validate.rules).string = {email: true}];
+  map<string, string> data = 4;
 }

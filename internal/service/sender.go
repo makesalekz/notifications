@@ -79,13 +79,25 @@ func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalS
 	return &utils_v1.EmptyReply{}, nil
 }
 
-func (s *SenderService) InviteEmailSender(ctx context.Context, req *v1.InviteEmailSenderRequest) (*utils_v1.EmptyReply, error) {
+func (s *SenderService) EmailSender(ctx context.Context, req *v1.EmailSenderRequest) (*utils_v1.EmptyReply, error) {
+	// Default language handling
+	language := req.Language
+	if language == nil || *language == "" {
+		language = &biz.DefaultLanguage
+	}
 
-	err := s.email.SendInviteEmail(ctx, &biz.InviteEmail{
-		AppId:    req.AppId,
+	// Convert map[string]string to map[string]interface{}
+	templateData := make(map[string]interface{})
+	for key, value := range req.Data {
+		templateData[key] = value
+	}
+
+	// Calling SendEmail with converted data
+	err := s.email.SendEmail(ctx, &biz.EmailDetails{
+		Language: *language,
+		Type:     req.Type,
 		Email:    req.Email,
-		UserId:   req.UserId,
-		InviteId: req.InviteId,
+		Data:     templateData,
 	})
 
 	if err != nil {

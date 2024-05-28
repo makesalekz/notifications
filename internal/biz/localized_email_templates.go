@@ -4,23 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"strings"
-)
-
-type Lang string
-type TemplateType struct {
-	Pattern string
-}
-
-const (
-	LangRU Lang = "ru"
-	LangEN Lang = "en"
-	LangKK Lang = "kk"
-)
-
-var (
-	Invite TemplateType = TemplateType{Pattern: "templates/{lang}/invite_email_template.html"}
-	// Можно добавить другие типы шаблонов здесь
 )
 
 type LocalizedEmailTemplates struct {
@@ -30,12 +13,15 @@ type LocalizedEmailTemplates struct {
 func NewLocalizedEmailTemplates() (*LocalizedEmailTemplates, error) {
 	tmpls := make(map[Lang]map[TemplateType]*template.Template)
 	langs := []Lang{LangRU, LangEN, LangKK}
-	types := []TemplateType{Invite} // Добавьте другие типы шаблонов здесь
+	types := []TemplateType{Invite, ConfirmEmail, NewUser}
 
 	for _, lang := range langs {
 		tmpls[lang] = make(map[TemplateType]*template.Template)
 		for _, tType := range types {
-			path := strings.Replace(tType.Pattern, "{lang}", string(lang), 1)
+			path := tType.GetTemplatePath(lang)
+			if path == "" {
+				continue // Skip if no path is returned
+			}
 			tmpl, err := template.ParseFiles(path)
 			if err != nil {
 				return nil, err

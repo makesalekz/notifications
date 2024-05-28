@@ -23,7 +23,7 @@ const (
 	Sender_CreateFcmDevice_FullMethodName   = "/notifications.v1.Sender/CreateFcmDevice"
 	Sender_DeleteFcmDevice_FullMethodName   = "/notifications.v1.Sender/DeleteFcmDevice"
 	Sender_PersonalSmsSender_FullMethodName = "/notifications.v1.Sender/PersonalSmsSender"
-	Sender_InviteEmailSender_FullMethodName = "/notifications.v1.Sender/InviteEmailSender"
+	Sender_EmailSender_FullMethodName       = "/notifications.v1.Sender/EmailSender"
 )
 
 // SenderClient is the client API for Sender service.
@@ -33,7 +33,7 @@ type SenderClient interface {
 	CreateFcmDevice(ctx context.Context, in *FcmDataRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 	DeleteFcmDevice(ctx context.Context, in *FcmDeviceRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 	PersonalSmsSender(ctx context.Context, in *PersonalSmsSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
-	InviteEmailSender(ctx context.Context, in *InviteEmailSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
+	EmailSender(ctx context.Context, in *EmailSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error)
 }
 
 type senderClient struct {
@@ -71,9 +71,9 @@ func (c *senderClient) PersonalSmsSender(ctx context.Context, in *PersonalSmsSen
 	return out, nil
 }
 
-func (c *senderClient) InviteEmailSender(ctx context.Context, in *InviteEmailSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
+func (c *senderClient) EmailSender(ctx context.Context, in *EmailSenderRequest, opts ...grpc.CallOption) (*v1.EmptyReply, error) {
 	out := new(v1.EmptyReply)
-	err := c.cc.Invoke(ctx, Sender_InviteEmailSender_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Sender_EmailSender_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ type SenderServer interface {
 	CreateFcmDevice(context.Context, *FcmDataRequest) (*v1.EmptyReply, error)
 	DeleteFcmDevice(context.Context, *FcmDeviceRequest) (*v1.EmptyReply, error)
 	PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*v1.EmptyReply, error)
-	InviteEmailSender(context.Context, *InviteEmailSenderRequest) (*v1.EmptyReply, error)
+	EmailSender(context.Context, *EmailSenderRequest) (*v1.EmptyReply, error)
 	mustEmbedUnimplementedSenderServer()
 }
 
@@ -104,8 +104,8 @@ func (UnimplementedSenderServer) DeleteFcmDevice(context.Context, *FcmDeviceRequ
 func (UnimplementedSenderServer) PersonalSmsSender(context.Context, *PersonalSmsSenderRequest) (*v1.EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PersonalSmsSender not implemented")
 }
-func (UnimplementedSenderServer) InviteEmailSender(context.Context, *InviteEmailSenderRequest) (*v1.EmptyReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method InviteEmailSender not implemented")
+func (UnimplementedSenderServer) EmailSender(context.Context, *EmailSenderRequest) (*v1.EmptyReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EmailSender not implemented")
 }
 func (UnimplementedSenderServer) mustEmbedUnimplementedSenderServer() {}
 
@@ -174,20 +174,20 @@ func _Sender_PersonalSmsSender_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Sender_InviteEmailSender_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InviteEmailSenderRequest)
+func _Sender_EmailSender_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmailSenderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SenderServer).InviteEmailSender(ctx, in)
+		return srv.(SenderServer).EmailSender(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Sender_InviteEmailSender_FullMethodName,
+		FullMethod: Sender_EmailSender_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SenderServer).InviteEmailSender(ctx, req.(*InviteEmailSenderRequest))
+		return srv.(SenderServer).EmailSender(ctx, req.(*EmailSenderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -212,8 +212,8 @@ var Sender_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Sender_PersonalSmsSender_Handler,
 		},
 		{
-			MethodName: "InviteEmailSender",
-			Handler:    _Sender_InviteEmailSender_Handler,
+			MethodName: "EmailSender",
+			Handler:    _Sender_EmailSender_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

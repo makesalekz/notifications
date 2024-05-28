@@ -4,10 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -17,42 +13,48 @@ import (
 	nnats "github.com/nats-io/nats.go"
 	"gitlab.calendaria.team/services/utils/v1/config"
 	"gitlab.calendaria.team/services/utils/v1/nats"
+	"os"
 )
 
-type InviteEmail struct {
-	AppId    string
+type EmailDetails struct {
+	Language string
+	Type     string
 	Email    string
-	UserId   int64
-	InviteId string
+	Data     map[string]interface{}
 }
 
-// EmailUsecase is a Greeter usecase.
 type EmailUsecase struct {
-	client *ses.Client
-	log    *log.Helper
-	config *config.Config
-	qm     *nats.QueueManager
+	client    *ses.Client
+	log       *log.Helper
+	config    *config.Config
+	templates *LocalizedEmailTemplates
+	qm        *nats.QueueManager
 }
 
-func NewEmailUsecase(config *config.Config, logger log.Logger, qm *nats.QueueManager) (*EmailUsecase, error) {
-	uc := &EmailUsecase{
-		config: config,
-		log:    log.NewHelper(logger),
-		qm:     qm,
+func NewEmailUsecase(config *config.Config, logger log.Logger, qm *nats.QueueManager, templates *LocalizedEmailTemplates) (*EmailUsecase, error) {
+	service := &EmailUsecase{
+		config:    config,
+		log:       log.NewHelper(logger),
+		qm:        qm,
+		templates: templates,
 	}
-
 	if os.Getenv("DEBUG") == "" {
-		awsCfg, err := loadAWSConfig(config)
-		if err != nil {
+		if err := service.setupAWSClient(); err != nil {
 			return nil, err
 		}
-		client := ses.NewFromConfig(awsCfg)
-		uc.client = client
 	}
+	qm.AddConsumer(QueueEmail, service.handleEmailRequest)
+	return service, nil
+}
 
-	qm.AddConsumer(QueueEmail, uc.sendNotifications)
-
-	return uc, nil
+func (uc *EmailUsecase) setupAWSClient() error {
+	awsCfg, err := loadAWSConfig(uc.config)
+	if err != nil {
+		return err
+	}
+	client := ses.NewFromConfig(awsCfg)
+	uc.client = client
+	return nil
 }
 
 func loadAWSConfig(c *config.Config) (aws.Config, error) {
@@ -82,89 +84,75 @@ func loadAWSConfig(c *config.Config) (aws.Config, error) {
 	return awsCfg, nil
 }
 
-func (uc *EmailUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool {
-	inviteEmail := InviteEmail{}
-	err := json.Unmarshal(m.Data, &inviteEmail)
-	if err != nil {
-		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m *nnats.Msg) bool {
+	var request EmailDetails
+	if err := json.Unmarshal(m.Data, &request); err != nil {
+		uc.log.Errorf("handleEmailRequest: json.Unmarshal: %uc", err)
 		return true
 	}
-
-	uc.log.Debugf("sendNotifications: %v", inviteEmail)
-
-	err = uc.SendInviteEmail(ctx, &inviteEmail)
-	if err != nil {
-		uc.log.Errorf("sendNotifications: SendInviteEmail: %s", err.Error())
+	if err := uc.SendEmail(ctx, &request); err != nil {
+		uc.log.Errorf("handleEmailRequest: SendEmail: %uc", err)
 		return false
 	}
-
 	return true
 }
 
-func (uc *EmailUsecase) SendInviteEmail(ctx context.Context, b *InviteEmail) error {
-	sourceEmail, err := uc.config.Value("SES_SOURCE_EMAIL").String()
+func (uc *EmailUsecase) SendEmail(ctx context.Context, req *EmailDetails) error {
+	sourceEmail, subject, err := uc.loadEmailConfig()
 	if err != nil {
-		uc.log.Errorf("failed to load source email from configs: %v", err)
+		uc.log.Errorf("loading email configuration failed: %v", err)
 		return err
 	}
 
-	subject, err := uc.config.Value("SES_EMAIL_SUBJECT").String()
+	// Convert string type to TemplateType
+	templateType, err := getTypeFromString(req.Type)
 	if err != nil {
-		uc.log.Errorf("failed to load email subject from configs: %v", err)
+		uc.log.Errorf("resolving template type failed: %v", err)
 		return err
 	}
 
-	baseURL, err := uc.config.Value("BASE_URL").String()
+	// Execute the template
+	body, err := uc.templates.ExecuteTemplate(Lang(req.Language), templateType, req.Data)
 	if err != nil {
-		uc.log.Errorf("failed to load base URL from configs: %v", err)
+		uc.log.Errorf("executing email template failed: %v", err)
 		return err
 	}
 
-	templatePath := filepath.Join("templates", "invite_email_template.html")
-	body, err := loadEmailTemplate(templatePath, b, baseURL)
+	// Send email through SES
+	return uc.sendSESEmail(ctx, req.Email, sourceEmail, subject, body)
+}
+
+func (uc *EmailUsecase) loadEmailConfig() (sourceEmail, subject string, err error) {
+	sourceEmail, err = uc.config.Value("SES_SOURCE_EMAIL").String()
 	if err != nil {
-		uc.log.Errorf("failed to load email template: %v", err)
-		return err
+		return
+	}
+	subject, err = uc.config.Value("SES_EMAIL_SUBJECT").String()
+	return sourceEmail, subject, err
+}
+
+func (uc *EmailUsecase) sendSESEmail(ctx context.Context, recipient, sourceEmail, subject, body string) error {
+	if uc.client == nil {
+		return fmt.Errorf("SES client is not initialized")
 	}
 
 	input := &ses.SendEmailInput{
 		Source: aws.String(sourceEmail),
 		Destination: &types.Destination{
-			ToAddresses: []string{b.Email},
+			ToAddresses: []string{recipient},
 		},
 		Message: &types.Message{
-			Subject: &types.Content{
-				Data: aws.String(subject),
-			},
-			Body: &types.Body{
-				Html: &types.Content{
-					Data: aws.String(body),
-				},
-			},
+			Subject: &types.Content{Data: aws.String(subject)},
+			Body:    &types.Body{Html: &types.Content{Data: aws.String(body)}},
 		},
 	}
 
-	_, err = uc.client.SendEmail(ctx, input)
+	_, err := uc.client.SendEmail(ctx, input)
 	if err != nil {
 		uc.log.Errorf("failed to send email: %v", err)
 		return err
 	}
 
-	uc.log.Infof("email sent successfully to %s", b.Email)
+	uc.log.Infof("Email sent successfully to %s", recipient)
 	return nil
-}
-
-func loadEmailTemplate(templatePath string, data *InviteEmail, baseURL string) (string, error) {
-	templateBytes, err := os.ReadFile(templatePath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read email template file: %v", err)
-	}
-
-	template := string(templateBytes)
-	template = strings.ReplaceAll(template, "{{.Email}}", data.Email)
-	template = strings.ReplaceAll(template, "{{.UserId}}", fmt.Sprintf("%d", data.UserId))
-	template = strings.ReplaceAll(template, "{{.InviteId}}", data.InviteId)
-	template = strings.ReplaceAll(template, "{{.InviteLink}}", fmt.Sprintf("%s/a/%s/%d", baseURL, data.InviteId, data.UserId))
-
-	return template, nil
 }

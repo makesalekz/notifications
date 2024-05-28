@@ -26,6 +26,7 @@ ARG ENV
 COPY --from=builder /src/bin /app
 COPY --from=builder /src/configs/config.${ENV}.yaml /app/config.yaml
 COPY --from=builder /src/locales /app/locales
+COPY --from=builder /src/templates /app/templates
 
 WORKDIR /app
 

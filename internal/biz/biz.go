@@ -16,5 +16,6 @@ var ProviderSet = wire.NewSet(
 	NewFcmUsecase,
 	NewNotificationsUsecase,
 	NewEmailUsecase,
+	NewLocalizedEmailTemplates,
 	nats.NewQueueManager,
 )

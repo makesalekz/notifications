@@ -8,7 +8,6 @@ require (
 	github.com/go-kratos/kratos/contrib/metrics/prometheus/v2 v2.0.0-20240119085030-a556a2b53120
 	github.com/go-kratos/kratos/v2 v2.7.2
 	github.com/google/wire v0.6.0
-	github.com/koorgoo/smsc v0.0.0-20180215205217-c91cd5bf462d
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats.go v1.32.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0

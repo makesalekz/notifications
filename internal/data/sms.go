@@ -12,7 +12,6 @@ import (
 	"gitlab.calendaria.team/services/utils/v1/config"
 
 	"github.com/go-kratos/kratos/v2/log"
-	_ "github.com/lib/pq"
 )
 
 type Sms struct {

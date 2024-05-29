@@ -4,57 +4,32 @@ import (
 	"context"
 	"os"
 
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/utils/v1/config"
-
 	"github.com/go-kratos/kratos/v2/log"
-)
 
-type Sms struct {
-	Phone   string
-	Message string
-}
+	"gitlab.calendaria.team/services/notifications/internal/data"
+)
 
 // SmsUsecase is a Greeter usecase.
 type SmsUsecase struct {
-	config  *config.Config
-	log     *log.Helper
-	smsRepo data.SmsRepo
+	log        *log.Helper
+	smscClient data.SmscClient
 }
 
-func NewSmsUsecase(c *config.Config, logger log.Logger, smsRepo data.SmsRepo) (*SmsUsecase, error) {
+func NewSmsUsecase(logger log.Logger, smscClient data.SmscClient) (*SmsUsecase, error) {
 	return &SmsUsecase{
-		config:  c,
-		log:     log.NewHelper(log.With(logger, "module", "usecase/sms")),
-		smsRepo: smsRepo,
+		log:        log.NewHelper(log.With(logger, "module", "usecase/sms")),
+		smscClient: smscClient,
 	}, nil
 }
 
-func (uc *SmsUsecase) SendSms(_ context.Context, sms *Sms) error {
-	uc.log.Infof("Sending sms to %s: %s", sms.Phone, sms.Message)
+func (uc *SmsUsecase) SendSms(_ context.Context, sms data.Sms) error {
+	uc.log.Infof("Sending sms to %s: %s", sms.Phones, sms.Message)
 
 	debug := os.Getenv("DEBUG")
 	if debug == "" {
-		// Get the SMSC endpoint and credentials
-		endpoint, err := uc.smsRepo.GetSmsEndpoint()
-		if err != nil {
-			return err
-		}
-		login, err := uc.smsRepo.GetSmsLogin()
-		if err != nil {
-			return err
-		}
-		password, err := uc.smsRepo.GetSmsPassword()
-		if err != nil {
-			return err
-		}
-
-		result, err := SendSms(SmsRequest{
-			Endpoint: endpoint,
-			Login:    login,
-			Password: password,
-			Message:  sms.Message,
-			Phones:   []string{sms.Phone},
+		result, err := uc.smscClient.SendSms(data.Sms{
+			Message: sms.Message,
+			Phones:  sms.Phones,
 		})
 		if err != nil {
 			return err

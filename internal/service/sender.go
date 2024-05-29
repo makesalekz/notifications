@@ -67,9 +67,9 @@ func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 }
 
 func (s *SenderService) PersonalSmsSender(ctx context.Context, req *v1.PersonalSmsSenderRequest) (*utils_v1.EmptyReply, error) {
-	err := s.sms.SendSms(ctx, &biz.Sms{
-		Phone:   req.Phone,
+	err := s.sms.SendSms(ctx, data.Sms{
 		Message: req.Message,
+		Phones:  []string{req.Phone},
 	})
 	if err != nil {
 		return nil, err

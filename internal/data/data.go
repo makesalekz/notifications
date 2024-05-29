@@ -20,6 +20,7 @@ var ProviderSet = wire.NewSet(
 	config.NewConfig,
 	jwt.NewJwtProcessor,
 	NewNatsClient,
+	NewSmscClient,
 	NewDevicesRepo,
 	NewNotificationsRepo,
 	NewLocalizer,

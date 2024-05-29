@@ -35,7 +35,8 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	smsUsecase, err := biz.NewSmsUsecase(configConfig, logger)
+	smscClient := data.NewSmscClient(configConfig)
+	smsUsecase, err := biz.NewSmsUsecase(logger, smscClient)
 	if err != nil {
 		return nil, nil, err
 	}

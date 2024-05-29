@@ -23,10 +23,10 @@ func NewSmsUsecase(logger log.Logger, smscClient data.SmscClient) (*SmsUsecase, 
 }
 
 func (uc *SmsUsecase) SendSms(_ context.Context, sms data.Sms) error {
-	uc.log.Infof("Sending sms to %s: %s", sms.Phones, sms.Message)
-
 	debug := os.Getenv("DEBUG")
 	if debug == "" {
+		uc.log.Infof("Sending sms to %s: <message>", sms.Phones)
+
 		result, err := uc.smscClient.SendSms(data.Sms{
 			Message: sms.Message,
 			Phones:  sms.Phones,
@@ -37,6 +37,7 @@ func (uc *SmsUsecase) SendSms(_ context.Context, sms data.Sms) error {
 
 		uc.log.Infof("SMS sent with result: %s", result)
 	} else {
+		uc.log.Infof("Sending sms to %s: %s", sms.Phones, sms.Message)
 		uc.log.Infof("[DEBUG] SMS sent with result: OK - 1 SMS, ID - TEST")
 	}
 

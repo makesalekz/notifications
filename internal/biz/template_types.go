@@ -40,7 +40,7 @@ func (t TemplateType) GetTemplatePath(lang Lang) string {
 	}
 }
 
-func getTypeFromString(typeStr string) (TemplateType, error) {
+func getTemplateTypeFromString(typeStr string) (TemplateType, error) {
 	tType, ok := typeMap[typeStr]
 	if !ok {
 		return 0, fmt.Errorf("invalid email type: %s", typeStr)

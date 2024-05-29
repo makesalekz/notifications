@@ -88,6 +88,8 @@ make stop
 
 ```txt
 app/notifications/SMSC_ENDPOINT = <URL: string>
+app/notifications/SES_SOURCE_EMAIL = <info@calendaria.team>
+app/notifications/SES_EMAIL_SUBJECT = <Invite>
 ```
 
 ### Vault
@@ -97,6 +99,7 @@ To save JWT secret in Vault terminal (write command, ENTER, paste secret, CTRL+D
 ```bash
 export VAULT_TOKEN=myroot
 vault kv put -mount=secret app/global/jwt data=-
+vault kv put -mount=secret app/notifications/aws access_key_id=asdkasdm secret_access_key=asdkasdm
 ```
 
 ```txt
@@ -109,5 +112,9 @@ secret/data/app/notifications/gserviceaccount = {
 }
 secret/data/app/notifications/firebase = {
     data: string
+}
+secret/data/app/notifications/aws = {
+    access_key_id: string,
+    secret_access_key: string
 }
 ```

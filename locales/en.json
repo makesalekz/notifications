@@ -59,5 +59,8 @@
     "message.contact": {
         "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
+    },
+    "email.subject" : {
+        "invite": "You have been invited to the workspace"
     }
 }

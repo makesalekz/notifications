@@ -59,5 +59,8 @@
   "message.contact": {
     "one": "🗿 Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
+  },
+  "email.subject" : {
+    "invite": "Сізді жұмыс кеңістігіне шақырды"
   }
 }

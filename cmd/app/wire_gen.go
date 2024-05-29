@@ -35,12 +35,14 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	smsUsecase, err := biz.NewSmsUsecase(configConfig, logger)
+	dataData, cleanup, err := data.NewData(bootstrap, configConfig, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(bootstrap, configConfig, logger)
+	smsRepo := data.NewSmsRepo(configConfig, dataData)
+	smsUsecase, err := biz.NewSmsUsecase(configConfig, logger, smsRepo)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)

@@ -380,16 +380,21 @@ func (m *EmailSenderRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateEmail(m.GetEmail()); err != nil {
-		err = EmailSenderRequestValidationError{
-			field:  "Email",
-			reason: "value must be a valid email address",
-			cause:  err,
+	for idx, item := range m.GetEmails() {
+		_, _ = idx, item
+
+		if err := m._validateEmail(item); err != nil {
+			err = EmailSenderRequestValidationError{
+				field:  fmt.Sprintf("Emails[%v]", idx),
+				reason: "value must be a valid email address",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
+
 	}
 
 	// no validation rules for Data

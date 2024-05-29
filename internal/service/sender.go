@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"gitlab.calendaria.team/services/notifications/messages"
 
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/messages"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 	"gitlab.calendaria.team/services/utils/v2/auth"
 )
@@ -89,7 +89,7 @@ func (s *SenderService) EmailSender(ctx context.Context, req *v1.EmailSenderRequ
 	err := s.email.SendEmail(ctx, &messages.EmailDetails{
 		Language: *language,
 		Type:     req.Type,
-		Email:    req.Email,
+		Emails:   req.Emails,
 		Data:     req.Data,
 	})
 

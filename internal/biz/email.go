@@ -120,9 +120,7 @@ func (uc *EmailUsecase) SendEmail(ctx context.Context, emailDetails *messages.Em
 		return err
 	}
 
-	recipients := make([]string, len(emailDetails.Email))
-
-	return uc.sendSESEmail(ctx, recipients, sourceEmail, subject, body)
+	return uc.sendSESEmail(ctx, emailDetails.Emails, sourceEmail, subject, body)
 }
 
 func (uc *EmailUsecase) loadEmailConfig() (string, error) {

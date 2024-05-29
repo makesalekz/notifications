@@ -2,80 +2,44 @@ package biz
 
 import (
 	"context"
-	"fmt"
+	"os"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/koorgoo/smsc"
-	"gitlab.calendaria.team/services/utils/v1/config"
-)
 
-type Sms struct {
-	Phone   string
-	Message string
-}
+	"gitlab.calendaria.team/services/notifications/internal/data"
+)
 
 // SmsUsecase is a Greeter usecase.
 type SmsUsecase struct {
-	client *smsc.Client
-	config *config.Config
-	log    *log.Helper
+	log        *log.Helper
+	smscClient data.SmscClient
 }
 
-func NewSmsUsecase(c *config.Config, logger log.Logger) (*SmsUsecase, error) {
+func NewSmsUsecase(logger log.Logger, smscClient data.SmscClient) (*SmsUsecase, error) {
 	return &SmsUsecase{
-		config: c,
-		log:    log.NewHelper(logger),
+		log:        log.NewHelper(log.With(logger, "module", "usecase/sms")),
+		smscClient: smscClient,
 	}, nil
 }
 
-func (uc *SmsUsecase) getClient(_ context.Context) (*smsc.Client, error) {
-	if uc.client != nil {
-		return uc.client, nil
+func (uc *SmsUsecase) SendSms(_ context.Context, sms data.Sms) error {
+	debug := os.Getenv("DEBUG")
+	if debug == "" {
+		uc.log.Infof("Sending sms to %s: <message>", sms.Phones)
+
+		result, err := uc.smscClient.SendSms(data.Sms{
+			Message: sms.Message,
+			Phones:  sms.Phones,
+		})
+		if err != nil {
+			return err
+		}
+
+		uc.log.Infof("SMS sent with result: %s", result)
+	} else {
+		uc.log.Infof("Sending sms to %s: %s", sms.Phones, sms.Message)
+		uc.log.Infof("[DEBUG] SMS sent with result: OK - 1 SMS, ID - TEST")
 	}
 
-	endpoint, err := uc.config.Value("SMSC_ENDPOINT").String()
-	if err != nil {
-		return nil, err
-	}
-	smscCredentials, err := uc.config.ReadSecretsFor(context.Background(), "smsc")
-	if err != nil {
-		return nil, err
-	}
-
-	login, ok := smscCredentials["login"].(string)
-	if !ok {
-		return nil, fmt.Errorf("SMSC Login is not set: %v", smscCredentials)
-	}
-	password, ok := smscCredentials["password"].(string)
-	if !ok {
-		return nil, fmt.Errorf("SMSC Password is not set: %v", smscCredentials)
-	}
-
-	client, err := smsc.New(smsc.Config{
-		URL:         endpoint,
-		Login:       login,
-		PasswordMD5: password,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	uc.client = client
-
-	return uc.client, nil
-}
-
-func (uc *SmsUsecase) SendSms(ctx context.Context, sms *Sms) error {
-	client, err := uc.getClient(ctx)
-	if err != nil {
-		return err
-	}
-
-	uc.log.WithContext(ctx).Infof("Send sms to %s: %s", sms.Phone, sms.Message)
-
-	result, err := client.Send(sms.Message, []string{sms.Phone})
-
-	uc.log.Debugf("SMS sent with result: %s", result)
-
-	return err
+	return nil
 }

@@ -99,8 +99,8 @@ type SmscClient interface {
 }
 
 type smscClient struct {
-	SmsEndpoint    string
-	SmsCredentials map[string]interface{}
+	smsEndpoint    string
+	smsCredentials map[string]interface{}
 }
 
 func NewSmscClient(config *config.Config) SmscClient {
@@ -111,27 +111,27 @@ func NewSmscClient(config *config.Config) SmscClient {
 	if err != nil {
 		return repo
 	}
-	repo.SmsEndpoint = endpoint
+	repo.smsEndpoint = endpoint
 
 	smscCredentials, err := config.ReadSecretsFor(context.Background(), "smsc")
 	if err != nil {
 		return repo
 	}
-	repo.SmsCredentials = smscCredentials
+	repo.smsCredentials = smscCredentials
 
 	return repo
 }
 
 func (s *smscClient) SendSms(sms Sms) (*Result, error) {
 	// Check if the SMSC endpoint, login and password are set
-	if s.SmsEndpoint == "" {
+	if s.smsEndpoint == "" {
 		return nil, fmt.Errorf("SMSC endpoint is not set")
 	}
-	login, ok := s.SmsCredentials["login"].(string)
+	login, ok := s.smsCredentials["login"].(string)
 	if !ok {
 		return nil, fmt.Errorf("SMSC Login is not set")
 	}
-	password, ok := s.SmsCredentials["password"].(string)
+	password, ok := s.smsCredentials["password"].(string)
 	if !ok {
 		return nil, fmt.Errorf("SMSC Password is not set")
 	}
@@ -160,7 +160,7 @@ func (s *smscClient) SendSms(sms Sms) (*Result, error) {
 	}
 
 	// Post request to send auth code with sms
-	res, err := http.Post(s.SmsEndpoint, "application/json", bytes.NewBuffer(body))
+	res, err := http.Post(s.smsEndpoint, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("post request error: %v", err)
 	}

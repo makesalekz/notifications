@@ -132,16 +132,6 @@ func (uc *EmailUsecase) loadEmailConfig() (string, error) {
 }
 
 func (uc *EmailUsecase) sendSESEmail(ctx context.Context, recipients []string, sourceEmail, subject, body string) error {
-	for _, recipient := range recipients {
-		err := uc.sendSingleEmail(ctx, recipient, sourceEmail, subject, body)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (uc *EmailUsecase) sendSingleEmail(ctx context.Context, recipient, sourceEmail, subject, body string) error {
 	if uc.client == nil {
 		return fmt.Errorf("SES client is not initialized")
 	}
@@ -149,7 +139,7 @@ func (uc *EmailUsecase) sendSingleEmail(ctx context.Context, recipient, sourceEm
 	input := &ses.SendEmailInput{
 		Source: aws.String(sourceEmail),
 		Destination: &types.Destination{
-			ToAddresses: []string{recipient},
+			BccAddresses: recipients,
 		},
 		Message: &types.Message{
 			Subject: &types.Content{Data: aws.String(subject)},
@@ -163,6 +153,6 @@ func (uc *EmailUsecase) sendSingleEmail(ctx context.Context, recipient, sourceEm
 		return err
 	}
 
-	uc.log.Infof("Email sent successfully to %s", recipient)
+	uc.log.Infof("Email sent successfully to %s", recipients)
 	return nil
 }

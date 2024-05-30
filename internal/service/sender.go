@@ -22,10 +22,12 @@ type SenderService struct {
 func NewSenderService(
 	sms *biz.SmsUsecase,
 	fcm *biz.FcmUsecase,
+	email *biz.EmailUsecase,
 ) *SenderService {
 	return &SenderService{
-		sms: sms,
-		fcm: fcm,
+		sms:   sms,
+		fcm:   fcm,
+		email: email,
 	}
 }
 

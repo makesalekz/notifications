@@ -63,7 +63,19 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	senderService := service.NewSenderService(smsUsecase, fcmUsecase)
+	localizedEmailTemplates, err := biz.NewLocalizedEmailTemplates()
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	emailUsecase, err := biz.NewEmailUsecase(configConfig, logger, queueManager, localizedEmailTemplates, localizer)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
 	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, localizer, notificationsRepo)
 	if err != nil {
 		cleanup2()

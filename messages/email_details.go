@@ -1,0 +1,8 @@
+package messages
+
+type EmailDetails struct {
+	Language string            `json:"language,omitempty"`
+	Type     string            `json:"type,omitempty"`
+	Emails   []string          `json:"emails,omitempty"`
+	Data     map[string]string `json:"data,omitempty"`
+}

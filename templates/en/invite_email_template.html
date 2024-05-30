@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation to {{.WorkspaceName}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #F7F9FE;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #444BF3; /* Primary Main */
+            color: #ffffff;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #444BF3; /* Primary Main */
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #BBBCC4;
+        }
+
+        .highlight {
+            color: #72E128; /* Success Main */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Invitation to {{.WorkspaceName}}</h1>
+    </div>
+    <div class="content">
+        <p>Hello <span id="userName" class="highlight"></span>,</p>
+        <p>You have been invited to join the workspace <strong>{{.WorkspaceName}}</strong> by
+            <strong>{{.InvitedBy}}</strong>.</p>
+        <p>Please use the link below to join:</p>
+        <p><a href="{{.InviteLink}}" class="button">Join Now</a></p>
+        <p>If the button above does not work, please use the following link:</p>
+        <p><a href="{{.InviteLink}}">{{.InviteLink}}</a></p>
+        <p>If you did not expect this invitation, please ignore this email.</p>
+        <p>If you have any questions or need assistance, please contact our support team at <a
+                href="mailto:support@calendaria.team">support@calendaria.team</a>.</p>
+    </div>
+    <div class="footer">
+        <p id="copyright">&copy; 2024 Calendaria Team. All rights reserved.</p>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var userName = "{{.UserName}}";
+        if (userName) {
+            document.getElementById('userName').textContent = userName;
+        } else {
+            document.getElementById('userName').parentElement.style.display = 'none';
+        }
+        document.getElementById('copyright').textContent = '\u00A9 ' + new Date().getFullYear() + ' Calendaria Team. All rights reserved.';
+    });
+</script>
+</body>
+</html>

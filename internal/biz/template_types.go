@@ -31,10 +31,6 @@ func (t TemplateType) GetTemplatePath(lang Lang) string {
 	switch t {
 	case Invite:
 		return fmt.Sprintf(basePath, lang, "invite_email_template")
-	case ConfirmEmail:
-		return fmt.Sprintf(basePath, lang, "confirm_email_template")
-	case NewUser:
-		return fmt.Sprintf(basePath, lang, "new_user_email_template")
 	default:
 		return ""
 	}

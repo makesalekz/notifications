@@ -33,31 +33,34 @@
         "other": "New message"
     },
     "message.photo": {
-        "one": "1 photo",
+        "one": "🖼️ 1 photo",
         "other": "{{.plural_count}} photos"
     },
     "message.video": {
-        "one": "1 video",
+        "one": "📹 1 video",
         "other": "{{.plural_count}} videos"
     },
     "message.media": {
-        "one": "1 media",
+        "one": "📎 1 media",
         "other": "{{.plural_count}} media"
     },
     "message.file": {
-        "one": "Sent a file",
+        "one": "📎 Sent a file",
         "other": "Sent {{.plural_count}} files"
     },
     "message.event": {
-        "one": "Sent an event",
+        "one": "📅 Sent an event",
         "other": "Sent {{.plural_count}} events"
     },
     "message.location": {
-        "one": "Sent a location",
+        "one": "📍 Sent a location",
         "other": "Sent {{.plural_count}} locations"
     },
     "message.contact": {
-        "one": "Sent a contact",
+        "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
+    },
+    "email.subject" : {
+        "invite": "You have been invited to the workspace"
     }
 }

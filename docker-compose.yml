@@ -32,6 +32,7 @@ services:
       - VAULT_ADDRESS=${VAULT_ADDRESS}
       - VAULT_ROLE_ID=${VAULT_ROLE_ID}
       - VAULT_SECRET_ID_PATH=/run/secrets/vault_secret_id
+      - AWS_REGION=${AWS_REGION}
     secrets:
       - credentials
       - firebase
@@ -60,6 +61,7 @@ services:
       - CONSUL_ADDRESS=http://consul:8500
       - VAULT_ADDRESS=http://vault:8200
       - VAULT_TOKEN=myroot
+      - AWS_REGION=${AWS_REGION}
     command: ["./app"]
 
 volumes:

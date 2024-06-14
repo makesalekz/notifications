@@ -27,12 +27,18 @@ var (
 	Version string = "1.3.0"
 	// flagconf is the config flag.
 	flagconf string
+	// flaglocales is the locales flag.
+	flaglocales string
+	//flagtemplates is the templates flag.
+	flagtemplates string
 
 	id, _ = os.Hostname()
 )
 
 func init() {
 	flag.StringVar(&flagconf, "conf", "config.yaml", "config path, eg: -conf config.yaml")
+	flag.StringVar(&flaglocales, "locales", "locales", "locales path, eg: -locales locales")
+	flag.StringVar(&flagtemplates, "templates", "templates", "templates path, eg: -templates templates")
 }
 
 func newApp(logger log.Logger, c *config.Config, gs *grpc.Server, hs *http.Server) *kratos.App {

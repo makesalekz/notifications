@@ -10,6 +10,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/utils/v1/config"
 	"gitlab.calendaria.team/services/utils/v1/jwt"
+	u_tracing "gitlab.calendaria.team/services/utils/v2/tracing"
 
 	_ "github.com/lib/pq"
 )
@@ -19,6 +20,7 @@ var ProviderSet = wire.NewSet(
 	NewData,
 	config.NewConfig,
 	jwt.NewJwtProcessor,
+	u_tracing.NewTracer,
 	NewNatsClient,
 	NewSmscClient,
 	NewDevicesRepo,

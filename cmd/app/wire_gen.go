@@ -17,6 +17,7 @@ import (
 	"gitlab.calendaria.team/services/utils/v1/config"
 	"gitlab.calendaria.team/services/utils/v1/jwt"
 	"gitlab.calendaria.team/services/utils/v1/nats"
+	"gitlab.calendaria.team/services/utils/v2/tracing"
 )
 
 import (
@@ -35,6 +36,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
+	tracer := tracing.NewTracer(configConfig)
 	smscClient := data.NewSmscClient(configConfig)
 	smsUsecase, err := biz.NewSmsUsecase(logger, smscClient)
 	if err != nil {
@@ -83,7 +85,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	notificationsService := service.NewNotificationsService(notificationsUsecase)
-	grpcServer := server.NewGRPCServer(bootstrap, jwtProcessor, senderService, notificationsService)
+	grpcServer := server.NewGRPCServer(bootstrap, jwtProcessor, tracer, senderService, notificationsService)
 	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor)
 	app := newApp(logger, configConfig, grpcServer, httpServer)
 	return app, func() {

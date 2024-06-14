@@ -16,6 +16,8 @@ import (
 )
 
 // ProviderSet is data providers.
+//
+//nolint:gochecknoglobals // global variables, used in wire
 var ProviderSet = wire.NewSet(
 	NewData,
 	config.NewConfig,
@@ -38,7 +40,7 @@ type Data struct {
 func NewData(bc *conf.Bootstrap, c *config.Config, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(logger)
 
-	dbDsn := bc.Db // read from local config
+	dbDsn := bc.GetDb() // read from local config
 	if dbDsn == "" {
 		// read from vault
 		secret, err := c.ReadSecretsFor(context.Background(), "db-dsn")
@@ -46,7 +48,15 @@ func NewData(bc *conf.Bootstrap, c *config.Config, logger log.Logger) (*Data, fu
 			l.Fatalf("db dsn not found: %v", err)
 			return nil, nil, err
 		}
-		dbDsn = secret["data"].(string)
+
+		var ok bool
+
+		dbDsn, ok = secret["data"].(string)
+		if !ok {
+			l.Fatalf("db dsn not found: %v", err)
+
+			return nil, nil, err
+		}
 	}
 
 	autoMigrate := os.Getenv("AUTOMIGRATE")
@@ -63,7 +73,7 @@ func NewData(bc *conf.Bootstrap, c *config.Config, logger log.Logger) (*Data, fu
 	}
 
 	if autoMigrate != "" {
-		if err := client.Schema.Create(context.Background()); err != nil {
+		if err = client.Schema.Create(context.Background()); err != nil {
 			l.Errorf("failed creating schema resources: %v", err)
 			return nil, nil, err
 		}
@@ -72,7 +82,7 @@ func NewData(bc *conf.Bootstrap, c *config.Config, logger log.Logger) (*Data, fu
 	l.Info("Connected to postgres")
 
 	cleanup := func() {
-		if err := client.Close(); err != nil {
+		if err = client.Close(); err != nil {
 			l.Error(err)
 		}
 	}

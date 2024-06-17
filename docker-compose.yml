@@ -38,7 +38,7 @@ services:
       - credentials
       - firebase
       - vault_secret_id
-    command: ["./app"]
+    command: ["./app","-conf","config.yaml"]
   local-service:
     build:
       context: ./
@@ -63,7 +63,7 @@ services:
       - VAULT_ADDRESS=http://vault:8200
       - VAULT_TOKEN=myroot
       - AWS_REGION=${AWS_REGION}
-    command: ["./app"]
+    command: ["./app","-conf","config.yaml"]
 
 volumes:
   dbvol:

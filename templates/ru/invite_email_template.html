@@ -62,7 +62,7 @@
         <h1>Приглашение в {{.WorkspaceName}}</h1>
     </div>
     <div class="content">
-        <p>Здравствуйте, <span id="userName" class="highlight"></span>,</p>
+        <p>Здравствуйте <span id="userName" class="highlight"></span></p>
         <p>Вас пригласили присоединиться к рабочему пространству <strong>{{.WorkspaceName}}</strong> от
             <strong>{{.InvitedBy}}</strong>.</p>
         <p>Пожалуйста, используйте ссылку ниже для присоединения:</p>
@@ -81,11 +81,10 @@
     document.addEventListener('DOMContentLoaded', function () {
         var userName = "{{.UserName}}";
         if (userName) {
-            document.getElementById('userName').textContent = userName;
+            document.getElementById('userName').textContent = `, ${userName}!`;
         } else {
-            document.getElementById('userName').parentElement.style.display = 'none';
+            document.getElementById('userName').style.display = 'none';
         }
-        document.getElementById('copyright').textContent = '\u00A9 ' + new Date().getFullYear() + ' Команда Calendaria. Все права защищены.';
     });
 </script>
 </body>

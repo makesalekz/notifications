@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="kk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.WorkspaceName}} кеңістігіне шақыру</title>
+    <title>Authorization Code</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,16 +32,16 @@
             padding: 20px;
         }
 
-        .button {
+        .code {
             display: inline-block;
             padding: 10px 20px;
-            font-size: 16px;
-            color: #ffffff;
-            background-color: #444BF3; /* Primary Main */
+            font-size: 24px;
+            color: #444BF3; /* Primary Main */
+            background-color: #E8EAF6; /* Light Background */
             text-align: center;
-            text-decoration: none;
+            border: 2px dashed #444BF3;
             border-radius: 5px;
-            margin-top: 20px;
+            margin: 20px 0;
         }
 
         .footer {
@@ -59,21 +59,19 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>{{.WorkspaceName}} кеңістігіне шақыру</h1>
+        <h1>Authorization Code</h1>
     </div>
     <div class="content">
-        <p>Сәлеметсіз бе<span id="userName" class="highlight"></span></p>
-        <p>Сізді <strong>{{.WorkspaceName}}</strong> кеңістігіне <strong>{{.InvitedBy}}</strong> шақырды.</p>
-        <p>Қосылу үшін төмендегі сілтемені пайдаланыңыз:</p>
-        <p><a href="{{.InviteLink}}" class="button">Қосылу</a></p>
-        <p>Егер жоғарыдағы батырма жұмыс істемесе, келесі сілтемені пайдаланыңыз:</p>
-        <p><a href="{{.InviteLink}}">{{.InviteLink}}</a></p>
-        <p>Егер сіз бұл шақыруды күтпеген болсаңыз, бұл хатты елемеңіз.</p>
-        <p>Егер сізде сұрақтар туындаса немесе көмек қажет болса, біздің қолдау тобына хабарласыңыз: <a
-                href="mailto:support@calendaria.team">support@calendaria.team</a>.</p>
+        <p>Hello <span id="userName"></span></p>
+        <p>Here is your authorization code:</p>
+        <p class="code">{{.AuthCode}}</p>
+        <p>This code expires in 5 minutes.</p>
+        <p>You are authorizing using the email: <strong>{{.Email}}</strong></p>
+        <p>If you did not request this code, please ignore this email.</p>
+        <p>If you have any questions or need assistance, please contact our support team at <a href="mailto:support@example.com">support@example.com</a>.</p>
     </div>
     <div class="footer">
-        <p id="copyright">&copy; 2024 Calendaria командасы. Барлық құқықтар қорғалған.</p>
+        <p>&copy; 2024 Calendaria Team. All rights reserved.</p>
     </div>
 </div>
 <script>

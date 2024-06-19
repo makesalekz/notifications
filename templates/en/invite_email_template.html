@@ -62,7 +62,7 @@
         <h1>Invitation to {{.WorkspaceName}}</h1>
     </div>
     <div class="content">
-        <p>Hello <span id="userName" class="highlight"></span>,</p>
+        <p>Hello <span id="userName"></span></p>
         <p>You have been invited to join the workspace <strong>{{.WorkspaceName}}</strong> by
             <strong>{{.InvitedBy}}</strong>.</p>
         <p>Please use the link below to join:</p>
@@ -81,11 +81,10 @@
     document.addEventListener('DOMContentLoaded', function () {
         var userName = "{{.UserName}}";
         if (userName) {
-            document.getElementById('userName').textContent = userName;
+            document.getElementById('userName').textContent = `, ${userName}!`;
         } else {
-            document.getElementById('userName').parentElement.style.display = 'none';
+            document.getElementById('userName').style.display = 'none';
         }
-        document.getElementById('copyright').textContent = '\u00A9 ' + new Date().getFullYear() + ' Calendaria Team. All rights reserved.';
     });
 </script>
 </body>

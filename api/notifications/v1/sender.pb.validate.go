@@ -372,7 +372,7 @@ func (m *EmailSenderRequest) validate(all bool) error {
 	if _, ok := _EmailSenderRequest_Type_InLookup[m.GetType()]; !ok {
 		err := EmailSenderRequestValidationError{
 			field:  "Type",
-			reason: "value must be in list [invite]",
+			reason: "value must be in list [invite confirm_email]",
 		}
 		if !all {
 			return err
@@ -551,5 +551,6 @@ var _EmailSenderRequest_Language_InLookup = map[string]struct{}{
 }
 
 var _EmailSenderRequest_Type_InLookup = map[string]struct{}{
-	"invite": {},
+	"invite":        {},
+	"confirm_email": {},
 }

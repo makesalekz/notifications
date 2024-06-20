@@ -32,7 +32,7 @@ message PersonalSmsSenderRequest {
 
 message EmailSenderRequest {
   optional string language = 1 [(validate.rules).string = {in: ["en", "ru", "kk"]}];
-  string type = 2 [(validate.rules).string = {in: ["invite"]}];
+  string type = 2 [(validate.rules).string = {in: ["invite", "confirm_email"]}];
   repeated string emails = 3 [(validate.rules).repeated = {items: {string: {email: true}}}];
   map<string, string> data = 4;
 }

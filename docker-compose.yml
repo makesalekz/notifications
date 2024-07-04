@@ -25,6 +25,7 @@ services:
     depends_on:
       - db
     environment:
+      - DEBUG=1
       - SERVICE_NAME=${SERVICE_NAME}
       - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/credentials
       - FIREBASE_CONFIG=/run/secrets/firebase

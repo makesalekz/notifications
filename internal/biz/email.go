@@ -3,11 +3,9 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"os"
 
+	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
-
 	"gitlab.calendaria.team/services/notifications/messages"
 	"gitlab.calendaria.team/services/utils/v1/config"
 	"gitlab.calendaria.team/services/utils/v1/nats"
@@ -22,15 +20,22 @@ import (
 )
 
 type EmailUsecase struct {
-	client    *ses.Client
-	log       *log.Helper
-	config    *config.Config
-	templates *LocalizedEmailTemplates
-	localizer *data.Localizer
-	qm        *nats.QueueManager
+	client      *ses.Client
+	log         *log.Helper
+	config      *config.Config
+	templates   *LocalizedEmailTemplates
+	localizer   *data.Localizer
+	qm          *nats.QueueManager
+	sourceEmail string
 }
 
-func NewEmailUsecase(config *config.Config, logger log.Logger, qm *nats.QueueManager, templates *LocalizedEmailTemplates, localizer *data.Localizer) (*EmailUsecase, error) {
+func NewEmailUsecase(
+	config *config.Config,
+	logger log.Logger,
+	qm *nats.QueueManager,
+	templates *LocalizedEmailTemplates,
+	localizer *data.Localizer,
+) (*EmailUsecase, error) {
 	uc := &EmailUsecase{
 		config:    config,
 		log:       log.NewHelper(logger),
@@ -38,11 +43,18 @@ func NewEmailUsecase(config *config.Config, logger log.Logger, qm *nats.QueueMan
 		templates: templates,
 		localizer: localizer,
 	}
-	if os.Getenv("DEBUG") == "" {
-		if err := uc.setupAWSClient(); err != nil {
+
+	sourceEmail, err := uc.config.Value("SES_SOURCE_EMAIL").String()
+	if err == nil {
+		err = uc.setupAWSClient()
+		if err != nil {
 			return nil, err
 		}
+		uc.sourceEmail = sourceEmail
+	} else {
+		uc.log.Infof("loading email configuration failed: %v", err)
 	}
+
 	qm.AddConsumer(QueueEmail, uc.handleEmailRequest)
 	return uc, nil
 }
@@ -60,14 +72,20 @@ func (uc *EmailUsecase) setupAWSClient() error {
 func loadAWSConfig(c *config.Config) (aws.Config, error) {
 	secrets, err := c.ReadSecretsFor(context.Background(), "aws")
 	if err != nil {
-		return aws.Config{}, fmt.Errorf("failed to read AWS secrets: %v", err)
+		return aws.Config{}, v1.ErrorInternal("failed to read AWS secrets: %v", err)
 	}
-	accessKeyID := secrets["access_key_id"].(string)
-	secretAccessKey := secrets["secret_access_key"].(string)
+	accessKeyID, ok := secrets["access_key_id"].(string)
+	if !ok {
+		return aws.Config{}, v1.ErrorInternal("failed to load access_key_id")
+	}
+	secretAccessKey, ok := secrets["secret_access_key"].(string)
+	if !ok {
+		return aws.Config{}, v1.ErrorInternal("failed to load secret_access_key")
+	}
 
 	region, err := c.Value("AWS_REGION").String()
 	if err != nil {
-		return aws.Config{}, fmt.Errorf("failed to load AWS_REGION: %v", err)
+		return aws.Config{}, v1.ErrorInternal("failed to load AWS_REGION: %v", err)
 	}
 
 	awsCfg, err := awsConfig.LoadDefaultConfig(context.TODO(),
@@ -75,7 +93,7 @@ func loadAWSConfig(c *config.Config) (aws.Config, error) {
 		awsConfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
 	)
 	if err != nil {
-		return aws.Config{}, fmt.Errorf("failed to load AWS configs: %v", err)
+		return aws.Config{}, v1.ErrorInternal("failed to load AWS configs: %v", err)
 	}
 
 	return awsCfg, nil
@@ -95,14 +113,8 @@ func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m *nnats.Msg) bo
 }
 
 func (uc *EmailUsecase) SendEmail(ctx context.Context, emailDetails *messages.EmailDetails) error {
-	sourceEmail, err := uc.loadEmailConfig()
-	if err != nil {
-		uc.log.Errorf("loading email configuration failed: %v", err)
-		return err
-	}
-
-	messageId := "email.subject." + emailDetails.Type
-	subject, err := uc.localizer.GetLocalizedMessage(emailDetails.Language, messageId, nil, nil)
+	messageID := "email.subject." + emailDetails.Type
+	subject, err := uc.localizer.GetLocalizedMessage(emailDetails.Language, messageID, nil, nil)
 	if err != nil {
 		uc.log.Errorf("localizing email subject failed: %v", err)
 		return err
@@ -120,24 +132,16 @@ func (uc *EmailUsecase) SendEmail(ctx context.Context, emailDetails *messages.Em
 		return err
 	}
 
-	return uc.sendSESEmail(ctx, emailDetails.Emails, sourceEmail, subject, body)
+	return uc.sendSESEmail(ctx, emailDetails.Emails, subject, body)
 }
 
-func (uc *EmailUsecase) loadEmailConfig() (string, error) {
-	sourceEmail, err := uc.config.Value("SES_SOURCE_EMAIL").String()
-	if err != nil {
-		return "", err
-	}
-	return sourceEmail, err
-}
-
-func (uc *EmailUsecase) sendSESEmail(ctx context.Context, recipients []string, sourceEmail, subject, body string) error {
+func (uc *EmailUsecase) sendSESEmail(ctx context.Context, recipients []string, subject, body string) error {
 	if uc.client == nil {
-		return fmt.Errorf("SES client is not initialized")
+		return v1.ErrorInternal("SES client is not initialized")
 	}
 
 	input := &ses.SendEmailInput{
-		Source: aws.String(sourceEmail),
+		Source: aws.String(uc.sourceEmail),
 		Destination: &types.Destination{
 			BccAddresses: recipients,
 		},

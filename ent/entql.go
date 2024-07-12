@@ -93,6 +93,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			notificationdata.FieldContact:     {Type: field.TypeString, Column: notificationdata.FieldContact},
 			notificationdata.FieldTask:        {Type: field.TypeString, Column: notificationdata.FieldTask},
 			notificationdata.FieldProject:     {Type: field.TypeString, Column: notificationdata.FieldProject},
+			notificationdata.FieldUser:        {Type: field.TypeString, Column: notificationdata.FieldUser},
 			notificationdata.FieldMetadata:    {Type: field.TypeString, Column: notificationdata.FieldMetadata},
 			notificationdata.FieldPluralCount: {Type: field.TypeInt64, Column: notificationdata.FieldPluralCount},
 		},
@@ -427,6 +428,11 @@ func (f *NotificationDataFilter) WhereTask(p entql.StringP) {
 // WhereProject applies the entql string predicate on the project field.
 func (f *NotificationDataFilter) WhereProject(p entql.StringP) {
 	f.Where(p.Field(notificationdata.FieldProject))
+}
+
+// WhereUser applies the entql string predicate on the user field.
+func (f *NotificationDataFilter) WhereUser(p entql.StringP) {
+	f.Where(p.Field(notificationdata.FieldUser))
 }
 
 // WhereMetadata applies the entql string predicate on the metadata field.

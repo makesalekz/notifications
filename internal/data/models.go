@@ -50,6 +50,7 @@ type NotificationAddInfo struct {
 	MemberJson   *string
 	ChatJson     *string
 	MessageJson  *string
+	UserJson     *string
 	MetadataJson *string
 	PluralCount  *int64
 
@@ -86,6 +87,7 @@ func FromEnt(n_ent *ent.Notification) *NotificationDto {
 			MemberJson:   n_data.Member,
 			ChatJson:     n_data.Chat,
 			MessageJson:  n_data.Message,
+			UserJson:     n_data.User,
 			MetadataJson: n_data.Metadata,
 			PluralCount:  n_data.PluralCount,
 			convertedMap: make(map[string]interface{}),
@@ -115,6 +117,9 @@ func (dto *NotificationDto) generateConvertedMap() {
 	}
 	if dto.NotificationAddInfo.MessageJson != nil {
 		dto.setConvertedMap("message", *dto.NotificationAddInfo.MessageJson)
+	}
+	if dto.NotificationAddInfo.UserJson != nil {
+		dto.setConvertedMap("user", *dto.NotificationAddInfo.UserJson)
 	}
 	if dto.NotificationAddInfo.PluralCount != nil {
 		dto.setConvertedMap("plural_count", strconv.FormatInt(*dto.NotificationAddInfo.PluralCount, 10))
@@ -200,6 +205,10 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 	if messageJson, ok := notificationData["message"]; ok && messageJson != "" {
 		dto.MessageJson = &messageJson
 		dto.setConvertedMap("message", messageJson)
+	}
+	if userJson, ok := notificationData["user"]; ok && userJson != "" {
+		dto.UserJson = &userJson
+		dto.setConvertedMap("user", userJson)
 	}
 	if metadataString, ok := notificationData["metadata"]; ok && metadataString != "" {
 		dto.MetadataJson = &metadataString

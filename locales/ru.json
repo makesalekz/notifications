@@ -1,13 +1,13 @@
 {
-    "NEW_INVITE": "{{.member.name}} пригласил вас на событие",
+    "NEW_INVITE": "{{.user.name}} пригласил вас на событие",
     "MEMBER_ROLE_CHANGED": "Ваша роль изменилась на {{.member.role}}",
-    "MEMBER_DECLINED": "{{.member.name}} отклонил",
-    "MEMBER_LEFT": "{{.member.name}} покинул событие",
+    "MEMBER_DECLINED": "{{.user.name}} отклонил",
+    "MEMBER_LEFT": "{{.user.name}} покинул событие",
     "MEMBER_KICKED": "Вас удалили из события",
-    "MEMBER_MAYBE": "{{.member.name}} думает о приглашении",
-    "MEMBER_ACCEPTED": "{{.member.name}} принял приглашение на событие",
-    "EVENT_UPDATED": "{{.member.name}} изменил данные события: {{.metadata}}",
-    "EVENT_DELETED": "{{.member.name}} удалил событие",
+    "MEMBER_MAYBE": "{{.user.name}} думает о приглашении",
+    "MEMBER_ACCEPTED": "{{.user.name}} принял приглашение на событие",
+    "EVENT_UPDATED": "{{.user.name}} изменил данные события: {{.metadata}}",
+    "EVENT_DELETED": "{{.user.name}} удалил событие",
     "EVENT_STARTS_SOON": {
         "one": "Событие начнется через {{.event.noticeBefore}} минуту",
         "few": "Событие начнется через {{.event.noticeBefore}} минуты",
@@ -20,19 +20,26 @@
         "many": "Событие началось",
         "other": "Событие началось"
     },
+    "EVENT_PENDING_INVITES": {
+        "one": "1 участник не ответил на приглашение",
+        "few": "{{.plural_count}} участника не ответили на приглашение",
+        "many": "{{.plural_count}} участников не ответили на приглашение",
+        "other": "{{.plural_count}} участников не ответили на приглашение"
+    },
+    "EVENT_PENDING_MEMBERS": "Вы не ответили на приглашение на мероприятие {{.event.title}}. {{.user.name}} ждем вашего ответа",
     "EVENT_REMINDER": "Ответьте на приглашение",
-    "EVENT_CHAT_CREATED": "{{.member.name}} создал чат события",
-    "EVENT_CHAT_DELETED": "{{.member.name}} удалил чат события",
-    "ATTACHMENTS_ADDED": "{{.member.name}} добавил новое вложение",
-    "ATTACHMENTS_DELETED": "{{.member.name}} удалил вложение",
-    "LINKS_ADDED": "{{.member.name}} добавил новую ссылку",
-    "LINKS_DELETED": "{{.member.name}} удалил ссылку",
+    "EVENT_CHAT_CREATED": "{{.user.name}} создал чат события",
+    "EVENT_CHAT_DELETED": "{{.user.name}} удалил чат события",
+    "ATTACHMENTS_ADDED": "{{.user.name}} добавил новое вложение",
+    "ATTACHMENTS_DELETED": "{{.user.name}} удалил вложение",
+    "LINKS_ADDED": "{{.user.name}} добавил новую ссылку",
+    "LINKS_DELETED": "{{.user.name}} удалил ссылку",
     "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
     "chat.update": {
-        "one":"{{.metadata}} был изменен {{.member.name}}",
-        "few":"{{.metadata}} были изменены {{.member.name}}",
-        "many":"{{.metadata}} были изменены {{.member.name}}",
-        "other":"{{.metadata}} были изменены {{.member.name}}"
+        "one":"{{.metadata}} был изменен {{.user.name}}",
+        "few":"{{.metadata}} были изменены {{.user.name}}",
+        "many":"{{.metadata}} были изменены {{.user.name}}",
+        "other":"{{.metadata}} были изменены {{.user.name}}"
     },
     "message.new": {
         "one": "{{.message.content.text}}",
@@ -85,5 +92,10 @@
     "email.subject" : {
         "invite": "Вас пригласили в рабочее пространство",
         "confirm_email": "Код авторизации"
-    }
+    },
+    "title": "заглавие",
+    "description": "описание",
+    "cover": "обложка",
+    "location": "местоположение",
+    "details": "подробности"
 }

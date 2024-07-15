@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -38,6 +40,8 @@ const (
 	formatInline
 	formatXML
 	formatJSON
+
+	lowBalance = 100
 )
 
 // cost defines whether API should send a Result with cost information.
@@ -95,52 +99,78 @@ func (e *Error) Error() string {
 // endregion ------------------- smsc response -------------------
 
 type SmscClient interface {
-	SendSms(sms Sms) (*Result, error)
+	SendSms(ctx context.Context, sms Sms) (*Result, error)
 }
 
 type smscClient struct {
 	smsEndpoint    string
 	smsCredentials map[string]interface{}
+	log            *log.Helper
+	debug          bool
 }
 
-func NewSmscClient(config *config.Config) SmscClient {
-	repo := &smscClient{}
-
-	// Get the SMSC endpoint and credentials
-	endpoint, err := config.Value("SMSC_ENDPOINT").String()
-	if err != nil {
-		return repo
+func NewSmscClient(config *config.Config, logger log.Logger) SmscClient {
+	debug := os.Getenv("DEBUG") != ""
+	s := &smscClient{
+		debug: debug,
+		log:   log.NewHelper(log.With(logger, "module", "data/sms")),
 	}
-	repo.smsEndpoint = endpoint
 
-	smscCredentials, err := config.ReadSecretsFor(context.Background(), "smsc")
-	if err != nil {
-		return repo
+	s.log.Infof("debug: %v", debug)
+
+	if !debug {
+		// Get the SMSC endpoint and credentials
+		endpoint, err := config.Value("SMSC_ENDPOINT").String()
+		if err != nil {
+			s.log.Errorf("SMSC endpoint is not set: %v", err)
+			return s
+		}
+		s.smsEndpoint = endpoint
+
+		smscCredentials, err := config.ReadSecretsFor(context.Background(), "smsc")
+		if err != nil {
+			s.log.Errorf("SMSC credentials are not set: %v", err)
+			return s
+		}
+		s.smsCredentials = smscCredentials
 	}
-	repo.smsCredentials = smscCredentials
 
-	return repo
+	return s
 }
 
-func (s *smscClient) SendSms(sms Sms) (*Result, error) {
+func (s *smscClient) SendSms(ctx context.Context, sms Sms) (*Result, error) {
+	if s.debug {
+		s.log.Debugf("Sending sms to %s: %s", sms.Phones, sms.Message)
+		s.log.Debug("[DEBUG] SMS sent with result: OK - 1 SMS, ID - TEST")
+		return &Result{
+			ID:    1,
+			Count: 1,
+		}, nil
+	}
+
+	s.log.Infof("Sending sms to %s: <message>", sms.Phones)
+
 	// Check if the SMSC endpoint, login and password are set
 	if s.smsEndpoint == "" {
-		return nil, fmt.Errorf("SMSC endpoint is not set")
+		return nil, errors.New("SMSC endpoint is not set")
+	}
+	if len(s.smsCredentials) == 0 {
+		return nil, errors.New("SMSC credentials are not set")
 	}
 	login, ok := s.smsCredentials["login"].(string)
 	if !ok {
-		return nil, fmt.Errorf("SMSC Login is not set")
+		return nil, errors.New("SMSC Login is not set")
 	}
 	password, ok := s.smsCredentials["password"].(string)
 	if !ok {
-		return nil, fmt.Errorf("SMSC Password is not set")
+		return nil, errors.New("SMSC Password is not set")
 	}
 
 	// Check the required fields
 	if sms.Message == "" {
-		return nil, fmt.Errorf("message is not set")
+		return nil, errors.New("message is not set")
 	} else if len(sms.Phones) == 0 {
-		return nil, fmt.Errorf("phone(s) is (are) not set")
+		return nil, errors.New("phone(s) is (are) not set")
 	}
 
 	// Create the request
@@ -156,13 +186,18 @@ func (s *smscClient) SendSms(sms Sms) (*Result, error) {
 	// Marshal the request to JSON
 	body, err := json.Marshal(request)
 	if err != nil {
-		return nil, fmt.Errorf("marshal error: %v", err)
+		return nil, fmt.Errorf("marshal error: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.smsEndpoint, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, fmt.Errorf("new request error: %w", err)
 	}
 
 	// Post request to send auth code with sms
-	res, err := http.Post(s.smsEndpoint, "application/json", bytes.NewBuffer(body))
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("post request error: %v", err)
+		return nil, fmt.Errorf("post request error: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -175,7 +210,7 @@ func (s *smscClient) SendSms(sms Sms) (*Result, error) {
 	response := &MetaResult{}
 	err = json.NewDecoder(res.Body).Decode(response)
 	if err != nil {
-		return nil, fmt.Errorf("decode error: %v", err)
+		return nil, fmt.Errorf("decode error: %w", err)
 	}
 
 	// Check if the response contains an error
@@ -185,13 +220,15 @@ func (s *smscClient) SendSms(sms Sms) (*Result, error) {
 
 	// Check the balance to log/notify if it is low
 	if response.Balance != nil {
-		balance, err := strconv.ParseFloat(*response.Balance, 64)
-		if err != nil {
-			log.Errorf("smsc.kz balance parse error: %v", err)
-		} else if balance < 100 {
+		balance, err2 := strconv.ParseFloat(*response.Balance, 64)
+		if err2 != nil {
+			log.Errorf("smsc.kz balance parse error: %v", err2)
+		} else if balance < lowBalance {
 			log.Warnf("smsc.kz balance is low: %v", balance)
 		}
 	}
+
+	s.log.Infof("SMS sent with result: %s", response.Result)
 
 	return response.Result, nil
 }

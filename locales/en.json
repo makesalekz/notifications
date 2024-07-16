@@ -65,13 +65,8 @@
         "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
     },
-    "email.subject" : {
+    "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"
-    },
-    "title": "title",
-    "description": "description",
-    "cover": "cover",
-    "location": "location",
-    "details": "details"
+    }
 }

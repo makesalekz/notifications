@@ -65,13 +65,8 @@
     "one": "🗿 Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
   },
-  "email.subject" : {
+  "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "
-  },
-  "title": "атауы",
-  "description": "сипаттамасы",
-  "cover": "мұқабасы",
-  "location": "орналасуы",
-  "details": "ақпараты"
+  }
 }

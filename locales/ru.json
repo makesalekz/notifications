@@ -89,13 +89,8 @@
         "many": "Отправил(-а) {{.plural_count}} контактов",
         "other": "Отправил(-а) {{.plural_count}} контактов"
     },
-    "email.subject" : {
+    "email.subject": {
         "invite": "Вас пригласили в рабочее пространство",
         "confirm_email": "Код авторизации"
-    },
-    "title": "заглавие",
-    "description": "описание",
-    "cover": "обложка",
-    "location": "местоположение",
-    "details": "подробности"
+    }
 }

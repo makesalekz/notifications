@@ -73,6 +73,7 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 			SetNillableEvent(dto.EventJson).
 			SetNillableMember(dto.MemberJson).
 			SetNillableMessage(dto.MessageJson).
+			SetNillableUser(dto.UserJson).
 			SetNillableMetadata(dto.MetadataJson).
 			SetNillablePluralCount(dto.PluralCount).
 			SetNillableTask(dto.TaskJson).

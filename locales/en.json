@@ -68,5 +68,6 @@
     "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"
-    }
+    },
+    "title": "title"
 }

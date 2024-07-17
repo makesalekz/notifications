@@ -1,8 +1,8 @@
 include:
   - project: 'deploy/dev'
-    file: '/go-app.yml'
+    file: '/go-app-v2.yml'
     ref: 'main'
-  
+
 lint dev:
   extends: .lint-dev
 
@@ -14,7 +14,7 @@ deploy dev:
     - dev-go
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
+    - if: ($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH =~ /v\d+/ && $CI_COMMIT_TAG != $CI_COMMIT_BRANCH)
   variables:
     SERVICE_NAME: ${CI_PROJECT_NAME}
     DB_NAME: api
@@ -43,6 +43,15 @@ deploy dev:
     - docker compose up -d service
     - echo ${SERVICE_NAME} deployed successfully on dev
 
+cleanup:
+  extends: .cleanup
+
+release:
+  extends: .release
+
+merge:
+  extends: .merge
+
 build:
   extends: .build-shell
 
@@ -54,3 +63,6 @@ helm-lint:
 
 deploy:
   extends: .deploy
+
+rollout:
+  extends: .rollout

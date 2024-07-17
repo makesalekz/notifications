@@ -1,13 +1,13 @@
 {
-  "NEW_INVITE": "{{.member.name}} сізді іс-шараға шақырды",
+  "NEW_INVITE": "{{.user.name}} сізді іс-шараға шақырды",
   "MEMBER_ROLE_CHANGED": "Сіздің рөліңіз {{.member.role}} деп өзгерілді",
-  "MEMBER_DECLINED": "{{.member.name}} шақырудан бас тартты",
-  "MEMBER_LEFT": "{{.member.name}} іс-шарадан шығып кетті",
+  "MEMBER_DECLINED": "{{.user.name}} шақырудан бас тартты",
+  "MEMBER_LEFT": "{{.user.name}} іс-шарадан шығып кетті",
   "MEMBER_KICKED": "Сіз іс-шарадан жойылдыңыз",
-  "MEMBER_MAYBE": "{{.member.name}} шақыру туралы ойлануда",
-  "MEMBER_ACCEPTED": "{{.member.name}} іс-шараға шақыруды қабылдады",
-  "EVENT_UPDATED": "{{.member.name}} іс-шараның деректерін өзгертті: {{.metadata}}",
-  "EVENT_DELETED": "{{.member.name}} іс-шараны жойды",
+  "MEMBER_MAYBE": "{{.user.name}} шақыру туралы ойлануда",
+  "MEMBER_ACCEPTED": "{{.user.name}} іс-шараға шақыруды қабылдады",
+  "EVENT_UPDATED": "{{.user.name}} іс-шараның деректерін өзгертті: {{.metadata}}",
+  "EVENT_DELETED": "{{.user.name}} іс-шараны жойды",
   "EVENT_STARTS_SOON": {
     "one": "Іс-шара {{.event.noticeBefore}} минуттан кейін басталады",
     "other": "Іс-шара {{.event.noticeBefore}} минуттан кейін басталады"
@@ -16,17 +16,22 @@
     "one": "Іс-шара басталды {{.event.location.address}}",
     "other": "Іс-шара басталды"
   },
+  "EVENT_PENDING_INVITES": {
+    "one": "1 қатысушы шақыртуға жауап берген жоқ",
+    "other": "{{.plural_count}} қатысушы шақыртуға жауап берген жоқ"
+  },
+  "EVENT_PENDING_MEMBERS": "Сіз іс-шараға шақыруға жауап берген жоқсыз {{.event.title}}. {{.user.name}} сіздің жауабыңызды күтуде",
   "EVENT_REMINDER": "Шақыруға жауап беріңіз",
-  "EVENT_CHAT_CREATED": "{{.member.name}} іс-шара үшін чат құрды",
-  "EVENT_CHAT_DELETED": "{{.member.name}} іс-шара чатын жойды",
-  "ATTACHMENTS_ADDED": "{{.member.name}} жаңа тіркеме қосты",
-  "ATTACHMENTS_DELETED": "{{.member.name}} тіркемені жойды",
-  "LINKS_ADDED": "{{.member.name}} жаңа сілтеме қосты",
-  "LINKS_DELETED": "{{.member.name}} сілтемені жойды",
+  "EVENT_CHAT_CREATED": "{{.user.name}} іс-шара үшін чат құрды",
+  "EVENT_CHAT_DELETED": "{{.user.name}} іс-шара чатын жойды",
+  "ATTACHMENTS_ADDED": "{{.user.name}} жаңа тіркеме қосты",
+  "ATTACHMENTS_DELETED": "{{.user.name}} тіркемені жойды",
+  "LINKS_ADDED": "{{.user.name}} жаңа сілтеме қосты",
+  "LINKS_DELETED": "{{.user.name}} сілтемені жойды",
   "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-да тіркелді",
   "chat.update": {
-    "one": "{{.member.name}} чат деректерін өзгертті: {{.metadata}}",
-    "other": "{{.member.name}} чат деректерін өзгертті: {{.metadata}}"
+    "one": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}",
+    "other": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}"
   },
   "message.new": {
     "one": "{{.message.content.text}}",
@@ -60,7 +65,7 @@
     "one": "🗿 Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
   },
-  "email.subject" : {
+  "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "
   }

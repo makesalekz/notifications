@@ -93,6 +93,11 @@ func Project(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldEQ(FieldProject, v))
 }
 
+// User applies equality check predicate on the "user" field. It's identical to UserEQ.
+func User(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEQ(FieldUser, v))
+}
+
 // Metadata applies equality check predicate on the "metadata" field. It's identical to MetadataEQ.
 func Metadata(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldEQ(FieldMetadata, v))
@@ -701,6 +706,81 @@ func ProjectEqualFold(v string) predicate.NotificationData {
 // ProjectContainsFold applies the ContainsFold predicate on the "project" field.
 func ProjectContainsFold(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldContainsFold(FieldProject, v))
+}
+
+// UserEQ applies the EQ predicate on the "user" field.
+func UserEQ(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEQ(FieldUser, v))
+}
+
+// UserNEQ applies the NEQ predicate on the "user" field.
+func UserNEQ(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNEQ(FieldUser, v))
+}
+
+// UserIn applies the In predicate on the "user" field.
+func UserIn(vs ...string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldIn(FieldUser, vs...))
+}
+
+// UserNotIn applies the NotIn predicate on the "user" field.
+func UserNotIn(vs ...string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNotIn(FieldUser, vs...))
+}
+
+// UserGT applies the GT predicate on the "user" field.
+func UserGT(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldGT(FieldUser, v))
+}
+
+// UserGTE applies the GTE predicate on the "user" field.
+func UserGTE(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldGTE(FieldUser, v))
+}
+
+// UserLT applies the LT predicate on the "user" field.
+func UserLT(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldLT(FieldUser, v))
+}
+
+// UserLTE applies the LTE predicate on the "user" field.
+func UserLTE(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldLTE(FieldUser, v))
+}
+
+// UserContains applies the Contains predicate on the "user" field.
+func UserContains(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldContains(FieldUser, v))
+}
+
+// UserHasPrefix applies the HasPrefix predicate on the "user" field.
+func UserHasPrefix(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldHasPrefix(FieldUser, v))
+}
+
+// UserHasSuffix applies the HasSuffix predicate on the "user" field.
+func UserHasSuffix(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldHasSuffix(FieldUser, v))
+}
+
+// UserIsNil applies the IsNil predicate on the "user" field.
+func UserIsNil() predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldIsNull(FieldUser))
+}
+
+// UserNotNil applies the NotNil predicate on the "user" field.
+func UserNotNil() predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNotNull(FieldUser))
+}
+
+// UserEqualFold applies the EqualFold predicate on the "user" field.
+func UserEqualFold(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEqualFold(FieldUser, v))
+}
+
+// UserContainsFold applies the ContainsFold predicate on the "user" field.
+func UserContainsFold(v string) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldContainsFold(FieldUser, v))
 }
 
 // MetadataEQ applies the EQ predicate on the "metadata" field.

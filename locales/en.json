@@ -1,13 +1,13 @@
 {
-    "NEW_INVITE": "You have been invited by {{.member.name}}",
+    "NEW_INVITE": "You have been invited by {{.user.name}}",
     "MEMBER_ROLE_CHANGED": "Your role changed to {{.member.role}}",
-    "MEMBER_DECLINED": "{{.member.name}} has declined the invitation",
-    "MEMBER_LEFT": "{{.member.name}} has left the event",
+    "MEMBER_DECLINED": "{{.user.name}} has declined the invitation",
+    "MEMBER_LEFT": "{{.user.name}} has left the event",
     "MEMBER_KICKED": "You have been deleted from the event",
-    "MEMBER_MAYBE": "{{.member.name}} is thinking about the invitation",
-    "MEMBER_ACCEPTED": "{{.member.name}} has accepted the invitation",
-    "EVENT_UPDATED": "{{.member.name}} has changed the event's data: {{.metadata}}",
-    "EVENT_DELETED": "{{.member.name}} has deleted the event",
+    "MEMBER_MAYBE": "{{.user.name}} is thinking about the invitation",
+    "MEMBER_ACCEPTED": "{{.user.name}} has accepted the invitation",
+    "EVENT_UPDATED": "{{.user.name}} has changed the event's data: {{.metadata}}",
+    "EVENT_DELETED": "{{.user.name}} has deleted the event",
     "EVENT_STARTS_SOON": {
         "one": "The event will start in {{.event.noticeBefore}} minute",
         "other": "The event will start in {{.event.noticeBefore}} minutes"
@@ -16,17 +16,22 @@
         "one": "The event started at {{.event.location.address}}",
         "other": "The event started"
     },
+    "EVENT_PENDING_INVITES": {
+        "one": "1 participant did not respond to the invitation",
+        "other": "{{.plural_count}} participants did not respond to the invitation"
+    },
+    "EVENT_PENDING_MEMBERS": "You did not respond to the invitation to the event {{.event.title}}. {{.user.name}} is waiting for your response",
     "EVENT_REMINDER": "Answer for the invitation",
-    "EVENT_CHAT_CREATED": "{{.member.name}} created a chat for the event",
-    "EVENT_CHAT_DELETED": "{{.member.name}} deleted a chat of the event",
-    "ATTACHMENTS_ADDED": "{{.member.name}} added a new attachment",
-    "ATTACHMENTS_DELETED": "{{.member.name}} deleted the attachment",
-    "LINKS_ADDED": "{{.member.name}} added a new link",
-    "LINKS_DELETED": "{{.member.name}} deleted the link",
+    "EVENT_CHAT_CREATED": "{{.user.name}} created a chat for the event",
+    "EVENT_CHAT_DELETED": "{{.user.name}} deleted a chat of the event",
+    "ATTACHMENTS_ADDED": "{{.user.name}} added a new attachment",
+    "ATTACHMENTS_DELETED": "{{.user.name}} deleted the attachment",
+    "LINKS_ADDED": "{{.user.name}} added a new link",
+    "LINKS_DELETED": "{{.user.name}} deleted the link",
     "CONTACT_CREATED": "Your contact {{.contact.label}} has signed up for Calendaria",
     "chat.update": {
-        "one": "{{.metadata}} has been changed by {{.member.name}}",
-        "other": "{{.metadata}} have been changed by {{.member.name}}"
+        "one": "{{.metadata}} has been changed by {{.user.name}}",
+        "other": "{{.metadata}} have been changed by {{.user.name}}"
     },
     "message.new": {
         "one": "{{.message.content.text}}",
@@ -60,7 +65,7 @@
         "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
     },
-    "email.subject" : {
+    "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"
     }

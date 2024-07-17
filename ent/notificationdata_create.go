@@ -134,6 +134,20 @@ func (ndc *NotificationDataCreate) SetNillableProject(s *string) *NotificationDa
 	return ndc
 }
 
+// SetUser sets the "user" field.
+func (ndc *NotificationDataCreate) SetUser(s string) *NotificationDataCreate {
+	ndc.mutation.SetUser(s)
+	return ndc
+}
+
+// SetNillableUser sets the "user" field if the given value is not nil.
+func (ndc *NotificationDataCreate) SetNillableUser(s *string) *NotificationDataCreate {
+	if s != nil {
+		ndc.SetUser(*s)
+	}
+	return ndc
+}
+
 // SetMetadata sets the "metadata" field.
 func (ndc *NotificationDataCreate) SetMetadata(s string) *NotificationDataCreate {
 	ndc.mutation.SetMetadata(s)
@@ -285,6 +299,10 @@ func (ndc *NotificationDataCreate) createSpec() (*NotificationData, *sqlgraph.Cr
 	if value, ok := ndc.mutation.Project(); ok {
 		_spec.SetField(notificationdata.FieldProject, field.TypeString, value)
 		_node.Project = &value
+	}
+	if value, ok := ndc.mutation.User(); ok {
+		_spec.SetField(notificationdata.FieldUser, field.TypeString, value)
+		_node.User = &value
 	}
 	if value, ok := ndc.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)
@@ -503,6 +521,24 @@ func (u *NotificationDataUpsert) UpdateProject() *NotificationDataUpsert {
 // ClearProject clears the value of the "project" field.
 func (u *NotificationDataUpsert) ClearProject() *NotificationDataUpsert {
 	u.SetNull(notificationdata.FieldProject)
+	return u
+}
+
+// SetUser sets the "user" field.
+func (u *NotificationDataUpsert) SetUser(v string) *NotificationDataUpsert {
+	u.Set(notificationdata.FieldUser, v)
+	return u
+}
+
+// UpdateUser sets the "user" field to the value that was provided on create.
+func (u *NotificationDataUpsert) UpdateUser() *NotificationDataUpsert {
+	u.SetExcluded(notificationdata.FieldUser)
+	return u
+}
+
+// ClearUser clears the value of the "user" field.
+func (u *NotificationDataUpsert) ClearUser() *NotificationDataUpsert {
+	u.SetNull(notificationdata.FieldUser)
 	return u
 }
 
@@ -761,6 +797,27 @@ func (u *NotificationDataUpsertOne) UpdateProject() *NotificationDataUpsertOne {
 func (u *NotificationDataUpsertOne) ClearProject() *NotificationDataUpsertOne {
 	return u.Update(func(s *NotificationDataUpsert) {
 		s.ClearProject()
+	})
+}
+
+// SetUser sets the "user" field.
+func (u *NotificationDataUpsertOne) SetUser(v string) *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.SetUser(v)
+	})
+}
+
+// UpdateUser sets the "user" field to the value that was provided on create.
+func (u *NotificationDataUpsertOne) UpdateUser() *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.UpdateUser()
+	})
+}
+
+// ClearUser clears the value of the "user" field.
+func (u *NotificationDataUpsertOne) ClearUser() *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.ClearUser()
 	})
 }
 
@@ -1191,6 +1248,27 @@ func (u *NotificationDataUpsertBulk) UpdateProject() *NotificationDataUpsertBulk
 func (u *NotificationDataUpsertBulk) ClearProject() *NotificationDataUpsertBulk {
 	return u.Update(func(s *NotificationDataUpsert) {
 		s.ClearProject()
+	})
+}
+
+// SetUser sets the "user" field.
+func (u *NotificationDataUpsertBulk) SetUser(v string) *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.SetUser(v)
+	})
+}
+
+// UpdateUser sets the "user" field to the value that was provided on create.
+func (u *NotificationDataUpsertBulk) UpdateUser() *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.UpdateUser()
+	})
+}
+
+// ClearUser clears the value of the "user" field.
+func (u *NotificationDataUpsertBulk) ClearUser() *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.ClearUser()
 	})
 }
 

@@ -13,7 +13,11 @@ build dev:
   extends: .build-dev
 
 deploy dev:
-  extends: .deploy-dev
+  tags:
+    - dev-go
+  stage: deploy
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH =~ /v\d+/ && $CI_COMMIT_TAG != $CI_COMMIT_BRANCH)
   variables:
     SERVICE_NAME: ${CI_PROJECT_NAME}
     DB_NAME: api

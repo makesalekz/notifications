@@ -40,7 +40,7 @@ func NewFcmUsecase(
 		localizer:         localizer,
 	}
 
-	if os.Getenv("DEBUG") == "" {
+	if os.Getenv("FIREBASE_CONFIG") != "" {
 		app, err := firebase.NewApp(context.Background(), nil)
 		if err != nil {
 			return nil, err

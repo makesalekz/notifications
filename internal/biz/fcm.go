@@ -133,10 +133,13 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 	messages := uc.splitMessageToLanguages(devices, message)
 
 	if uc.client != nil {
+		uc.log.Debugf("sendMessage: send %d messages", len(messages))
 		for _, message := range messages {
 			_, err = uc.client.SendEachForMulticast(ctx, message)
 			if err != nil {
 				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+			} else {
+				uc.log.Debug("sendMessage: sent successfully")
 			}
 		}
 	} else {

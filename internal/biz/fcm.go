@@ -40,7 +40,7 @@ func NewFcmUsecase(
 		localizer:         localizer,
 	}
 
-	if os.Getenv("DEBUG") == "" {
+	if os.Getenv("FIREBASE_CONFIG") != "" {
 		app, err := firebase.NewApp(context.Background(), nil)
 		if err != nil {
 			return nil, err
@@ -134,9 +134,12 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 
 	if uc.client != nil {
 		for _, multicastMessage := range multicastMessages {
+			uc.log.Debugf("sendMessage: send %d messages", len(multicastMessages))
 			_, err = uc.client.SendEachForMulticast(ctx, multicastMessage)
 			if err != nil {
 				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
+			} else {
+				uc.log.Debug("sendMessage: sent successfully")
 			}
 		}
 	} else {

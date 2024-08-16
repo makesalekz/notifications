@@ -50,46 +50,16 @@ make all
 make migrations
 ```
 
-## Run
+## Configuration
 
 Add credentials.json, firebase.json to configs/
 
-### Run debug
-
-```bash
-make run
-```
-
-### Build & Run
-
-```bash
-export GOOGLE_APPLICATION_CREDENTIALS={path-to-credentials.json}
-export FIREBASE_CONFIG={path-to-firebase.json}
-
-go build -o ./bin/ ./...
-./bin/media -conf ./configs
-```
-
-## Run in Docker
-
-```bash
-make start
-```
-
-To stop docker:
-
-```bash
-make stop
-```
-
-## Configuration
-
 ### Consul
 
-```txt
+```bash
+app/notifications/AWS_REGION
 app/notifications/SMSC_ENDPOINT = <URL: string>
 app/notifications/SES_SOURCE_EMAIL = <info@calendaria.team>
-app/notifications/SES_EMAIL_SUBJECT = <Invite>
 ```
 
 ### Vault
@@ -99,7 +69,7 @@ To save JWT secret in Vault terminal (write command, ENTER, paste secret, CTRL+D
 ```bash
 export VAULT_TOKEN=myroot
 vault kv put -mount=secret app/global/jwt data=-
-vault kv put -mount=secret app/notifications/aws access_key_id=asdkasdm secret_access_key=asdkasdm
+vault kv put -mount=secret app/notifications/aws access_key_id=<key id> secret_access_key=<secret>
 ```
 
 ```txt
@@ -117,4 +87,24 @@ secret/data/app/notifications/aws = {
     access_key_id: string,
     secret_access_key: string
 }
+```
+
+## Run
+
+### Run locally
+
+```bash
+make run
+```
+
+### Run in Docker
+
+```bash
+make start
+```
+
+### Stop docker
+
+```bash
+make stop
 ```

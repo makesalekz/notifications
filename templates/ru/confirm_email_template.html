@@ -4,86 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Код авторизации</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #F7F9FE;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            background-color: #444BF3; /* Primary Main */
-            color: #ffffff;
-            padding: 10px 0;
-            text-align: center;
-        }
-
-        .content {
-            padding: 20px;
-        }
-
-        .code {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 24px;
-            color: #444BF3; /* Primary Main */
-            background-color: #E8EAF6; /* Light Background */
-            text-align: center;
-            border: 2px dashed #444BF3;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 10px;
-            font-size: 12px;
-            color: #BBBCC4;
-        }
-
-        .highlight {
-            color: #72E128; /* Success Main */
-        }
-    </style>
 </head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1>Код авторизации</h1>
-    </div>
-    <div class="content">
-        <p>Здравствуйте <span id="userName"></span></p>
-        <p>Вот ваш код авторизации:</p>
-        <p class="code">{{.AuthCode}}</p>
-        <p>Этот код истекает через 5 минут.</p>
-        <p>Вы авторизуетесь с использованием email: <strong>{{.Email}}</strong></p>
-        <p>Если вы не запрашивали этот код, пожалуйста, проигнорируйте это письмо.</p>
-        <p>Если у вас есть вопросы или вам нужна помощь, пожалуйста, свяжитесь с нашей службой поддержки по адресу <a
-                href="mailto:support@example.com">support@example.com</a>.</p>
-    </div>
-    <div class="footer">
-        <p>&copy; 2024 Calendaria компании. Все права защищены.</p>
-    </div>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var userName = "{{.UserName}}";
-        if (userName) {
-            document.getElementById('userName').textContent = `, ${userName}!`;
-        } else {
-            document.getElementById('userName').style.display = 'none';
-        }
-    });
-</script>
+<body style="font-family: Arial, sans-serif; background-color: #F7F9FE; margin: 0; padding: 0;">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0; padding: 0;">
+    <tr>
+        <td align="center" style="padding: 20px 0 30px 0;">
+            <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                <tr>
+                    <td align="center" style="background-color: #444BF3; padding: 10px;">
+                        <h1 style="color: #ffffff; margin: 0;">Код авторизации</h1>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" style="padding: 20px;">
+                        <p style="margin: 0 0 20px 0;">Здравствуйте <span id="userName" style="color: #72E128;">{{.UserName}}</span>,</p>
+                        <p style="margin: 0 0 20px 0;">Вот ваш код авторизации:</p>
+                        <p style="margin: 20px 0; padding: 10px 20px; font-size: 24px; color: #444BF3; background-color: #E8EAF6; border: 2px dashed #444BF3; border-radius: 5px; text-align: center;">{{.AuthCode}}</p>
+                        <p style="margin: 0 0 20px 0;">Этот код истекает через 5 минут.</p>
+                        <p style="margin: 0 0 20px 0;">Вы авторизуетесь с использованием email: <strong>{{.Email}}</strong></p>
+                        <p style="margin: 0 0 20px 0;">Если вы не запрашивали этот код, пожалуйста, проигнорируйте это письмо.</p>
+                        <p style="margin: 0 0 20px 0;">Если у вас есть вопросы или вам нужна помощь, пожалуйста, свяжитесь с нашей службой поддержки по адресу <a href="mailto:support@example.com" style="color: #444BF3;">support@example.com</a>.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center" style="background-color: #F7F9FE; padding: 10px; font-size: 12px; color: #BBBCC4;">
+                        &copy; 2024 Calendaria компании. Все права защищены.
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>

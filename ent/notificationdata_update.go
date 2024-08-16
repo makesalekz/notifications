@@ -209,6 +209,33 @@ func (ndu *NotificationDataUpdate) ClearUser() *NotificationDataUpdate {
 	return ndu
 }
 
+// SetTargetUserID sets the "target_user_id" field.
+func (ndu *NotificationDataUpdate) SetTargetUserID(i int64) *NotificationDataUpdate {
+	ndu.mutation.ResetTargetUserID()
+	ndu.mutation.SetTargetUserID(i)
+	return ndu
+}
+
+// SetNillableTargetUserID sets the "target_user_id" field if the given value is not nil.
+func (ndu *NotificationDataUpdate) SetNillableTargetUserID(i *int64) *NotificationDataUpdate {
+	if i != nil {
+		ndu.SetTargetUserID(*i)
+	}
+	return ndu
+}
+
+// AddTargetUserID adds i to the "target_user_id" field.
+func (ndu *NotificationDataUpdate) AddTargetUserID(i int64) *NotificationDataUpdate {
+	ndu.mutation.AddTargetUserID(i)
+	return ndu
+}
+
+// ClearTargetUserID clears the value of the "target_user_id" field.
+func (ndu *NotificationDataUpdate) ClearTargetUserID() *NotificationDataUpdate {
+	ndu.mutation.ClearTargetUserID()
+	return ndu
+}
+
 // SetMetadata sets the "metadata" field.
 func (ndu *NotificationDataUpdate) SetMetadata(s string) *NotificationDataUpdate {
 	ndu.mutation.SetMetadata(s)
@@ -381,6 +408,15 @@ func (ndu *NotificationDataUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if ndu.mutation.UserCleared() {
 		_spec.ClearField(notificationdata.FieldUser, field.TypeString)
+	}
+	if value, ok := ndu.mutation.TargetUserID(); ok {
+		_spec.SetField(notificationdata.FieldTargetUserID, field.TypeInt64, value)
+	}
+	if value, ok := ndu.mutation.AddedTargetUserID(); ok {
+		_spec.AddField(notificationdata.FieldTargetUserID, field.TypeInt64, value)
+	}
+	if ndu.mutation.TargetUserIDCleared() {
+		_spec.ClearField(notificationdata.FieldTargetUserID, field.TypeInt64)
 	}
 	if value, ok := ndu.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)
@@ -628,6 +664,33 @@ func (nduo *NotificationDataUpdateOne) ClearUser() *NotificationDataUpdateOne {
 	return nduo
 }
 
+// SetTargetUserID sets the "target_user_id" field.
+func (nduo *NotificationDataUpdateOne) SetTargetUserID(i int64) *NotificationDataUpdateOne {
+	nduo.mutation.ResetTargetUserID()
+	nduo.mutation.SetTargetUserID(i)
+	return nduo
+}
+
+// SetNillableTargetUserID sets the "target_user_id" field if the given value is not nil.
+func (nduo *NotificationDataUpdateOne) SetNillableTargetUserID(i *int64) *NotificationDataUpdateOne {
+	if i != nil {
+		nduo.SetTargetUserID(*i)
+	}
+	return nduo
+}
+
+// AddTargetUserID adds i to the "target_user_id" field.
+func (nduo *NotificationDataUpdateOne) AddTargetUserID(i int64) *NotificationDataUpdateOne {
+	nduo.mutation.AddTargetUserID(i)
+	return nduo
+}
+
+// ClearTargetUserID clears the value of the "target_user_id" field.
+func (nduo *NotificationDataUpdateOne) ClearTargetUserID() *NotificationDataUpdateOne {
+	nduo.mutation.ClearTargetUserID()
+	return nduo
+}
+
 // SetMetadata sets the "metadata" field.
 func (nduo *NotificationDataUpdateOne) SetMetadata(s string) *NotificationDataUpdateOne {
 	nduo.mutation.SetMetadata(s)
@@ -830,6 +893,15 @@ func (nduo *NotificationDataUpdateOne) sqlSave(ctx context.Context) (_node *Noti
 	}
 	if nduo.mutation.UserCleared() {
 		_spec.ClearField(notificationdata.FieldUser, field.TypeString)
+	}
+	if value, ok := nduo.mutation.TargetUserID(); ok {
+		_spec.SetField(notificationdata.FieldTargetUserID, field.TypeInt64, value)
+	}
+	if value, ok := nduo.mutation.AddedTargetUserID(); ok {
+		_spec.AddField(notificationdata.FieldTargetUserID, field.TypeInt64, value)
+	}
+	if nduo.mutation.TargetUserIDCleared() {
+		_spec.ClearField(notificationdata.FieldTargetUserID, field.TypeInt64)
 	}
 	if value, ok := nduo.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)

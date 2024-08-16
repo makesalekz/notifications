@@ -17,6 +17,7 @@ import (
 	"gitlab.calendaria.team/services/utils/v1/config"
 	"gitlab.calendaria.team/services/utils/v1/jwt"
 	"gitlab.calendaria.team/services/utils/v1/nats"
+	"gitlab.calendaria.team/services/utils/v2/dialer"
 	"gitlab.calendaria.team/services/utils/v2/tracing"
 )
 
@@ -58,8 +59,8 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	queueManager := nats.NewQueueManager(configConfig, encodedConn, logger)
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, queueManager)
+	iQueueManager := nats.NewQueueManager(configConfig, encodedConn, logger)
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -71,15 +72,28 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	emailUsecase, err := biz.NewEmailUsecase(configConfig, logger, queueManager, localizedEmailTemplates, localizer)
+	emailUsecase, err := biz.NewEmailUsecase(configConfig, logger, iQueueManager, localizedEmailTemplates, localizer)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
-	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, localizer, notificationsRepo)
+	iDialerManager, err := dialer.NewServiceDialerManager(configConfig, tracer, jwtProcessor)
 	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	iIamRemote, cleanup3, err := data.NewIamRemote(logger, bootstrap, iDialerManager)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, localizer, notificationsRepo, iIamRemote)
+	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -89,6 +103,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor)
 	app := newApp(logger, configConfig, grpcServer, httpServer)
 	return app, func() {
+		cleanup3()
 		cleanup2()
 		cleanup()
 	}, nil

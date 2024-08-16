@@ -9,6 +9,7 @@ message Bootstrap {
   Server server = 1;
   string db = 2;
   string nats = 3;
+  Discovery discovery = 4;
 }
 
 message Server {
@@ -24,4 +25,9 @@ message Server {
   }
   HTTP http = 1;
   GRPC grpc = 2;
+}
+
+message Discovery {
+  string iam = 1;
+  google.protobuf.Duration iam_timeout = 2;
 }

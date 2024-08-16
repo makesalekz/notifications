@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 
-	"entgo.io/ent/dialect/sql"
 	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
@@ -11,16 +10,21 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 
+	"entgo.io/ent/dialect/sql"
 	_ "github.com/lib/pq"
 )
 
-// NotificationsRepo
+// NotificationsRepo.
 type NotificationsRepo interface {
 	CreateNotifications(ctx context.Context, data []*NotificationDto) (int32, error)
-	ListNotifications(ctx context.Context, filter *FilterNotificationsDto, paginate *utils_v1.PaginateRequest) ([]*ent.Notification, error)
-	CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error)
+	ListNotifications(
+		ctx context.Context,
+		filter *FilterNotificationsDto,
+		paginate *utils_v1.PaginateRequest,
+	) ([]*ent.Notification, error)
+	CountNotifications(ctx context.Context, userID int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
-	CountUnreadNotifications(ctx context.Context, userId int64) ([]Counter, error)
+	CountUnreadNotifications(ctx context.Context, userID int64) ([]Counter, error)
 }
 
 type notificationsRepo struct {
@@ -48,41 +52,47 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 
 	created := 0
 	for _, dto := range data {
-		notificationCreate := tx.Notification.Create().SetUserID(dto.UserId).SetTitle(dto.Title).SetText(dto.Text)
+		notificationCreate := tx.Notification.Create().SetUserID(dto.UserID).SetTitle(dto.Title).SetText(dto.Text)
 
-		if dto.EventId != 0 {
-			notificationCreate.SetEventID(dto.EventId).SetType(enum.Event)
-		} else if dto.ContactId != 0 {
-			notificationCreate.SetContactID(dto.ContactId).SetType(enum.Contact)
-		} else if dto.TaskId != 0 {
-			notificationCreate.SetTaskID(dto.TaskId).SetType(enum.Tasks)
-		} else if dto.ProjectId != 0 {
-			notificationCreate.SetProjectID(dto.ProjectId).SetType(enum.Projects)
-		} else {
+		switch {
+		case dto.EventID != 0:
+			notificationCreate.SetEventID(dto.EventID).SetType(enum.Event)
+		case dto.ContactID != 0:
+			notificationCreate.SetContactID(dto.ContactID).SetType(enum.Contact)
+		case dto.TaskID != 0:
+			notificationCreate.SetTaskID(dto.TaskID).SetType(enum.Tasks)
+		case dto.ProjectID != 0:
+			notificationCreate.SetProjectID(dto.ProjectID).SetType(enum.Projects)
+		default:
 			notificationCreate.SetType(enum.Common)
 		}
 
-		newNotification, err := notificationCreate.Save(ctx)
-		if err != nil {
-			return 0, err
+		newNotification, err2 := notificationCreate.Save(ctx)
+		if err2 != nil {
+			return 0, err2
 		}
 
-		notificationData, err := tx.NotificationData.Create().
-			SetNillableChat(dto.ChatJson).
-			SetNillableContact(dto.ContactJson).
-			SetNillableEvent(dto.EventJson).
-			SetNillableMember(dto.MemberJson).
-			SetNillableMessage(dto.MessageJson).
-			SetNillableUser(dto.UserJson).
-			SetNillableMetadata(dto.MetadataJson).
+		query := tx.NotificationData.Create().
+			SetNillableChat(dto.ChatJSON).
+			SetNillableContact(dto.ContactJSON).
+			SetNillableEvent(dto.EventJSON).
+			SetNillableMember(dto.MemberJSON).
+			SetNillableMessage(dto.MessageJSON).
+			SetNillableMetadata(dto.MetadataJSON).
 			SetNillablePluralCount(dto.PluralCount).
-			SetNillableTask(dto.TaskJson).
+			SetNillableTask(dto.TaskJSON).
 			SetNillableType(dto.Type).
 			SetNotificationID(newNotification.ID).
-			SetNillableProject(dto.ProjectJson).
-			Save(ctx)
-		if err != nil {
-			return 0, err
+			SetTargetUserID(dto.TargetUserID).
+			SetNillableProject(dto.ProjectJSON)
+
+		if dto.TargetUserID != 0 {
+			query.SetTargetUserID(dto.TargetUserID)
+		}
+
+		notificationData, err2 := query.Save(ctx)
+		if err2 != nil {
+			return 0, err2
 		}
 
 		newNotification.Edges.NotificationData = notificationData
@@ -100,8 +110,8 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 
 func (r *notificationsRepo) ReadNotification(ctx context.Context, readDto ReadNotificationDto) error {
 	query := r.db.LastReadNotification.Create().
-		SetUserID(readDto.UserId).
-		SetLastReadID(readDto.NotificationId)
+		SetUserID(readDto.UserID).
+		SetLastReadID(readDto.NotificationID)
 
 	if readDto.Type != "" {
 		query.SetType(enum.NotificationType(readDto.Type))
@@ -118,23 +128,23 @@ func (r *notificationsRepo) ListNotifications(
 	filter *FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) ([]*ent.Notification, error) {
-	query := r.db.Notification.Query().Where(notification.UserID(filter.UserId))
+	query := r.db.Notification.Query().Where(notification.UserID(filter.UserID))
 
 	if enum.NotificationType(filter.Type).IsValid() {
 		query.Where(notification.Type(enum.NotificationType(filter.Type)))
 	}
 
 	desc := true
-	if paginate.FromId != 0 {
-		query.Where(notification.IDGT(paginate.FromId))
+	if paginate.GetFromId() != 0 {
+		query.Where(notification.IDGT(paginate.GetFromId()))
 		desc = false
 	}
 
-	if paginate.ToId != 0 {
-		query.Where(notification.IDLT(paginate.ToId))
+	if paginate.GetToId() != 0 {
+		query.Where(notification.IDLT(paginate.GetToId()))
 	}
 
-	if paginate.Limit == 0 {
+	if paginate.GetLimit() == 0 {
 		paginate.Limit = 100
 	}
 
@@ -144,21 +154,25 @@ func (r *notificationsRepo) ListNotifications(
 		query = query.Order(ent.Asc(notification.FieldID))
 	}
 
-	notifications, err := query.Limit(int(paginate.Limit)).WithNotificationData().All(ctx)
+	notifications, err := query.Limit(int(paginate.GetLimit())).WithNotificationData().All(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if desc != paginate.Descending && len(notifications) > 1 {
+	if desc != paginate.GetDescending() && len(notifications) > 1 {
 		reverse(notifications)
 	}
 
 	return notifications, nil
 }
 
-func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64, notificationType string) (int32, error) {
+func (r *notificationsRepo) CountNotifications(
+	ctx context.Context,
+	userID int64,
+	notificationType string,
+) (int32, error) {
 	query := r.db.Notification.Query().
-		Where(notification.UserID(userId))
+		Where(notification.UserID(userID))
 
 	if enum.NotificationType(notificationType).IsValid() {
 		query.Where(notification.Type(enum.NotificationType(notificationType)))
@@ -169,7 +183,7 @@ func (r *notificationsRepo) CountNotifications(ctx context.Context, userId int64
 	return int32(count), err
 }
 
-func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userId int64) ([]Counter, error) {
+func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userID int64) ([]Counter, error) {
 	var counters []Counter
 
 	err := r.db.Notification.Query().
@@ -182,12 +196,15 @@ func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userId
 					On(notificationTable.C(notification.FieldType), lastReadTable.C(lastreadnotification.FieldType)).
 					Where(
 						sql.Or(
-							sql.ColumnsGT(notificationTable.C(notification.FieldID), lastReadTable.C(lastreadnotification.FieldLastReadID)),
+							sql.ColumnsGT(
+								notificationTable.C(notification.FieldID),
+								lastReadTable.C(lastreadnotification.FieldLastReadID),
+							),
 							sql.IsNull(lastReadTable.C(lastreadnotification.FieldLastReadID)),
 						),
 					)
 			},
-			notification.UserID(userId),
+			notification.UserID(userID),
 		).
 		GroupBy(notification.FieldType).
 		Aggregate(ent.Count()).

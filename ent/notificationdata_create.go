@@ -148,6 +148,20 @@ func (ndc *NotificationDataCreate) SetNillableUser(s *string) *NotificationDataC
 	return ndc
 }
 
+// SetTargetUserID sets the "target_user_id" field.
+func (ndc *NotificationDataCreate) SetTargetUserID(i int64) *NotificationDataCreate {
+	ndc.mutation.SetTargetUserID(i)
+	return ndc
+}
+
+// SetNillableTargetUserID sets the "target_user_id" field if the given value is not nil.
+func (ndc *NotificationDataCreate) SetNillableTargetUserID(i *int64) *NotificationDataCreate {
+	if i != nil {
+		ndc.SetTargetUserID(*i)
+	}
+	return ndc
+}
+
 // SetMetadata sets the "metadata" field.
 func (ndc *NotificationDataCreate) SetMetadata(s string) *NotificationDataCreate {
 	ndc.mutation.SetMetadata(s)
@@ -303,6 +317,10 @@ func (ndc *NotificationDataCreate) createSpec() (*NotificationData, *sqlgraph.Cr
 	if value, ok := ndc.mutation.User(); ok {
 		_spec.SetField(notificationdata.FieldUser, field.TypeString, value)
 		_node.User = &value
+	}
+	if value, ok := ndc.mutation.TargetUserID(); ok {
+		_spec.SetField(notificationdata.FieldTargetUserID, field.TypeInt64, value)
+		_node.TargetUserID = &value
 	}
 	if value, ok := ndc.mutation.Metadata(); ok {
 		_spec.SetField(notificationdata.FieldMetadata, field.TypeString, value)
@@ -539,6 +557,30 @@ func (u *NotificationDataUpsert) UpdateUser() *NotificationDataUpsert {
 // ClearUser clears the value of the "user" field.
 func (u *NotificationDataUpsert) ClearUser() *NotificationDataUpsert {
 	u.SetNull(notificationdata.FieldUser)
+	return u
+}
+
+// SetTargetUserID sets the "target_user_id" field.
+func (u *NotificationDataUpsert) SetTargetUserID(v int64) *NotificationDataUpsert {
+	u.Set(notificationdata.FieldTargetUserID, v)
+	return u
+}
+
+// UpdateTargetUserID sets the "target_user_id" field to the value that was provided on create.
+func (u *NotificationDataUpsert) UpdateTargetUserID() *NotificationDataUpsert {
+	u.SetExcluded(notificationdata.FieldTargetUserID)
+	return u
+}
+
+// AddTargetUserID adds v to the "target_user_id" field.
+func (u *NotificationDataUpsert) AddTargetUserID(v int64) *NotificationDataUpsert {
+	u.Add(notificationdata.FieldTargetUserID, v)
+	return u
+}
+
+// ClearTargetUserID clears the value of the "target_user_id" field.
+func (u *NotificationDataUpsert) ClearTargetUserID() *NotificationDataUpsert {
+	u.SetNull(notificationdata.FieldTargetUserID)
 	return u
 }
 
@@ -818,6 +860,34 @@ func (u *NotificationDataUpsertOne) UpdateUser() *NotificationDataUpsertOne {
 func (u *NotificationDataUpsertOne) ClearUser() *NotificationDataUpsertOne {
 	return u.Update(func(s *NotificationDataUpsert) {
 		s.ClearUser()
+	})
+}
+
+// SetTargetUserID sets the "target_user_id" field.
+func (u *NotificationDataUpsertOne) SetTargetUserID(v int64) *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.SetTargetUserID(v)
+	})
+}
+
+// AddTargetUserID adds v to the "target_user_id" field.
+func (u *NotificationDataUpsertOne) AddTargetUserID(v int64) *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.AddTargetUserID(v)
+	})
+}
+
+// UpdateTargetUserID sets the "target_user_id" field to the value that was provided on create.
+func (u *NotificationDataUpsertOne) UpdateTargetUserID() *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.UpdateTargetUserID()
+	})
+}
+
+// ClearTargetUserID clears the value of the "target_user_id" field.
+func (u *NotificationDataUpsertOne) ClearTargetUserID() *NotificationDataUpsertOne {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.ClearTargetUserID()
 	})
 }
 
@@ -1269,6 +1339,34 @@ func (u *NotificationDataUpsertBulk) UpdateUser() *NotificationDataUpsertBulk {
 func (u *NotificationDataUpsertBulk) ClearUser() *NotificationDataUpsertBulk {
 	return u.Update(func(s *NotificationDataUpsert) {
 		s.ClearUser()
+	})
+}
+
+// SetTargetUserID sets the "target_user_id" field.
+func (u *NotificationDataUpsertBulk) SetTargetUserID(v int64) *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.SetTargetUserID(v)
+	})
+}
+
+// AddTargetUserID adds v to the "target_user_id" field.
+func (u *NotificationDataUpsertBulk) AddTargetUserID(v int64) *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.AddTargetUserID(v)
+	})
+}
+
+// UpdateTargetUserID sets the "target_user_id" field to the value that was provided on create.
+func (u *NotificationDataUpsertBulk) UpdateTargetUserID() *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.UpdateTargetUserID()
+	})
+}
+
+// ClearTargetUserID clears the value of the "target_user_id" field.
+func (u *NotificationDataUpsertBulk) ClearTargetUserID() *NotificationDataUpsertBulk {
+	return u.Update(func(s *NotificationDataUpsert) {
+		s.ClearTargetUserID()
 	})
 }
 

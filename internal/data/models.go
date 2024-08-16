@@ -165,7 +165,7 @@ func (dto *NotificationDto) setConvertedMap(key string, value string) {
 	}
 }
 
-// nolint: funlen, gocognit // it's a DTO
+//nolint: funlen, gocognit // it's a DTO
 func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[string]string) error {
 	if eventJSON, ok := notificationData["event"]; ok && eventJSON != "" {
 		var event *events_v1.Event

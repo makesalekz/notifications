@@ -85,17 +85,18 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "NotificationData",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			notificationdata.FieldType:        {Type: field.TypeString, Column: notificationdata.FieldType},
-			notificationdata.FieldEvent:       {Type: field.TypeString, Column: notificationdata.FieldEvent},
-			notificationdata.FieldMember:      {Type: field.TypeString, Column: notificationdata.FieldMember},
-			notificationdata.FieldChat:        {Type: field.TypeString, Column: notificationdata.FieldChat},
-			notificationdata.FieldMessage:     {Type: field.TypeString, Column: notificationdata.FieldMessage},
-			notificationdata.FieldContact:     {Type: field.TypeString, Column: notificationdata.FieldContact},
-			notificationdata.FieldTask:        {Type: field.TypeString, Column: notificationdata.FieldTask},
-			notificationdata.FieldProject:     {Type: field.TypeString, Column: notificationdata.FieldProject},
-			notificationdata.FieldUser:        {Type: field.TypeString, Column: notificationdata.FieldUser},
-			notificationdata.FieldMetadata:    {Type: field.TypeString, Column: notificationdata.FieldMetadata},
-			notificationdata.FieldPluralCount: {Type: field.TypeInt64, Column: notificationdata.FieldPluralCount},
+			notificationdata.FieldType:         {Type: field.TypeString, Column: notificationdata.FieldType},
+			notificationdata.FieldEvent:        {Type: field.TypeString, Column: notificationdata.FieldEvent},
+			notificationdata.FieldMember:       {Type: field.TypeString, Column: notificationdata.FieldMember},
+			notificationdata.FieldChat:         {Type: field.TypeString, Column: notificationdata.FieldChat},
+			notificationdata.FieldMessage:      {Type: field.TypeString, Column: notificationdata.FieldMessage},
+			notificationdata.FieldContact:      {Type: field.TypeString, Column: notificationdata.FieldContact},
+			notificationdata.FieldTask:         {Type: field.TypeString, Column: notificationdata.FieldTask},
+			notificationdata.FieldProject:      {Type: field.TypeString, Column: notificationdata.FieldProject},
+			notificationdata.FieldUser:         {Type: field.TypeString, Column: notificationdata.FieldUser},
+			notificationdata.FieldTargetUserID: {Type: field.TypeInt64, Column: notificationdata.FieldTargetUserID},
+			notificationdata.FieldMetadata:     {Type: field.TypeString, Column: notificationdata.FieldMetadata},
+			notificationdata.FieldPluralCount:  {Type: field.TypeInt64, Column: notificationdata.FieldPluralCount},
 		},
 	}
 	graph.MustAddE(
@@ -433,6 +434,11 @@ func (f *NotificationDataFilter) WhereProject(p entql.StringP) {
 // WhereUser applies the entql string predicate on the user field.
 func (f *NotificationDataFilter) WhereUser(p entql.StringP) {
 	f.Where(p.Field(notificationdata.FieldUser))
+}
+
+// WhereTargetUserID applies the entql int64 predicate on the target_user_id field.
+func (f *NotificationDataFilter) WhereTargetUserID(p entql.Int64P) {
+	f.Where(p.Field(notificationdata.FieldTargetUserID))
 }
 
 // WhereMetadata applies the entql string predicate on the metadata field.

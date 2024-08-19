@@ -12,7 +12,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
-	"gitlab.calendaria.team/services/utils/v1/nats"
+	u_nats "gitlab.calendaria.team/services/utils/v1/nats"
 )
 
 // SmsUsecase is a Greeter usecase.
@@ -22,7 +22,7 @@ type FcmUsecase struct {
 	devicesRepo       data.DevicesRepo
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
-	qm                *nats.QueueManager
+	qm                u_nats.IQueueManager
 }
 
 func NewFcmUsecase(
@@ -30,7 +30,7 @@ func NewFcmUsecase(
 	devicesRepo data.DevicesRepo,
 	notificationsRepo data.NotificationsRepo,
 	localizer *data.Localizer,
-	qm *nats.QueueManager,
+	qm u_nats.IQueueManager,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
 		log:               log.NewHelper(logger),
@@ -73,9 +73,9 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 	if ok {
 		listDto := make([]*data.NotificationDto, len(notification.UsersIds))
 
-		for i, userId := range notification.UsersIds {
+		for i, userID := range notification.UsersIds {
 			dto := &data.NotificationDto{
-				UserId: userId,
+				UserID: userID,
 				Title:  notification.Title,
 				Text:   notification.Body,
 			}
@@ -86,9 +86,9 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 		}
 
 		if notification.Type.IsValid() && notification.Title != "" {
-			_, err := uc.notificationsRepo.CreateNotifications(ctx, listDto)
-			if err != nil {
-				uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err.Error())
+			_, err2 := uc.notificationsRepo.CreateNotifications(ctx, listDto)
+			if err2 != nil {
+				uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err2.Error())
 			}
 		}
 	}
@@ -130,12 +130,12 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 		return true
 	}
 
-	messages := uc.splitMessageToLanguages(devices, message)
+	multicastMessages := uc.splitMessageToLanguages(devices, message)
 
 	if uc.client != nil {
-		uc.log.Debugf("sendMessage: send %d messages", len(messages))
-		for _, message := range messages {
-			_, err = uc.client.SendEachForMulticast(ctx, message)
+		for _, multicastMessage := range multicastMessages {
+			uc.log.Debugf("sendMessage: send %d messages", len(multicastMessages))
+			_, err = uc.client.SendEachForMulticast(ctx, multicastMessage)
 			if err != nil {
 				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 			} else {
@@ -149,7 +149,10 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 	return err == nil
 }
 
-func (uc *FcmUsecase) splitMessageToLanguages(devices []*ent.Device, msg *messaging.MulticastMessage) []*messaging.MulticastMessage {
+func (uc *FcmUsecase) splitMessageToLanguages(
+	devices []*ent.Device,
+	msg *messaging.MulticastMessage,
+) []*messaging.MulticastMessage {
 	langs := map[string][]string{}
 	for _, device := range devices {
 		lang := "null"

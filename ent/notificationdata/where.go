@@ -98,6 +98,11 @@ func User(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldEQ(FieldUser, v))
 }
 
+// TargetUserID applies equality check predicate on the "target_user_id" field. It's identical to TargetUserIDEQ.
+func TargetUserID(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEQ(FieldTargetUserID, v))
+}
+
 // Metadata applies equality check predicate on the "metadata" field. It's identical to MetadataEQ.
 func Metadata(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldEQ(FieldMetadata, v))
@@ -781,6 +786,56 @@ func UserEqualFold(v string) predicate.NotificationData {
 // UserContainsFold applies the ContainsFold predicate on the "user" field.
 func UserContainsFold(v string) predicate.NotificationData {
 	return predicate.NotificationData(sql.FieldContainsFold(FieldUser, v))
+}
+
+// TargetUserIDEQ applies the EQ predicate on the "target_user_id" field.
+func TargetUserIDEQ(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldEQ(FieldTargetUserID, v))
+}
+
+// TargetUserIDNEQ applies the NEQ predicate on the "target_user_id" field.
+func TargetUserIDNEQ(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNEQ(FieldTargetUserID, v))
+}
+
+// TargetUserIDIn applies the In predicate on the "target_user_id" field.
+func TargetUserIDIn(vs ...int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldIn(FieldTargetUserID, vs...))
+}
+
+// TargetUserIDNotIn applies the NotIn predicate on the "target_user_id" field.
+func TargetUserIDNotIn(vs ...int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNotIn(FieldTargetUserID, vs...))
+}
+
+// TargetUserIDGT applies the GT predicate on the "target_user_id" field.
+func TargetUserIDGT(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldGT(FieldTargetUserID, v))
+}
+
+// TargetUserIDGTE applies the GTE predicate on the "target_user_id" field.
+func TargetUserIDGTE(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldGTE(FieldTargetUserID, v))
+}
+
+// TargetUserIDLT applies the LT predicate on the "target_user_id" field.
+func TargetUserIDLT(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldLT(FieldTargetUserID, v))
+}
+
+// TargetUserIDLTE applies the LTE predicate on the "target_user_id" field.
+func TargetUserIDLTE(v int64) predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldLTE(FieldTargetUserID, v))
+}
+
+// TargetUserIDIsNil applies the IsNil predicate on the "target_user_id" field.
+func TargetUserIDIsNil() predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldIsNull(FieldTargetUserID))
+}
+
+// TargetUserIDNotNil applies the NotNil predicate on the "target_user_id" field.
+func TargetUserIDNotNil() predicate.NotificationData {
+	return predicate.NotificationData(sql.FieldNotNull(FieldTargetUserID))
 }
 
 // MetadataEQ applies the EQ predicate on the "metadata" field.

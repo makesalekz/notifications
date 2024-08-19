@@ -89,6 +89,7 @@ var (
 		{Name: "task", Type: field.TypeString, Nullable: true},
 		{Name: "project", Type: field.TypeString, Nullable: true},
 		{Name: "user", Type: field.TypeString, Nullable: true},
+		{Name: "target_user_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "metadata", Type: field.TypeString, Nullable: true},
 		{Name: "plural_count", Type: field.TypeInt64, Nullable: true},
 	}

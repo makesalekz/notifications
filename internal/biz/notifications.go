@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 
+	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/enum"
@@ -23,6 +24,7 @@ type NotificationsUsecase struct {
 	jwt               *jwt.JwtProcessor
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
+	iam               data.IIamRemote
 }
 
 // NewGreeterUsecase new a Greeter usecase.
@@ -30,11 +32,13 @@ func NewNotificationsUsecase(
 	jwt *jwt.JwtProcessor,
 	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
+	iam data.IIamRemote,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
 		jwt:               jwt,
 		localizer:         localizer,
 		notificationsRepo: notificationsRepo,
+		iam:               iam,
 	}, nil
 }
 
@@ -49,12 +53,16 @@ func (uc *NotificationsUsecase) CreateNotifications(ctx context.Context, data []
 	return newRecords, nil
 }
 
-func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, userId, notificationId int64, notificationType string) error {
+func (uc *NotificationsUsecase) ReadNotification(
+	ctx context.Context,
+	userID, notificationID int64,
+	notificationType string,
+) error {
 	err := uc.notificationsRepo.ReadNotification(
 		ctx,
 		data.ReadNotificationDto{
-			UserId:         userId,
-			NotificationId: notificationId,
+			UserID:         userID,
+			NotificationID: notificationID,
 			Type:           notificationType,
 		})
 	if err != nil {
@@ -67,8 +75,11 @@ func (uc *NotificationsUsecase) ReadNotification(ctx context.Context, userId, no
 	return nil
 }
 
-func (uc *NotificationsUsecase) GetNotificationCounters(ctx context.Context, userId int64) (*NotificationsCounters, error) {
-	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userId)
+func (uc *NotificationsUsecase) GetNotificationCounters(
+	ctx context.Context,
+	userID int64,
+) (*NotificationsCounters, error) {
+	counters, err := uc.notificationsRepo.CountUnreadNotifications(ctx, userID)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return nil, v1.ErrorDatabaseQuery("can't count common type notifications: %v", err)
@@ -111,22 +122,41 @@ func (uc *NotificationsUsecase) ListNotifications(
 		return nil, err
 	}
 
+	mapUsersIDs := make(map[int64]struct{})
 	for _, notification := range notifications {
-		dto := data.FromEnt(notification)
+		if notification.Edges.NotificationData != nil && notification.Edges.NotificationData.TargetUserID != nil {
+			mapUsersIDs[*notification.Edges.NotificationData.TargetUserID] = struct{}{}
+		}
+	}
+
+	var mapUsers map[int64]*iam_v1.UserShort
+	if len(mapUsersIDs) > 0 {
+		mapUsers, err = uc.iam.GetUsers(ctx, mapUsersIDs, false)
+		if err != nil {
+			return nil, v1.ErrorGrpcConnection("can't get users: %v", err)
+		}
+	}
+
+	for _, notification := range notifications {
+		dto := data.FromEnt(notification, mapUsers)
 		if dto.NotificationAddInfo.Type == nil {
 			continue
 		}
 
-		localizedText, err := uc.localizer.GetLocalizedMessage(language, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
-		if err != nil {
+		localizedText, err2 := uc.localizer.GetLocalizedMessage(
+			language,
+			*dto.Type,
+			dto.GetConvertedMap(),
+			dto.PluralCount,
+		)
+		if err2 != nil {
 			continue
 		}
 
 		notification.Text = localizedText
-
 	}
 
-	total, err := uc.notificationsRepo.CountNotifications(ctx, filter.UserId, notificationType)
+	total, err := uc.notificationsRepo.CountNotifications(ctx, filter.UserID, notificationType)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return nil, v1.ErrorDatabaseQuery("can't get notification count")
@@ -135,13 +165,13 @@ func (uc *NotificationsUsecase) ListNotifications(
 	}
 
 	// set paginateReply
-	var fromId, toId *int64
+	var fromID, toID *int64
 	if len(notifications) > 0 {
-		fromId = &notifications[len(notifications)-1].ID
-		toId = &notifications[0].ID
+		fromID = &notifications[len(notifications)-1].ID
+		toID = &notifications[0].ID
 	}
 
-	paginateReply := replyPaginate(paginate, len(notifications), total, fromId, toId)
+	paginateReply := replyPaginate(paginate, len(notifications), total, fromID, toID)
 
 	return &NotificationsList{
 		Notifications: notifications,
@@ -153,13 +183,13 @@ func toDtos(createDtos []*v1.NotificationDto) []*data.NotificationDto {
 	dtos := make([]*data.NotificationDto, len(createDtos))
 	for i, dto := range createDtos {
 		dtos[i] = &data.NotificationDto{
-			UserId:    dto.UserId,
-			Title:     dto.Title,
-			Text:      dto.Text,
-			EventId:   dto.EventId,
-			ContactId: dto.ContactId,
-			TaskId:    dto.TaskId,
-			ProjectId: dto.ProjectId,
+			UserID:    dto.GetUserId(),
+			Title:     dto.GetTitle(),
+			Text:      dto.GetText(),
+			EventID:   dto.GetEventId(),
+			ContactID: dto.GetContactId(),
+			TaskID:    dto.GetTaskId(),
+			ProjectID: dto.GetProjectId(),
 		}
 	}
 

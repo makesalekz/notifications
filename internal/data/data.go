@@ -8,8 +8,9 @@ import (
 	"github.com/google/wire"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
-	"gitlab.calendaria.team/services/utils/v1/config"
-	"gitlab.calendaria.team/services/utils/v1/jwt"
+	u_config "gitlab.calendaria.team/services/utils/v1/config"
+	u_jwtp "gitlab.calendaria.team/services/utils/v1/jwt"
+	u_dialer "gitlab.calendaria.team/services/utils/v2/dialer"
 	u_tracing "gitlab.calendaria.team/services/utils/v2/tracing"
 
 	_ "github.com/lib/pq"
@@ -20,11 +21,13 @@ import (
 //nolint:gochecknoglobals // global variables, used in wire
 var ProviderSet = wire.NewSet(
 	NewData,
-	config.NewConfig,
-	jwt.NewJwtProcessor,
+	u_config.NewConfig,
+	u_jwtp.NewJwtProcessor,
+	u_dialer.NewServiceDialerManager,
 	u_tracing.NewTracer,
 	NewNatsClient,
 	NewSmscClient,
+	NewIamRemote,
 	NewDevicesRepo,
 	NewNotificationsRepo,
 	NewLocalizer,
@@ -37,7 +40,7 @@ type Data struct {
 }
 
 // NewData .
-func NewData(bc *conf.Bootstrap, c *config.Config, logger log.Logger) (*Data, func(), error) {
+func NewData(bc *conf.Bootstrap, c *u_config.Config, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(logger)
 
 	dbDsn := bc.GetDb() // read from local config

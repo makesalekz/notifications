@@ -9,7 +9,6 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
-	"gitlab.calendaria.team/services/utils/v1/jwt"
 )
 
 type NotificationsList struct {
@@ -21,7 +20,6 @@ type NotificationsCounters map[string]int32
 
 // NotificationsUsecase is a Greeter usecase.
 type NotificationsUsecase struct {
-	jwt               *jwt.JwtProcessor
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	iam               data.IIamRemote
@@ -29,13 +27,11 @@ type NotificationsUsecase struct {
 
 // NewGreeterUsecase new a Greeter usecase.
 func NewNotificationsUsecase(
-	jwt *jwt.JwtProcessor,
 	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
 	iam data.IIamRemote,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
-		jwt:               jwt,
 		localizer:         localizer,
 		notificationsRepo: notificationsRepo,
 		iam:               iam,

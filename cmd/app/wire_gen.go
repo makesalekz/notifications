@@ -15,9 +15,9 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/server"
 	"gitlab.calendaria.team/services/notifications/internal/service"
 	"gitlab.calendaria.team/services/utils/v1/config"
-	"gitlab.calendaria.team/services/utils/v1/jwt"
 	"gitlab.calendaria.team/services/utils/v1/nats"
 	"gitlab.calendaria.team/services/utils/v2/dialer"
+	"gitlab.calendaria.team/services/utils/v2/jwt"
 	"gitlab.calendaria.team/services/utils/v2/tracing"
 )
 
@@ -33,7 +33,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	jwtProcessor, err := jwt.NewJwtProcessor(configConfig)
+	iJwtProcessor, err := jwt.NewJwtProcessor(configConfig)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,7 +79,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
-	iDialerManager, err := dialer.NewServiceDialerManager(configConfig, tracer, jwtProcessor)
+	iDialerManager, err := dialer.NewServiceDialerManager(configConfig, tracer, iJwtProcessor)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -91,7 +91,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	notificationsUsecase, err := biz.NewNotificationsUsecase(jwtProcessor, localizer, notificationsRepo, iIamRemote)
+	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote)
 	if err != nil {
 		cleanup3()
 		cleanup2()
@@ -99,8 +99,8 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	notificationsService := service.NewNotificationsService(notificationsUsecase)
-	grpcServer := server.NewGRPCServer(bootstrap, jwtProcessor, tracer, senderService, notificationsService)
-	httpServer := server.NewHTTPServer(bootstrap, jwtProcessor)
+	grpcServer := server.NewGRPCServer(bootstrap, iJwtProcessor, tracer, senderService, notificationsService)
+	httpServer := server.NewHTTPServer(bootstrap, iJwtProcessor)
 	app := newApp(logger, configConfig, grpcServer, httpServer)
 	return app, func() {
 		cleanup3()

@@ -9,8 +9,8 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	u_config "gitlab.calendaria.team/services/utils/v1/config"
-	u_jwtp "gitlab.calendaria.team/services/utils/v1/jwt"
 	u_dialer "gitlab.calendaria.team/services/utils/v2/dialer"
+	u_jwtp "gitlab.calendaria.team/services/utils/v2/jwt"
 	u_tracing "gitlab.calendaria.team/services/utils/v2/tracing"
 
 	_ "github.com/lib/pq"

@@ -28,8 +28,6 @@ const (
 	FieldTask = "task"
 	// FieldProject holds the string denoting the project field in the database.
 	FieldProject = "project"
-	// FieldUser holds the string denoting the user field in the database.
-	FieldUser = "user"
 	// FieldTargetUserID holds the string denoting the target_user_id field in the database.
 	FieldTargetUserID = "target_user_id"
 	// FieldMetadata holds the string denoting the metadata field in the database.
@@ -60,7 +58,6 @@ var Columns = []string{
 	FieldContact,
 	FieldTask,
 	FieldProject,
-	FieldUser,
 	FieldTargetUserID,
 	FieldMetadata,
 	FieldPluralCount,
@@ -122,11 +119,6 @@ func ByTask(opts ...sql.OrderTermOption) OrderOption {
 // ByProject orders the results by the project field.
 func ByProject(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProject, opts...).ToFunc()
-}
-
-// ByUser orders the results by the user field.
-func ByUser(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUser, opts...).ToFunc()
 }
 
 // ByTargetUserID orders the results by the target_user_id field.

@@ -33,8 +33,6 @@ type NotificationData struct {
 	Task *string `json:"task,omitempty"`
 	// Project holds the value of the "project" field.
 	Project *string `json:"project,omitempty"`
-	// User holds the value of the "user" field.
-	User *string `json:"user,omitempty"`
 	// TargetUserID holds the value of the "target_user_id" field.
 	TargetUserID *int64 `json:"target_user_id,omitempty"`
 	// Metadata holds the value of the "metadata" field.
@@ -74,7 +72,7 @@ func (*NotificationData) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case notificationdata.FieldID, notificationdata.FieldTargetUserID, notificationdata.FieldPluralCount:
 			values[i] = new(sql.NullInt64)
-		case notificationdata.FieldType, notificationdata.FieldEvent, notificationdata.FieldMember, notificationdata.FieldChat, notificationdata.FieldMessage, notificationdata.FieldContact, notificationdata.FieldTask, notificationdata.FieldProject, notificationdata.FieldUser, notificationdata.FieldMetadata:
+		case notificationdata.FieldType, notificationdata.FieldEvent, notificationdata.FieldMember, notificationdata.FieldChat, notificationdata.FieldMessage, notificationdata.FieldContact, notificationdata.FieldTask, notificationdata.FieldProject, notificationdata.FieldMetadata:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -152,13 +150,6 @@ func (nd *NotificationData) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				nd.Project = new(string)
 				*nd.Project = value.String
-			}
-		case notificationdata.FieldUser:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user", values[i])
-			} else if value.Valid {
-				nd.User = new(string)
-				*nd.User = value.String
 			}
 		case notificationdata.FieldTargetUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -259,11 +250,6 @@ func (nd *NotificationData) String() string {
 	builder.WriteString(", ")
 	if v := nd.Project; v != nil {
 		builder.WriteString("project=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	if v := nd.User; v != nil {
-		builder.WriteString("user=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")

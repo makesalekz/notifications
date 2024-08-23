@@ -189,26 +189,6 @@ func (ndu *NotificationDataUpdate) ClearProject() *NotificationDataUpdate {
 	return ndu
 }
 
-// SetUser sets the "user" field.
-func (ndu *NotificationDataUpdate) SetUser(s string) *NotificationDataUpdate {
-	ndu.mutation.SetUser(s)
-	return ndu
-}
-
-// SetNillableUser sets the "user" field if the given value is not nil.
-func (ndu *NotificationDataUpdate) SetNillableUser(s *string) *NotificationDataUpdate {
-	if s != nil {
-		ndu.SetUser(*s)
-	}
-	return ndu
-}
-
-// ClearUser clears the value of the "user" field.
-func (ndu *NotificationDataUpdate) ClearUser() *NotificationDataUpdate {
-	ndu.mutation.ClearUser()
-	return ndu
-}
-
 // SetTargetUserID sets the "target_user_id" field.
 func (ndu *NotificationDataUpdate) SetTargetUserID(i int64) *NotificationDataUpdate {
 	ndu.mutation.ResetTargetUserID()
@@ -402,12 +382,6 @@ func (ndu *NotificationDataUpdate) sqlSave(ctx context.Context) (n int, err erro
 	}
 	if ndu.mutation.ProjectCleared() {
 		_spec.ClearField(notificationdata.FieldProject, field.TypeString)
-	}
-	if value, ok := ndu.mutation.User(); ok {
-		_spec.SetField(notificationdata.FieldUser, field.TypeString, value)
-	}
-	if ndu.mutation.UserCleared() {
-		_spec.ClearField(notificationdata.FieldUser, field.TypeString)
 	}
 	if value, ok := ndu.mutation.TargetUserID(); ok {
 		_spec.SetField(notificationdata.FieldTargetUserID, field.TypeInt64, value)
@@ -644,26 +618,6 @@ func (nduo *NotificationDataUpdateOne) ClearProject() *NotificationDataUpdateOne
 	return nduo
 }
 
-// SetUser sets the "user" field.
-func (nduo *NotificationDataUpdateOne) SetUser(s string) *NotificationDataUpdateOne {
-	nduo.mutation.SetUser(s)
-	return nduo
-}
-
-// SetNillableUser sets the "user" field if the given value is not nil.
-func (nduo *NotificationDataUpdateOne) SetNillableUser(s *string) *NotificationDataUpdateOne {
-	if s != nil {
-		nduo.SetUser(*s)
-	}
-	return nduo
-}
-
-// ClearUser clears the value of the "user" field.
-func (nduo *NotificationDataUpdateOne) ClearUser() *NotificationDataUpdateOne {
-	nduo.mutation.ClearUser()
-	return nduo
-}
-
 // SetTargetUserID sets the "target_user_id" field.
 func (nduo *NotificationDataUpdateOne) SetTargetUserID(i int64) *NotificationDataUpdateOne {
 	nduo.mutation.ResetTargetUserID()
@@ -887,12 +841,6 @@ func (nduo *NotificationDataUpdateOne) sqlSave(ctx context.Context) (_node *Noti
 	}
 	if nduo.mutation.ProjectCleared() {
 		_spec.ClearField(notificationdata.FieldProject, field.TypeString)
-	}
-	if value, ok := nduo.mutation.User(); ok {
-		_spec.SetField(notificationdata.FieldUser, field.TypeString, value)
-	}
-	if nduo.mutation.UserCleared() {
-		_spec.ClearField(notificationdata.FieldUser, field.TypeString)
 	}
 	if value, ok := nduo.mutation.TargetUserID(); ok {
 		_spec.SetField(notificationdata.FieldTargetUserID, field.TypeInt64, value)

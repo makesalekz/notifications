@@ -23,6 +23,7 @@ message FcmDeviceRequest {
 message FcmDataRequest {
   string language = 1;
   string token = 2;
+  optional string oldToken = 3;
 }
 
 message PersonalSmsSenderRequest {

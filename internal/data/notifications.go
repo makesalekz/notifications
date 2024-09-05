@@ -1,3 +1,4 @@
+//nolint: gosec // convertation to int32 is safe
 package data
 
 import (

@@ -215,7 +215,22 @@ func (uc *FcmUsecase) splitMessageToLanguages(
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
-	return uc.devicesRepo.CreateDevice(ctx, device)
+	err := uc.devicesRepo.CreateDevice(ctx, device)
+	if err != nil {
+		return err
+	}
+
+	if device.OldToken != "" {
+		_, err = uc.devicesRepo.DeleteDevice(ctx, data.DeviceKey{
+			UserID: device.UserID,
+			Token:  device.OldToken,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.DeviceKey) error {

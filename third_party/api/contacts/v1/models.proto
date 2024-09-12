@@ -38,3 +38,7 @@ message Relation {
   bool isBlocked = 3;
   bool isExistInContacts = 4;
 }
+
+message GetContactsReply {
+  repeated Contact contacts = 1;
+}

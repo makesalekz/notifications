@@ -33,6 +33,7 @@
         "one": "{{.metadata}} has been changed by {{.user.name}}",
         "other": "{{.metadata}} have been changed by {{.user.name}}"
     },
+    "member.added": "Your were added to the group {{.chat.title}}",
     "message.new": {
         "one": "{{.message.content.text}}",
         "other": "New message"

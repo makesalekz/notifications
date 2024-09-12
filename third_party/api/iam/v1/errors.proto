@@ -34,4 +34,5 @@ enum ErrorReason {
   RELATION_NOT_FOUND = 23 [(errors.code) = 404];
   COMMON_CHAT_NOT_FOUND = 24 [(errors.code) = 404];
   CREDENTIAL_NOT_FOUND = 25 [(errors.code) = 404];
+  USER_ALREADY_EXIST = 26[(errors.code) = 409];
 }

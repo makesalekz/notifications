@@ -33,6 +33,7 @@
     "one": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}",
     "other": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}"
   },
+  "member.added": "Сізді {{.chat.title}} тобына қосты",
   "message.new": {
     "one": "{{.message.content.text}}",
     "other": "Жаңа хабарлама"

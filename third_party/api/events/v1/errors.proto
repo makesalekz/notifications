@@ -16,6 +16,8 @@ enum ErrorReason {
   GRPC_CONNECTION = 1;
   SERVICE_FAILED = 2;
   DATABASE_QUERY = 3;
+  EMPTY_ACTOR_ID = 5;
+  EMPTY_TENANT_ID = 6;
 
   // ----------------- Bad Request --------------------
   INVALID_REQUEST = 10 [(errors.code) = 400];
@@ -36,4 +38,6 @@ enum ErrorReason {
   MEMBER_HISTORY_NOT_FOUND = 105 [(errors.code) = 404];
   CHAT_NOT_FOUND = 106 [(errors.code) = 404];
   MEDIA_NOT_FOUND = 107 [(errors.code) = 404];
+  CALENDAR_NOT_FOUND = 108 [(errors.code) = 404];
+  INVITE_LINK_NOT_FOUND = 109 [(errors.code) = 404];
 }

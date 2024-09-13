@@ -29,6 +29,7 @@ service Contacts {
   rpc GetLabelsByUserId(UserIdRequest) returns (GetLabelsByUserIdResponse);
   rpc GetContactsByUserId(UserIdRequest) returns (GetContactsReply);
   rpc GetContactsByUserIds(UserIdsRequest) returns (GetContactsReply);
+  rpc DeleteUsersData(DeleteUsersDataRequest) returns (utils.v1.EmptyReply);
 }
 
 message CreateContactRequest {
@@ -67,10 +68,6 @@ message GetContactsRequest {
   string search = 2;
 }
 
-message GetContactsReply {
-  repeated Contact contacts = 1;
-}
-
 message ListContactsRequest {
   // A general string which will be used for search, similar to DB %LIKE%
   optional string query = 5;
@@ -93,4 +90,8 @@ message UserIdsRequest {
 
 message GetLabelsByUserIdResponse {
   repeated string labels = 1;
+}
+
+message DeleteUsersDataRequest {
+  repeated int64 userIds = 1;
 }

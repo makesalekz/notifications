@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "api/events/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_multiple_files = true;
+option java_package = "events.v1";
+
+service Calendars {
+  rpc GetCalendar(CalendarRequest) returns (CalendarReply);
+  rpc CreateCalendar(CreateCalendarRequest) returns (CalendarReply);
+  rpc UpdateCalendar(UpdateCalendarRequest) returns (CalendarReply);
+  rpc DeleteCalendar(CalendarRequest) returns (utils.v1.EmptyReply);
+  rpc ListCalendars(ListCalendarsRequest) returns (ListCalendarsReply);
+  rpc ListExternalCalendars(ListExternalCalendarsRequest) returns (ListExternalCalendarsReply);
+  rpc ConnectExternalCalendar(ConnectExternalCalendarRequest) returns (CalendarReply);
+  rpc DisconnectExternalCalendar(DisconnectExternalCalendarRequest) returns (CalendarReply);
+}
+
+message CreateCalendarRequest {
+  CalendarDto calendar = 1;
+}
+
+message UpdateCalendarRequest {
+  int64 calendarId = 1;
+  CalendarDto calendar = 2;
+}
+
+message ListCalendarsRequest {
+  string search = 1;
+
+  utils.v1.PaginateRequest paginate = 2;
+}
+
+message ListCalendarsReply {
+  repeated Calendar calendars = 1;
+}
+
+message ListExternalCalendarsRequest {
+  string provider = 1;
+}
+
+message ListExternalCalendarsReply {
+  repeated ExternalCalendar calendars = 1;
+}
+
+message ConnectExternalCalendarRequest {
+  int64 calendarId = 1;
+  string provider = 2;
+  string externalId = 3;
+}
+
+message DisconnectExternalCalendarRequest {
+  int64 calendarId = 1;
+}

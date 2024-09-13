@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package events.v1;
 
-import "api/iam/v1/models.proto";
 import "api/media/v1/models.proto";
 
 option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
@@ -10,16 +9,41 @@ option java_package = "events.v1";
 
 //---------------------------------- Models ----------------------------------
 // request/reply
+message CalendarRequest {
+  int64 calendarId = 1;
+}
+
+message CalendarReply {
+  Calendar calendar = 1;
+}
+
 message EventRequest {
   int64 eventId = 1;
-  int64 actorId = 2;
 }
+
 message EventReply {
   Event event = 1;
+  repeated EventSchedule schedules = 2;
+}
+
+message InviteLinkRequest {
+  int64 eventId = 1;
+  int64 linkId = 2;
+}
+
+message InviteLinkReply {
+  InviteLink link = 1;
 }
 
 // dto
+message CalendarDto {
+  string title = 1;
+  string color = 2;
+  string description = 3;
+}
+
 message EventDto {
+  int64 calendarId = 14;
   string title = 2;
   string description = 3;
   optional int64 mediaId = 4;
@@ -30,12 +54,14 @@ message EventDto {
   string type = 9;
   string recurrenceRule = 10;
   bool isChatOn = 11;
+  bool isToPublish = 13;
 
   optional LocationDto location = 12;
 }
 
 message LocationDto {
   optional string address = 1;
+  optional string information = 4;
   float latitude = 2;
   float longitude = 3;
 }
@@ -46,6 +72,26 @@ message LinkDto {
 }
 
 // reply
+message Calendar {
+  int64 id = 1;
+  string title = 2;
+  string description = 3;
+  string color = 4;
+  bool isPrimary = 5;
+  string provider = 7;
+
+  int64 ownerId = 6;
+}
+
+message ExternalCalendar {
+  string externalId = 1;
+  string title = 2;
+  string description = 3;
+  string color = 4;
+  bool isPrimary = 5;
+  bool isConnected = 6;
+}
+
 message Event {
   int64 id = 1;
   string title = 2;
@@ -62,10 +108,23 @@ message Event {
   repeated string avatars = 14;
   int32 membersCount = 15;
   int64 ownerId = 16;
+  string publishedAt = 20;
 
-  iam.v1.UserShort owner = 17;  // TODO: remove DEPRECATED
   optional Membership membership = 18;
   optional LocationDto location = 19;
+}
+
+message EventRecurrence {
+  int64 eventId = 1;
+  string startDateTime = 2;
+  string endDateTime = 3;
+}
+
+message EventSchedule {
+  int64 eventId = 1;
+  string startDateTime = 2;
+  string endDateTime = 3;
+  optional string recurrenceRule = 4;
 }
 
 message AttachmentShort {
@@ -89,6 +148,13 @@ message Link {
   int64 eventId = 5;
 }
 
+message InviteLink {
+  int64 id = 1;
+  int64 eventId = 2;
+  optional int64 userId = 3;
+  string uuid = 4;
+}
+
 message Member {
   int64 id = 1;
   int64 eventId = 2;
@@ -97,8 +163,6 @@ message Member {
   string role = 5;
   int32 remind = 6;
   optional string remindAt = 7;
-
-  iam.v1.UserShort user = 8;  // TODO: remove DEPRECATED
 }
 
 message Membership {
@@ -115,4 +179,18 @@ message MemberHistory {
   optional string statusFrom = 3;
   string statusTo = 4;
   string createdAt = 5;
+}
+
+message EventSlot {
+  string startDateTime = 1;
+  string endDateTime = 2;
+  SlotType slotType = 3;
+  repeated Event events = 4;
+}
+
+enum SlotType {
+  EmptySlotType = 0;
+  EventSlotType = 1;
+
+  AnySlotType = 100;
 }

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package contacts.v1;
+
+import "api/contacts/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/contacts/api/contacts/v1;contacts_v1";
+option java_multiple_files = true;
+option java_package = "contacts.v1";
+
+service InteliSearch {
+  rpc FindContacts(InteliSearchRequest) returns (GetContactsReply);
+  rpc IncrementContactWeight(WeightRequest) returns (utils.v1.EmptyReply);
+}
+
+
+message InteliSearchRequest {
+  repeated string labels = 1;
+}
+
+message WeightRequest {
+  int64 contactId = 1;
+  int64 delta = 2;
+  double multiplier = 3;
+}

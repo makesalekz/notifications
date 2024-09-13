@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package events.v1;
 
-import "google/api/annotations.proto";
 import "api/events/v1/models.proto";
 import "api/utils/v1/models.proto";
 
@@ -11,71 +10,39 @@ option java_multiple_files = true;
 option java_package = "events.v1";
 
 service Events {
-  rpc CreateEvent(CreateEventRequest) returns (EventReply) {
-    option (google.api.http) = {
-      post: "/v1/events"
-      body: "*"
-    };
-  };
-  rpc UpdateEvent(UpdateEventRequest) returns (EventReply) {
-    option (google.api.http) = {
-      put: "/v1/events/{eventId}"
-      body: "*"
-    };
-  };
-  rpc DeleteEvent(EventRequest) returns (utils.v1.EmptyReply) {
-    option (google.api.http) = {
-      delete: "/v1/events/{eventId}"
-    };
-  };
-  rpc DeleteEventCover(EventRequest) returns (utils.v1.EmptyReply) {
-    option (google.api.http) = {
-      delete: "/v1/events/{eventId}/cover"
-    };
-  };
-  rpc DeleteEventLocation(EventRequest) returns (utils.v1.EmptyReply) {
-    option (google.api.http) = {
-      delete: "/v1/events/{eventId}/location"
-    };
-  };
-  rpc GetEvent(EventRequest) returns (EventReply) {
-    option (google.api.http) = {
-      get: "/v1/events/{eventId}"
-    };
-  };
-  rpc ListEvents(ListEventsRequest) returns (ListEventsReply) {
-    option (google.api.http) = {
-      post: "/v1/events/list"
-      body: "*"
-    };
-  };
-  rpc CommonEvents(CommonEventsRequest) returns (ListEventsReply) {
-    option (google.api.http) = {
-      post: "/v1/events/common/{userId}"
-      body: "*"
-    };
-  };
+  rpc GetEvent(EventRequest) returns (EventReply);
+  rpc CreateEvent(CreateEventRequest) returns (EventReply);
+  rpc UpdateEvent(UpdateEventRequest) returns (EventReply);
+  rpc DeleteEvent(EventRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteEventCover(EventRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteEventLocation(EventRequest) returns (utils.v1.EmptyReply);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsReply);
+  rpc CommonEvents(CommonEventsRequest) returns (ListEventsReply);
   rpc GetEvents(GetEventsRequest) returns (GetEventsReply);
+  rpc ListSlots(ListSlotsRequest) returns (ListSlotsReply);
+  rpc NotifyPendingMembers(EventRequest) returns (utils.v1.EmptyReply);
 }
 
 message CreateEventRequest {
   EventDto event = 1;
-  int64 actorId = 2;
 }
 
 message UpdateEventRequest {
   int64 eventId = 1;
+  string updStartDateTime = 3;
+  string eventUpdateType = 4;
   EventDto event = 2;
-  int64 actorId = 3;
 }
 
 message ListEventsRequest {
-  int64 actorId = 1;
   optional bool isAllDay = 3;
-  optional bool isSetRemind = 4;
+  bool isSetRemind = 4;
+  bool isPublished = 13;
+  bool withRecurrence = 12;
+  bool withSchedule = 14;
+  bool byMemberId = 7;
   optional string fromDateTime = 5;
   optional string toDateTime = 6;
-  optional bool byMemberId = 7;
   string search = 8;
   repeated string memberStatuses = 9;
   repeated string eventTypes = 10;
@@ -83,20 +50,35 @@ message ListEventsRequest {
   utils.v1.PaginateRequest paginate = 11;
 }
 
+message ListSlotsRequest {
+  int64 userId = 1;
+  SlotType slotType = 2;
+  bool withSchedule = 14;
+  string fromDateTime = 5;
+  string toDateTime = 6;
+}
+
+message ListSlotsReply {
+  repeated EventSlot slots = 1;
+  repeated EventRecurrence recurrences = 3;
+  repeated EventSchedule schedules = 4;
+}
+
 message CommonEventsRequest {
   int64 userId = 1;
-  int64 actorId = 2;
+  string search = 2;
   utils.v1.PaginateRequest paginate = 3;
 }
 
 message ListEventsReply {
   repeated Event events = 1;
-  utils.v1.PaginateReply paginate = 2;
+  repeated EventRecurrence recurrences = 3;
+  repeated EventSchedule schedules = 4;
 }
 
 message GetEventsRequest {
   repeated int64 eventsIds = 1;
-  int64 actorId = 2;
+  string search = 2;
 }
 
 message GetEventsReply {

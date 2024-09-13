@@ -1,3 +1,4 @@
+// nolint: gochecknoglobals, stylecheck, promlinter // no need refactor http server
 package server
 
 import (
@@ -54,14 +55,14 @@ func NewHTTPServer(
 			),
 		),
 	}
-	if c.Server.Http.Network != "" {
-		opts = append(opts, http.Network(c.Server.Http.Network))
+	if c.GetServer().GetHttp().GetNetwork() != "" {
+		opts = append(opts, http.Network(c.GetServer().GetHttp().GetNetwork()))
 	}
-	if c.Server.Http.Addr != "" {
-		opts = append(opts, http.Address(c.Server.Http.Addr))
+	if c.GetServer().GetHttp().GetAddr() != "" {
+		opts = append(opts, http.Address(c.GetServer().GetHttp().GetAddr()))
 	}
-	if c.Server.Http.Timeout != nil {
-		opts = append(opts, http.Timeout(c.Server.Http.Timeout.AsDuration()))
+	if c.GetServer().GetHttp().GetTimeout() != nil {
+		opts = append(opts, http.Timeout(c.GetServer().GetHttp().GetTimeout().AsDuration()))
 	}
 	srv := http.NewServer(opts...)
 

@@ -165,7 +165,7 @@ func (dto *NotificationDto) setConvertedMap(key string, value string) {
 	}
 }
 
-// nolint: funlen, gocognit // it's a DTO
+//nolint: funlen, gocognit // it's a DTO
 func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[string]string) error {
 	if eventJSON, ok := notificationData["event"]; ok && eventJSON != "" {
 		var event *events_v1.Event
@@ -252,10 +252,13 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 		if err != nil {
 			return fmt.Errorf("notificationData[plural_count]->strconv.Atoi, err: %s", err.Error())
 		}
-		i64Count := int64(count)
 
-		dto.PluralCount = &i64Count
-		dto.setConvertedMap("plural_count", pluralCount)
+		if count > 0 {
+			i64Count := int64(count)
+
+			dto.PluralCount = &i64Count
+			dto.setConvertedMap("plural_count", pluralCount)
+		}
 	}
 
 	return nil

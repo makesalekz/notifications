@@ -195,6 +195,7 @@ func (uc *FcmUsecase) splitMessageToLanguages(
 		dto := &data.NotificationDto{}
 		err := dto.ParseAndSetNotificationData(msg.Data)
 		if err != nil {
+			uc.log.Errorf("splitMessageToLanguages: dto.ParseAndSetNotificationData: %s", err.Error())
 			continue
 		}
 
@@ -204,6 +205,7 @@ func (uc *FcmUsecase) splitMessageToLanguages(
 
 		localizedBody, err := uc.localizer.GetLocalizedMessage(lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
 		if err != nil {
+			uc.log.Errorf("splitMessageToLanguages: localizer.GetLocalizedMessage: %s", err.Error())
 			continue
 		}
 

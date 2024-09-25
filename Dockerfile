@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ARG ENV
 COPY --from=builder /src/bin /app
 COPY --from=builder /src/configs/config.${ENV}.yaml /app/config.yaml
+COPY --from=builder /src/configs/*.json /data/conf/
 COPY --from=builder /src/locales /app/locales
 COPY --from=builder /src/templates /app/templates
 

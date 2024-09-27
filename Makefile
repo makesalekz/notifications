@@ -39,8 +39,8 @@ doc:
 
 .PHONY: run
 # run locally
-run:	
-	GOFLAGS='-mod=readonly' kratos run -w ./
+run:
+	GOFLAGS='-mod=readonly' kratos run -w ./ $(DIR)
 
 .PHONY: db
 # run docker db container
@@ -89,6 +89,7 @@ hash:
 proto:
 	go mod vendor;
 	find vendor/gitlab.calendaria.team -name '*.proto' -exec sh -c 'f="{}"; d="third_party/api/$$(dirname "$$f" | awk -F/ "{print \$$(NF-1)\"/\"\$$NF}")"; mkdir -p "$$d"; rsync -a "$$f" "$$d"' \;
+	go mod tidy;
 
 .PHONY: api
 # generate api proto files
@@ -120,6 +121,15 @@ all:
 	make api;
 	make config;
 	make generate;
+	go mod tidy;
+
+.PHONY: total
+# generate and check all
+total:
+	make all;
+	make lint;
+	#make test;
+	make run DIR=./cmd/app;
 
 .PHONY: hooks
 # install hooks

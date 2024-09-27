@@ -33,8 +33,8 @@ type NotificationData struct {
 	Task *string `json:"task,omitempty"`
 	// Project holds the value of the "project" field.
 	Project *string `json:"project,omitempty"`
-	// User holds the value of the "user" field.
-	User *string `json:"user,omitempty"`
+	// TargetUserID holds the value of the "target_user_id" field.
+	TargetUserID *int64 `json:"target_user_id,omitempty"`
 	// Metadata holds the value of the "metadata" field.
 	Metadata *string `json:"metadata,omitempty"`
 	// PluralCount holds the value of the "plural_count" field.
@@ -70,9 +70,9 @@ func (*NotificationData) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case notificationdata.FieldID, notificationdata.FieldPluralCount:
+		case notificationdata.FieldID, notificationdata.FieldTargetUserID, notificationdata.FieldPluralCount:
 			values[i] = new(sql.NullInt64)
-		case notificationdata.FieldType, notificationdata.FieldEvent, notificationdata.FieldMember, notificationdata.FieldChat, notificationdata.FieldMessage, notificationdata.FieldContact, notificationdata.FieldTask, notificationdata.FieldProject, notificationdata.FieldUser, notificationdata.FieldMetadata:
+		case notificationdata.FieldType, notificationdata.FieldEvent, notificationdata.FieldMember, notificationdata.FieldChat, notificationdata.FieldMessage, notificationdata.FieldContact, notificationdata.FieldTask, notificationdata.FieldProject, notificationdata.FieldMetadata:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -151,12 +151,12 @@ func (nd *NotificationData) assignValues(columns []string, values []any) error {
 				nd.Project = new(string)
 				*nd.Project = value.String
 			}
-		case notificationdata.FieldUser:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field user", values[i])
+		case notificationdata.FieldTargetUserID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field target_user_id", values[i])
 			} else if value.Valid {
-				nd.User = new(string)
-				*nd.User = value.String
+				nd.TargetUserID = new(int64)
+				*nd.TargetUserID = value.Int64
 			}
 		case notificationdata.FieldMetadata:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -253,9 +253,9 @@ func (nd *NotificationData) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := nd.User; v != nil {
-		builder.WriteString("user=")
-		builder.WriteString(*v)
+	if v := nd.TargetUserID; v != nil {
+		builder.WriteString("target_user_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	if v := nd.Metadata; v != nil {

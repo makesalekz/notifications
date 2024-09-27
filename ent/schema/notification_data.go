@@ -23,7 +23,7 @@ func (NotificationData) Fields() []ent.Field {
 		field.String("contact").Optional().Nillable(),
 		field.String("task").Optional().Nillable(),
 		field.String("project").Optional().Nillable(),
-		field.String("user").Optional().Nillable(),
+		field.Int64("target_user_id").Optional().Nillable(),
 		field.String("metadata").Optional().Nillable(),
 		field.Int64("plural_count").Optional().Nillable(),
 	}

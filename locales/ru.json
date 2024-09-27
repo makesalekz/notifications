@@ -41,6 +41,7 @@
         "many":"{{.metadata}} были изменены {{.user.name}}",
         "other":"{{.metadata}} были изменены {{.user.name}}"
     },
+    "member.added": "Вас добавили в группу {{.chat.title}}",
     "message.new": {
         "one": "{{.message.content.text}}",
         "few": "{{.message.content.text}}",

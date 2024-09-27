@@ -7,89 +7,112 @@ import (
 
 	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
 	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
+	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	projects_v1 "gitlab.calendaria.team/services/pms/projects/api/projects/v1"
 	tasks_v1 "gitlab.calendaria.team/services/pms/tasks/api/tasks/v1"
 )
 
 type FilterNotificationsDto struct {
-	UserId int64
+	UserID int64
 	Type   string
 }
 
 type ReadNotificationDto struct {
-	UserId         int64
+	UserID         int64
 	Type           string
-	NotificationId int64
+	NotificationID int64
 }
 
 type Counter struct {
-	UserId int    `json:"user_id"`
+	UserID int    `json:"user_id"`
 	Type   string `json:"type"`
 	Count  int    `json:"count"`
 }
 
 type NotificationDto struct {
-	UserId    int64
-	Title     string
-	Text      string
-	EventId   int64
-	ContactId int64
-	TaskId    int64
-	ProjectId int64
+	UserID       int64
+	Title        string
+	Text         string
+	EventID      int64
+	ContactID    int64
+	TaskID       int64
+	ProjectID    int64
+	TargetUserID int64
 
 	NotificationAddInfo
 }
 
 type NotificationAddInfo struct {
 	Type         *string
-	TaskJson     *string
-	ProjectJson  *string
-	ContactJson  *string
-	EventJson    *string
-	MemberJson   *string
-	ChatJson     *string
-	MessageJson  *string
-	UserJson     *string
-	MetadataJson *string
+	TaskJSON     *string
+	ProjectJSON  *string
+	ContactJSON  *string
+	EventJSON    *string
+	MemberJSON   *string
+	ChatJSON     *string
+	MessageJSON  *string
+	UserJSON     *string
+	MetadataJSON *string
 	PluralCount  *int64
 
 	convertedMap map[string]interface{}
 }
 
-func FromEnt(n_ent *ent.Notification) *NotificationDto {
+func getUserJSON(mapUsers map[int64]*iam_v1.UserShort, userID *int64) *string {
+	deletedAccount := "{\"username\":\"Deleted Account\",\"name\":\"Deleted Account\"}"
+
+	if userID == nil {
+		return &deletedAccount
+	}
+
+	user, ok := mapUsers[*userID]
+	if !ok {
+		return &deletedAccount
+	}
+
+	userJSON, err := json.Marshal(user)
+	if err != nil {
+		return &deletedAccount
+	}
+
+	userString := string(userJSON)
+	return &userString
+}
+
+func FromEnt(nEnt *ent.Notification, mapUsers map[int64]*iam_v1.UserShort) *NotificationDto {
 	dto := NotificationDto{
-		UserId: n_ent.UserID,
-		Title:  n_ent.Title,
-		Text:   n_ent.Text,
+		UserID: nEnt.UserID,
+		Title:  nEnt.Title,
+		Text:   nEnt.Text,
 	}
 
-	if n_ent.EventID != nil {
-		dto.EventId = *n_ent.EventID
+	if nEnt.EventID != nil {
+		dto.EventID = *nEnt.EventID
 	}
-	if n_ent.ContactID != nil {
-		dto.ContactId = *n_ent.ContactID
+	if nEnt.ContactID != nil {
+		dto.ContactID = *nEnt.ContactID
 	}
-	if n_ent.TaskID != nil {
-		dto.TaskId = *n_ent.TaskID
+	if nEnt.TaskID != nil {
+		dto.TaskID = *nEnt.TaskID
 	}
-	if n_ent.ProjectID != nil {
-		dto.ProjectId = *n_ent.ProjectID
+	if nEnt.ProjectID != nil {
+		dto.ProjectID = *nEnt.ProjectID
 	}
 
-	if n_ent.Edges.NotificationData != nil {
-		n_data := n_ent.Edges.NotificationData
+	nData := nEnt.Edges.NotificationData
+	if nData != nil {
 		dto.NotificationAddInfo = NotificationAddInfo{
-			Type:         n_data.Type,
-			TaskJson:     n_data.Task,
-			ContactJson:  n_data.Contact,
-			EventJson:    n_data.Event,
-			MemberJson:   n_data.Member,
-			ChatJson:     n_data.Chat,
-			MessageJson:  n_data.Message,
-			UserJson:     n_data.User,
-			MetadataJson: n_data.Metadata,
-			PluralCount:  n_data.PluralCount,
+			Type:         nData.Type,
+			TaskJSON:     nData.Task,
+			ContactJSON:  nData.Contact,
+			EventJSON:    nData.Event,
+			MemberJSON:   nData.Member,
+			ChatJSON:     nData.Chat,
+			MessageJSON:  nData.Message,
+			UserJSON:     getUserJSON(mapUsers, nData.TargetUserID),
+			MetadataJSON: nData.Metadata,
+			PluralCount:  nData.PluralCount,
 			convertedMap: make(map[string]interface{}),
 		}
 
@@ -100,32 +123,32 @@ func FromEnt(n_ent *ent.Notification) *NotificationDto {
 }
 
 func (dto *NotificationDto) generateConvertedMap() {
-	if dto.NotificationAddInfo.EventJson != nil {
-		dto.setConvertedMap("event", *dto.NotificationAddInfo.EventJson)
+	if dto.NotificationAddInfo.EventJSON != nil {
+		dto.setConvertedMap("event", *dto.NotificationAddInfo.EventJSON)
 	}
-	if dto.NotificationAddInfo.ContactJson != nil {
-		dto.setConvertedMap("contact", *dto.NotificationAddInfo.ContactJson)
+	if dto.NotificationAddInfo.ContactJSON != nil {
+		dto.setConvertedMap("contact", *dto.NotificationAddInfo.ContactJSON)
 	}
-	if dto.NotificationAddInfo.TaskJson != nil {
-		dto.setConvertedMap("task", *dto.NotificationAddInfo.TaskJson)
+	if dto.NotificationAddInfo.TaskJSON != nil {
+		dto.setConvertedMap("task", *dto.NotificationAddInfo.TaskJSON)
 	}
-	if dto.NotificationAddInfo.MemberJson != nil {
-		dto.setConvertedMap("member", *dto.NotificationAddInfo.MemberJson)
+	if dto.NotificationAddInfo.MemberJSON != nil {
+		dto.setConvertedMap("member", *dto.NotificationAddInfo.MemberJSON)
 	}
-	if dto.NotificationAddInfo.ChatJson != nil {
-		dto.setConvertedMap("chat", *dto.NotificationAddInfo.ChatJson)
+	if dto.NotificationAddInfo.ChatJSON != nil {
+		dto.setConvertedMap("chat", *dto.NotificationAddInfo.ChatJSON)
 	}
-	if dto.NotificationAddInfo.MessageJson != nil {
-		dto.setConvertedMap("message", *dto.NotificationAddInfo.MessageJson)
+	if dto.NotificationAddInfo.MessageJSON != nil {
+		dto.setConvertedMap("message", *dto.NotificationAddInfo.MessageJSON)
 	}
-	if dto.NotificationAddInfo.UserJson != nil {
-		dto.setConvertedMap("user", *dto.NotificationAddInfo.UserJson)
+	if dto.NotificationAddInfo.UserJSON != nil {
+		dto.setConvertedMap("user", *dto.NotificationAddInfo.UserJSON)
 	}
 	if dto.NotificationAddInfo.PluralCount != nil {
 		dto.setConvertedMap("plural_count", strconv.FormatInt(*dto.NotificationAddInfo.PluralCount, 10))
 	}
-	if dto.NotificationAddInfo.MetadataJson != nil {
-		dto.setConvertedMap("metadata", *dto.NotificationAddInfo.MetadataJson)
+	if dto.NotificationAddInfo.MetadataJSON != nil {
+		dto.setConvertedMap("metadata", *dto.NotificationAddInfo.MetadataJSON)
 	}
 }
 
@@ -142,76 +165,81 @@ func (dto *NotificationDto) setConvertedMap(key string, value string) {
 	}
 }
 
+//nolint: funlen, gocognit // it's a DTO
 func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[string]string) error {
-	if eventJson, ok := notificationData["event"]; ok && eventJson != "" {
+	if eventJSON, ok := notificationData["event"]; ok && eventJSON != "" {
 		var event *events_v1.Event
-		err := json.Unmarshal([]byte(eventJson), &event)
+		err := json.Unmarshal([]byte(eventJSON), &event)
 		if err != nil {
 			return fmt.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		}
 
-		dto.EventId = event.Id
-		dto.EventJson = &eventJson
-		dto.setConvertedMap("event", eventJson)
+		dto.EventID = event.GetId()
+		dto.EventJSON = &eventJSON
+		dto.setConvertedMap("event", eventJSON)
 	}
 
-	if contactJson, ok := notificationData["contact"]; ok && contactJson != "" {
+	if contactJSON, ok := notificationData["contact"]; ok && contactJSON != "" {
 		var contact *contacts_v1.Contact
-		err := json.Unmarshal([]byte(contactJson), &contact)
+		err := json.Unmarshal([]byte(contactJSON), &contact)
 		if err != nil {
 			return fmt.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		}
 
-		dto.ContactId = contact.Id
-		dto.ContactJson = &contactJson
-
-		dto.setConvertedMap("contact", contactJson)
+		dto.ContactID = contact.GetId()
+		dto.ContactJSON = &contactJSON
+		dto.setConvertedMap("contact", contactJSON)
 	}
 
-	if taskJson, ok := notificationData["task"]; ok && taskJson != "" {
+	if taskJSON, ok := notificationData["task"]; ok && taskJSON != "" {
 		var task *tasks_v1.Task
-		err := json.Unmarshal([]byte(taskJson), &task)
+		err := json.Unmarshal([]byte(taskJSON), &task)
 		if err != nil {
 			return fmt.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		}
 
-		dto.TaskId = task.Id
-		dto.TaskJson = &taskJson
-
-		dto.setConvertedMap("task", taskJson)
+		dto.TaskID = task.GetId()
+		dto.TaskJSON = &taskJSON
+		dto.setConvertedMap("task", taskJSON)
 	}
 
-	if projectJson, ok := notificationData["project"]; ok && projectJson != "" {
+	if projectJSON, ok := notificationData["project"]; ok && projectJSON != "" {
 		var project *projects_v1.Project
-		err := json.Unmarshal([]byte(projectJson), &project)
+		err := json.Unmarshal([]byte(projectJSON), &project)
 		if err != nil {
 			return fmt.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		}
 
-		dto.ProjectId = project.Id
-		dto.ProjectJson = &projectJson
-
-		dto.setConvertedMap("project", projectJson)
+		dto.ProjectID = project.GetId()
+		dto.ProjectJSON = &projectJSON
+		dto.setConvertedMap("project", projectJSON)
 	}
 
-	if memberJson, ok := notificationData["member"]; ok && memberJson != "" {
-		dto.MemberJson = &memberJson
-		dto.setConvertedMap("member", memberJson)
+	if memberJSON, ok := notificationData["member"]; ok && memberJSON != "" {
+		dto.MemberJSON = &memberJSON
+		dto.setConvertedMap("member", memberJSON)
 	}
-	if chatJson, ok := notificationData["chat"]; ok && chatJson != "" {
-		dto.ChatJson = &chatJson
-		dto.setConvertedMap("chat", chatJson)
+	if chatJSON, ok := notificationData["chat"]; ok && chatJSON != "" {
+		dto.ChatJSON = &chatJSON
+		dto.setConvertedMap("chat", chatJSON)
 	}
-	if messageJson, ok := notificationData["message"]; ok && messageJson != "" {
-		dto.MessageJson = &messageJson
-		dto.setConvertedMap("message", messageJson)
+	if messageJSON, ok := notificationData["message"]; ok && messageJSON != "" {
+		dto.MessageJSON = &messageJSON
+		dto.setConvertedMap("message", messageJSON)
 	}
-	if userJson, ok := notificationData["user"]; ok && userJson != "" {
-		dto.UserJson = &userJson
-		dto.setConvertedMap("user", userJson)
+	if userJSON, ok := notificationData["user"]; ok && userJSON != "" {
+		var user *iam_v1.UserShort
+		err := json.Unmarshal([]byte(userJSON), &user)
+		if err != nil {
+			return fmt.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+		}
+
+		dto.TargetUserID = user.GetId()
+		dto.UserJSON = &userJSON
+		dto.setConvertedMap("user", userJSON)
 	}
 	if metadataString, ok := notificationData["metadata"]; ok && metadataString != "" {
-		dto.MetadataJson = &metadataString
+		dto.MetadataJSON = &metadataString
 		dto.setConvertedMap("metadata", metadataString)
 	}
 
@@ -224,9 +252,13 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 		if err != nil {
 			return fmt.Errorf("notificationData[plural_count]->strconv.Atoi, err: %s", err.Error())
 		}
-		i64Count := int64(count)
-		dto.PluralCount = &i64Count
-		dto.setConvertedMap("plural_count", pluralCount)
+
+		if count > 0 {
+			i64Count := int64(count)
+
+			dto.PluralCount = &i64Count
+			dto.setConvertedMap("plural_count", pluralCount)
+		}
 	}
 
 	return nil

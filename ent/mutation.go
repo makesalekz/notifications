@@ -2233,7 +2233,8 @@ type NotificationDataMutation struct {
 	contact             *string
 	task                *string
 	project             *string
-	user                *string
+	target_user_id      *int64
+	addtarget_user_id   *int64
 	metadata            *string
 	plural_count        *int64
 	addplural_count     *int64
@@ -2741,53 +2742,74 @@ func (m *NotificationDataMutation) ResetProject() {
 	delete(m.clearedFields, notificationdata.FieldProject)
 }
 
-// SetUser sets the "user" field.
-func (m *NotificationDataMutation) SetUser(s string) {
-	m.user = &s
+// SetTargetUserID sets the "target_user_id" field.
+func (m *NotificationDataMutation) SetTargetUserID(i int64) {
+	m.target_user_id = &i
+	m.addtarget_user_id = nil
 }
 
-// User returns the value of the "user" field in the mutation.
-func (m *NotificationDataMutation) User() (r string, exists bool) {
-	v := m.user
+// TargetUserID returns the value of the "target_user_id" field in the mutation.
+func (m *NotificationDataMutation) TargetUserID() (r int64, exists bool) {
+	v := m.target_user_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUser returns the old "user" field's value of the NotificationData entity.
+// OldTargetUserID returns the old "target_user_id" field's value of the NotificationData entity.
 // If the NotificationData object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *NotificationDataMutation) OldUser(ctx context.Context) (v *string, err error) {
+func (m *NotificationDataMutation) OldTargetUserID(ctx context.Context) (v *int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUser is only allowed on UpdateOne operations")
+		return v, errors.New("OldTargetUserID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUser requires an ID field in the mutation")
+		return v, errors.New("OldTargetUserID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUser: %w", err)
+		return v, fmt.Errorf("querying old value for OldTargetUserID: %w", err)
 	}
-	return oldValue.User, nil
+	return oldValue.TargetUserID, nil
 }
 
-// ClearUser clears the value of the "user" field.
-func (m *NotificationDataMutation) ClearUser() {
-	m.user = nil
-	m.clearedFields[notificationdata.FieldUser] = struct{}{}
+// AddTargetUserID adds i to the "target_user_id" field.
+func (m *NotificationDataMutation) AddTargetUserID(i int64) {
+	if m.addtarget_user_id != nil {
+		*m.addtarget_user_id += i
+	} else {
+		m.addtarget_user_id = &i
+	}
 }
 
-// UserCleared returns if the "user" field was cleared in this mutation.
-func (m *NotificationDataMutation) UserCleared() bool {
-	_, ok := m.clearedFields[notificationdata.FieldUser]
+// AddedTargetUserID returns the value that was added to the "target_user_id" field in this mutation.
+func (m *NotificationDataMutation) AddedTargetUserID() (r int64, exists bool) {
+	v := m.addtarget_user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTargetUserID clears the value of the "target_user_id" field.
+func (m *NotificationDataMutation) ClearTargetUserID() {
+	m.target_user_id = nil
+	m.addtarget_user_id = nil
+	m.clearedFields[notificationdata.FieldTargetUserID] = struct{}{}
+}
+
+// TargetUserIDCleared returns if the "target_user_id" field was cleared in this mutation.
+func (m *NotificationDataMutation) TargetUserIDCleared() bool {
+	_, ok := m.clearedFields[notificationdata.FieldTargetUserID]
 	return ok
 }
 
-// ResetUser resets all changes to the "user" field.
-func (m *NotificationDataMutation) ResetUser() {
-	m.user = nil
-	delete(m.clearedFields, notificationdata.FieldUser)
+// ResetTargetUserID resets all changes to the "target_user_id" field.
+func (m *NotificationDataMutation) ResetTargetUserID() {
+	m.target_user_id = nil
+	m.addtarget_user_id = nil
+	delete(m.clearedFields, notificationdata.FieldTargetUserID)
 }
 
 // SetMetadata sets the "metadata" field.
@@ -3007,8 +3029,8 @@ func (m *NotificationDataMutation) Fields() []string {
 	if m.project != nil {
 		fields = append(fields, notificationdata.FieldProject)
 	}
-	if m.user != nil {
-		fields = append(fields, notificationdata.FieldUser)
+	if m.target_user_id != nil {
+		fields = append(fields, notificationdata.FieldTargetUserID)
 	}
 	if m.metadata != nil {
 		fields = append(fields, notificationdata.FieldMetadata)
@@ -3040,8 +3062,8 @@ func (m *NotificationDataMutation) Field(name string) (ent.Value, bool) {
 		return m.Task()
 	case notificationdata.FieldProject:
 		return m.Project()
-	case notificationdata.FieldUser:
-		return m.User()
+	case notificationdata.FieldTargetUserID:
+		return m.TargetUserID()
 	case notificationdata.FieldMetadata:
 		return m.Metadata()
 	case notificationdata.FieldPluralCount:
@@ -3071,8 +3093,8 @@ func (m *NotificationDataMutation) OldField(ctx context.Context, name string) (e
 		return m.OldTask(ctx)
 	case notificationdata.FieldProject:
 		return m.OldProject(ctx)
-	case notificationdata.FieldUser:
-		return m.OldUser(ctx)
+	case notificationdata.FieldTargetUserID:
+		return m.OldTargetUserID(ctx)
 	case notificationdata.FieldMetadata:
 		return m.OldMetadata(ctx)
 	case notificationdata.FieldPluralCount:
@@ -3142,12 +3164,12 @@ func (m *NotificationDataMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetProject(v)
 		return nil
-	case notificationdata.FieldUser:
-		v, ok := value.(string)
+	case notificationdata.FieldTargetUserID:
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUser(v)
+		m.SetTargetUserID(v)
 		return nil
 	case notificationdata.FieldMetadata:
 		v, ok := value.(string)
@@ -3171,6 +3193,9 @@ func (m *NotificationDataMutation) SetField(name string, value ent.Value) error 
 // this mutation.
 func (m *NotificationDataMutation) AddedFields() []string {
 	var fields []string
+	if m.addtarget_user_id != nil {
+		fields = append(fields, notificationdata.FieldTargetUserID)
+	}
 	if m.addplural_count != nil {
 		fields = append(fields, notificationdata.FieldPluralCount)
 	}
@@ -3182,6 +3207,8 @@ func (m *NotificationDataMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *NotificationDataMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case notificationdata.FieldTargetUserID:
+		return m.AddedTargetUserID()
 	case notificationdata.FieldPluralCount:
 		return m.AddedPluralCount()
 	}
@@ -3193,6 +3220,13 @@ func (m *NotificationDataMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *NotificationDataMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case notificationdata.FieldTargetUserID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTargetUserID(v)
+		return nil
 	case notificationdata.FieldPluralCount:
 		v, ok := value.(int64)
 		if !ok {
@@ -3232,8 +3266,8 @@ func (m *NotificationDataMutation) ClearedFields() []string {
 	if m.FieldCleared(notificationdata.FieldProject) {
 		fields = append(fields, notificationdata.FieldProject)
 	}
-	if m.FieldCleared(notificationdata.FieldUser) {
-		fields = append(fields, notificationdata.FieldUser)
+	if m.FieldCleared(notificationdata.FieldTargetUserID) {
+		fields = append(fields, notificationdata.FieldTargetUserID)
 	}
 	if m.FieldCleared(notificationdata.FieldMetadata) {
 		fields = append(fields, notificationdata.FieldMetadata)
@@ -3279,8 +3313,8 @@ func (m *NotificationDataMutation) ClearField(name string) error {
 	case notificationdata.FieldProject:
 		m.ClearProject()
 		return nil
-	case notificationdata.FieldUser:
-		m.ClearUser()
+	case notificationdata.FieldTargetUserID:
+		m.ClearTargetUserID()
 		return nil
 	case notificationdata.FieldMetadata:
 		m.ClearMetadata()
@@ -3320,8 +3354,8 @@ func (m *NotificationDataMutation) ResetField(name string) error {
 	case notificationdata.FieldProject:
 		m.ResetProject()
 		return nil
-	case notificationdata.FieldUser:
-		m.ResetUser()
+	case notificationdata.FieldTargetUserID:
+		m.ResetTargetUserID()
 		return nil
 	case notificationdata.FieldMetadata:
 		m.ResetMetadata()

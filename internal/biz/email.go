@@ -8,7 +8,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
 	"gitlab.calendaria.team/services/utils/v1/config"
-	"gitlab.calendaria.team/services/utils/v1/nats"
+	u_nats "gitlab.calendaria.team/services/utils/v1/nats"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -25,14 +25,14 @@ type EmailUsecase struct {
 	config      *config.Config
 	templates   *LocalizedEmailTemplates
 	localizer   *data.Localizer
-	qm          *nats.QueueManager
+	qm          u_nats.IQueueManager
 	sourceEmail string
 }
 
 func NewEmailUsecase(
 	config *config.Config,
 	logger log.Logger,
-	qm *nats.QueueManager,
+	qm u_nats.IQueueManager,
 	templates *LocalizedEmailTemplates,
 	localizer *data.Localizer,
 ) (*EmailUsecase, error) {

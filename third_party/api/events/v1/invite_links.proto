@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "api/events/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/events/api/events/v1;events_v1";
+option java_multiple_files = true;
+option java_package = "events.v1";
+
+service InviteLinks {
+  rpc CreateInviteLink(CreateInviteLinkRequest) returns (InviteLinkReply);
+  rpc RegenerateInviteLink(InviteLinkRequest) returns (InviteLinkReply);
+  rpc JoinWithInviteLink(JoinWithInviteLinkRequest) returns (Event);
+  rpc DeleteInviteLink(InviteLinkRequest) returns (utils.v1.EmptyReply);
+  rpc ListInviteLinks(ListInviteLinksRequest) returns (ListInviteLinksReply);
+}
+
+message CreateInviteLinkRequest {
+  int64 eventId = 1;
+  optional int64 userId = 2;
+}
+
+message JoinWithInviteLinkRequest {
+  string uuid = 1;
+}
+
+message ListInviteLinksRequest {
+  int64 eventId = 1;
+  utils.v1.PaginateRequest paginate = 2;
+}
+
+message ListInviteLinksReply {
+  repeated InviteLink links = 1;
+  utils.v1.PaginateReply paginate = 2;
+}

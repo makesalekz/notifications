@@ -1,6 +1,12 @@
+// nolint: gochecknoglobals, stylecheck, promlinter // no need refactor http server
 package server
 
 import (
+	"gitlab.calendaria.team/services/notifications/internal/conf"
+	u_metrics "gitlab.calendaria.team/services/utils/v1/middlewares/metrics"
+	u_jwt "gitlab.calendaria.team/services/utils/v2/jwt"
+	u_auth "gitlab.calendaria.team/services/utils/v2/middlewares/auth"
+
 	prom "github.com/go-kratos/kratos/contrib/metrics/prometheus/v2"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -8,10 +14,6 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	"gitlab.calendaria.team/services/utils/v1/jwt"
-	auth "gitlab.calendaria.team/services/utils/v1/middlewares/auth"
-	metrics "gitlab.calendaria.team/services/utils/v1/middlewares/metrics"
 )
 
 var _metricSeconds = prometheus.NewHistogramVec(prometheus.HistogramOpts{
@@ -39,28 +41,28 @@ var _activeRequests = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 // NewHTTPServer new an HTTP server.
 func NewHTTPServer(
 	c *conf.Bootstrap,
-	jwtp *jwt.JwtProcessor,
+	jwtp u_jwt.IJwtProcessor,
 ) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
 			metadata.Server(),
-			auth.Server(jwtp),
-			metrics.Server(
-				metrics.WithSeconds(prom.NewHistogram(_metricSeconds)),
-				metrics.WithRequests(prom.NewCounter(_metricRequests)),
-				metrics.WithGauge(prom.NewGauge(_activeRequests)),
+			u_auth.Server(jwtp),
+			u_metrics.Server(
+				u_metrics.WithSeconds(prom.NewHistogram(_metricSeconds)),
+				u_metrics.WithRequests(prom.NewCounter(_metricRequests)),
+				u_metrics.WithGauge(prom.NewGauge(_activeRequests)),
 			),
 		),
 	}
-	if c.Server.Http.Network != "" {
-		opts = append(opts, http.Network(c.Server.Http.Network))
+	if c.GetServer().GetHttp().GetNetwork() != "" {
+		opts = append(opts, http.Network(c.GetServer().GetHttp().GetNetwork()))
 	}
-	if c.Server.Http.Addr != "" {
-		opts = append(opts, http.Address(c.Server.Http.Addr))
+	if c.GetServer().GetHttp().GetAddr() != "" {
+		opts = append(opts, http.Address(c.GetServer().GetHttp().GetAddr()))
 	}
-	if c.Server.Http.Timeout != nil {
-		opts = append(opts, http.Timeout(c.Server.Http.Timeout.AsDuration()))
+	if c.GetServer().GetHttp().GetTimeout() != nil {
+		opts = append(opts, http.Timeout(c.GetServer().GetHttp().GetTimeout().AsDuration()))
 	}
 	srv := http.NewServer(opts...)
 

@@ -55,8 +55,11 @@ func replyNotifications(notifications []*ent.Notification) []*v1.Notification {
 	return reply
 }
 
-func (s *NotificationsService) CreateNotifications(ctx context.Context, req *v1.CreateNotificationsRequest) (*v1.CreateNotificationsReply, error) {
-	created, err := s.nu.CreateNotifications(ctx, req.Notifications)
+func (s *NotificationsService) CreateNotifications(
+	ctx context.Context,
+	req *v1.CreateNotificationsRequest,
+) (*v1.CreateNotificationsReply, error) {
+	created, err := s.nu.CreateNotifications(ctx, req.GetNotifications())
 	if err != nil {
 		return nil, err
 	}
@@ -66,25 +69,28 @@ func (s *NotificationsService) CreateNotifications(ctx context.Context, req *v1.
 	}, nil
 }
 
-func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.ListNotificationsRequest) (*v1.ListNotificationsReply, error) {
-	actorId := auth.GetActorIdFromContext(ctx)
-	if actorId == 0 {
+func (s *NotificationsService) ListNotifications(
+	ctx context.Context,
+	req *v1.ListNotificationsRequest,
+) (*v1.ListNotificationsReply, error) {
+	actorID := auth.GetActorIdFromContext(ctx)
+	if actorID == 0 {
 		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
-	language := req.Language
-	if language == nil || *language == "" {
-		language = &biz.DefaultLanguage
+	language := req.GetLanguage()
+	if language == "" {
+		language = biz.DefaultLanguage
 	}
 
 	list, err := s.nu.ListNotifications(
 		ctx,
-		*language,
+		language,
 		&data.FilterNotificationsDto{
-			UserId: actorId,
-			Type:   req.Type,
+			UserID: actorID,
+			Type:   req.GetType(),
 		},
-		req.Paginate,
+		req.GetPaginate(),
 	)
 	if err != nil {
 		return nil, err
@@ -96,13 +102,16 @@ func (s *NotificationsService) ListNotifications(ctx context.Context, req *v1.Li
 	}, nil
 }
 
-func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req *utils_v1.EmptyRequest) (*v1.NotificationCountersReply, error) {
-	actorId := auth.GetActorIdFromContext(ctx)
-	if actorId == 0 {
+func (s *NotificationsService) GetNotificationsCounters(
+	ctx context.Context,
+	_ *utils_v1.EmptyRequest,
+) (*v1.NotificationCountersReply, error) {
+	actorID := auth.GetActorIdFromContext(ctx)
+	if actorID == 0 {
 		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
-	reply, err := s.nu.GetNotificationCounters(ctx, actorId)
+	reply, err := s.nu.GetNotificationCounters(ctx, actorID)
 	if err != nil {
 		return nil, err
 	}
@@ -112,15 +121,17 @@ func (s *NotificationsService) GetNotificationsCounters(ctx context.Context, req
 	}, err
 }
 
-func (s *NotificationsService) DoActionOnNotification(ctx context.Context, req *v1.DoActionOnNotificationRequest) (*utils_v1.EmptyReply, error) {
-	actorId := auth.GetActorIdFromContext(ctx)
-	if actorId == 0 {
+func (s *NotificationsService) DoActionOnNotification(
+	ctx context.Context,
+	req *v1.DoActionOnNotificationRequest,
+) (*utils_v1.EmptyReply, error) {
+	actorID := auth.GetActorIdFromContext(ctx)
+	if actorID == 0 {
 		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
-	switch req.Action {
-	case "read":
-		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, actorId, req.NotificationId, req.Type)
+	if req.GetAction() == "read" {
+		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, actorID, req.GetNotificationId(), req.GetType())
 	}
 
 	return &utils_v1.EmptyReply{}, nil

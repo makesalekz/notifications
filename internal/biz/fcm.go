@@ -98,6 +98,9 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool 
 
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
 	message := &messaging.MulticastMessage{}
+
+	// turn on mutable content
+	message.APNS.Payload.Aps.MutableContent = true
 	empty := true
 
 	if len(msg.Data) > 0 {

@@ -98,10 +98,16 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 }
 
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
-	message := &messaging.MulticastMessage{}
+	message := &messaging.MulticastMessage{
+		APNS: &messaging.APNSConfig{
+			Payload: &messaging.APNSPayload{
+				Aps: &messaging.Aps{
+					MutableContent: true,
+				},
+			},
+		},
+	}
 
-	// turn on mutable content
-	message.APNS.Payload.Aps.MutableContent = true
 	empty := true
 
 	if len(msg.Data) > 0 {

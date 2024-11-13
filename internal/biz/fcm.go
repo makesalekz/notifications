@@ -8,11 +8,12 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
-	nnats "github.com/nats-io/nats.go"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
-	u_nats "gitlab.calendaria.team/services/utils/v1/nats"
+	u_nats "gitlab.calendaria.team/services/utils/v2/nats"
+
+	"github.com/nats-io/nats.go/jetstream"
 )
 
 // SmsUsecase is a Greeter usecase.
@@ -59,9 +60,9 @@ func NewFcmUsecase(
 	return uc, nil
 }
 
-func (uc *FcmUsecase) sendNotifications(ctx context.Context, m *nnats.Msg) bool {
+func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bool {
 	notification := messages.FirebaseNotification{}
-	err := json.Unmarshal(m.Data, &notification)
+	err := json.Unmarshal(m.Data(), &notification)
 	if err != nil {
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		return true

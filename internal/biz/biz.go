@@ -1,8 +1,9 @@
+// nolint:gochecknoglobals // this global variable is required for wire and project
 package biz
 
 import (
 	"github.com/google/wire"
-	"gitlab.calendaria.team/services/utils/v1/nats"
+	"gitlab.calendaria.team/services/utils/v2/nats"
 )
 
 const QueueFCM = "fcm"

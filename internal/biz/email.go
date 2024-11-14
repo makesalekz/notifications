@@ -8,7 +8,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
 	"gitlab.calendaria.team/services/utils/v1/config"
-	u_nats "gitlab.calendaria.team/services/utils/v1/nats"
+	u_nats "gitlab.calendaria.team/services/utils/v2/nats"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -16,7 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ses"
 	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/go-kratos/kratos/v2/log"
-	nnats "github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 )
 
 type EmailUsecase struct {
@@ -99,9 +99,9 @@ func loadAWSConfig(c *config.Config) (aws.Config, error) {
 	return awsCfg, nil
 }
 
-func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m *nnats.Msg) bool {
+func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m jetstream.Msg) bool {
 	var request messages.EmailDetails
-	if err := json.Unmarshal(m.Data, &request); err != nil {
+	if err := json.Unmarshal(m.Data(), &request); err != nil {
 		uc.log.Errorf("handleEmailRequest: json.Unmarshal: %uc", err)
 		return true
 	}

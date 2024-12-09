@@ -17,6 +17,7 @@ import (
 )
 
 type Sms struct {
+	Sender  string
 	Phones  []string
 	Message string
 }
@@ -26,6 +27,7 @@ type Sms struct {
 type requestSms struct {
 	Login    string `json:"login"`
 	Password string `json:"psw"`
+	Sender   string `json:"sender"`
 	Phones   string `json:"phones"`
 	Message  string `json:"mes"`
 	Cost     cost   `json:"cost"`
@@ -177,6 +179,7 @@ func (s *smscClient) SendSms(ctx context.Context, sms Sms) (*Result, error) {
 	request := &requestSms{
 		Login:    login,
 		Password: password,
+		Sender:   sms.Sender,
 		Phones:   strings.Join(sms.Phones, ","),
 		Message:  sms.Message,
 		Cost:     CostCountBalance,

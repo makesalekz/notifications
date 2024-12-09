@@ -76,6 +76,7 @@ func (s *SenderService) PersonalSmsSender(
 	req *v1.PersonalSmsSenderRequest,
 ) (*utils_v1.EmptyReply, error) {
 	err := s.sms.SendSms(ctx, data.Sms{
+		Sender:  req.GetSender(),
 		Message: req.GetMessage(),
 		Phones:  []string{req.GetPhone()},
 	})

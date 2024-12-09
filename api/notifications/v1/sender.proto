@@ -29,6 +29,7 @@ message FcmDataRequest {
 message PersonalSmsSenderRequest {
   string phone = 1;
   string message = 2;
+  string sender = 3;
 }
 
 message EmailSenderRequest {

@@ -1,4 +1,4 @@
-// nolint:gochecknoglobals // this global variable is required for wire and project
+//nolint:gochecknoglobals // this global variable is required for wire and project
 package biz
 
 import (

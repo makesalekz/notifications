@@ -103,6 +103,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 			Payload: &messaging.APNSPayload{
 				Aps: &messaging.Aps{
 					MutableContent: true,
+					Badge:          msg.Badge,
 				},
 			},
 		},

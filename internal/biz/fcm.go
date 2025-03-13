@@ -98,15 +98,20 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 }
 
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
+	defaultBadge := 1
 	message := &messaging.MulticastMessage{
 		APNS: &messaging.APNSConfig{
 			Payload: &messaging.APNSPayload{
 				Aps: &messaging.Aps{
 					MutableContent: true,
-					Badge:          msg.Badge,
+					Badge:          &defaultBadge,
 				},
 			},
 		},
+	}
+
+	if msg.Badge != nil || *msg.Badge != 1 {
+		message.APNS.Payload.Aps.Badge = msg.Badge
 	}
 
 	empty := true

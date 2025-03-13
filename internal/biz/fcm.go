@@ -110,7 +110,10 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 		},
 	}
 
-	if msg.Badge != nil || *msg.Badge != 1 {
+	noBadge := 0
+	if msg.Badge == nil {
+		message.APNS.Payload.Aps.Badge = &noBadge
+	} else {
 		message.APNS.Payload.Aps.Badge = msg.Badge
 	}
 

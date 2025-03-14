@@ -66,6 +66,10 @@
         "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
     },
+    "message.recap": {
+        "one": "📝 Sent a recap",
+        "other": "Sent {{.plural_count}} recaps"
+    },
     "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"

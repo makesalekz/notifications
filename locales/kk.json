@@ -71,6 +71,7 @@
     "one": "📝 Толықтыру жіберді",
     "other": "{{.plural_count}} толықтыру жіберді"
   },
+  "ai.recap.processed": "Толықтыру {{.metadata}} дайын",
   "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "

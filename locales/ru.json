@@ -34,6 +34,7 @@
     "ATTACHMENTS_DELETED": "{{.user.name}} удалил вложение",
     "LINKS_ADDED": "{{.user.name}} добавил новую ссылку",
     "LINKS_DELETED": "{{.user.name}} удалил ссылку",
+    "RECAP_ADDED": "{{.user.name}} добавил протокол",
     "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
     "chat.update": {
         "one":"{{.metadata}} был изменен {{.user.name}}",

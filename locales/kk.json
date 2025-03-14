@@ -66,6 +66,10 @@
     "one": "🗿 Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
   },
+  "message.recap": {
+    "one": "📝 Толықтыру жіберді",
+    "other": "{{.plural_count}} толықтыру жіберді"
+  },
   "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "

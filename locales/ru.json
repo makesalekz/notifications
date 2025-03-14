@@ -97,6 +97,7 @@
         "many": "Отправил(-а) {{.plural_count}} протоколов",
         "other": "Отправил(-а) {{.plural_count}} протоколов"
     },
+    "ai.recap.processed": "Протокол {{.metadata}} готов",
     "email.subject": {
         "invite": "Вас пригласили в рабочее пространство",
         "confirm_email": "Код авторизации"

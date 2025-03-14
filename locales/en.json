@@ -71,6 +71,7 @@
         "one": "📝 Sent a recap",
         "other": "Sent {{.plural_count}} recaps"
     },
+    "ai.recap.processed": "The recap {{.metadata}} is ready",
     "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"

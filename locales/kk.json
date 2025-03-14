@@ -28,6 +28,7 @@
   "ATTACHMENTS_DELETED": "{{.user.name}} тіркемені жойды",
   "LINKS_ADDED": "{{.user.name}} жаңа сілтеме қосты",
   "LINKS_DELETED": "{{.user.name}} сілтемені жойды",
+  "RECAP_ADDED": "{{.user.name}} толықтыру қосты",
   "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-да тіркелді",
   "chat.update": {
     "one": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}",

@@ -108,12 +108,14 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 				},
 			},
 		},
+		Android: &messaging.AndroidConfig{
+			Notification: &messaging.AndroidNotification{
+				NotificationCount: &defaultBadge,
+			},
+		},
 	}
 
-	noBadge := 0
-	if msg.Badge == nil {
-		message.APNS.Payload.Aps.Badge = &noBadge
-	} else {
+	if msg.Badge != nil {
 		message.APNS.Payload.Aps.Badge = msg.Badge
 	}
 

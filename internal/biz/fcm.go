@@ -117,6 +117,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 
 	if msg.Badge != nil {
 		message.APNS.Payload.Aps.Badge = msg.Badge
+		message.Android.Notification.NotificationCount = msg.Badge
 	}
 
 	empty := true

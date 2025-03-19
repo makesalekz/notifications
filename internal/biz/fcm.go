@@ -161,7 +161,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 			if err != nil {
 				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 			} else {
-				uc.log.Debug("sendMessage: sent successfully (%s)", message.Notification.Body)
+				uc.log.Debugf("sendMessage: sent successfully (%s)", message.Notification.Body)
 			}
 		}
 	} else {

@@ -24,10 +24,11 @@
   "EVENT_REMINDER": "Шақыруға жауап беріңіз",
   "EVENT_CHAT_CREATED": "{{.user.name}} іс-шара үшін чат құрды",
   "EVENT_CHAT_DELETED": "{{.user.name}} іс-шара чатын жойды",
-  "ATTACHMENTS_ADDED": "{{.user.name}} жаңа тіркеме қосты",
-  "ATTACHMENTS_DELETED": "{{.user.name}} тіркемені жойды",
-  "LINKS_ADDED": "{{.user.name}} жаңа сілтеме қосты",
-  "LINKS_DELETED": "{{.user.name}} сілтемені жойды",
+  "ATTACHMENT_ADDED": "{{.user.name}} жаңа тіркеме қосты",
+  "ATTACHMENT_DELETED": "{{.user.name}} тіркемені жойды",
+  "LINK_ADDED": "{{.user.name}} жаңа сілтеме қосты",
+  "LINK_DELETED": "{{.user.name}} сілтемені жойды",
+  "RECAP_ADDED": "{{.user.name}} толықтыру қосты",
   "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-да тіркелді",
   "chat.update": {
     "one": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}",
@@ -66,6 +67,11 @@
     "one": "🗿 Контакт жіберді",
     "other": "{{.plural_count}} контакт жіберді"
   },
+  "message.recap": {
+    "one": "📝 Толықтыру жіберді",
+    "other": "{{.plural_count}} толықтыру жіберді"
+  },
+  "ai.recap.processed": "Толықтыру {{.metadata.title}} дайын",
   "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "

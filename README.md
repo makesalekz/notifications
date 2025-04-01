@@ -70,6 +70,7 @@ To save JWT secret in Vault terminal (write command, ENTER, paste secret, CTRL+D
 export VAULT_TOKEN=myroot
 vault kv put -mount=secret app/global/jwt data=-
 vault kv put -mount=secret app/notifications/aws access_key_id=<key id> secret_access_key=<secret>
+vault kv put -mount=secret app/notifications/smsc login=<login> password=<password>
 ```
 
 ```txt

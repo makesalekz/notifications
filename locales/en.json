@@ -24,10 +24,11 @@
     "EVENT_REMINDER": "Answer for the invitation",
     "EVENT_CHAT_CREATED": "{{.user.name}} created a chat for the event",
     "EVENT_CHAT_DELETED": "{{.user.name}} deleted a chat of the event",
-    "ATTACHMENTS_ADDED": "{{.user.name}} added a new attachment",
-    "ATTACHMENTS_DELETED": "{{.user.name}} deleted the attachment",
-    "LINKS_ADDED": "{{.user.name}} added a new link",
-    "LINKS_DELETED": "{{.user.name}} deleted the link",
+    "ATTACHMENT_ADDED": "{{.user.name}} added a new attachment",
+    "ATTACHMENT_DELETED": "{{.user.name}} deleted the attachment",
+    "LINK_ADDED": "{{.user.name}} added a new link",
+    "LINK_DELETED": "{{.user.name}} deleted the link",
+    "RECAP_ADDED": "{{.user.name}} added a recap",
     "CONTACT_CREATED": "Your contact {{.contact.label}} has signed up for Calendaria",
     "chat.update": {
         "one": "{{.metadata}} has been changed by {{.user.name}}",
@@ -66,6 +67,11 @@
         "one": "👤 Sent a contact",
         "other": "Sent {{.plural_count}} contacts"
     },
+    "message.recap": {
+        "one": "📝 Sent a recap",
+        "other": "Sent {{.plural_count}} recaps"
+    },
+    "ai.recap.processed": "The recap {{.metadata.title}} is ready",
     "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"

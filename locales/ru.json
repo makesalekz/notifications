@@ -30,10 +30,11 @@
     "EVENT_REMINDER": "Ответьте на приглашение",
     "EVENT_CHAT_CREATED": "{{.user.name}} создал чат события",
     "EVENT_CHAT_DELETED": "{{.user.name}} удалил чат события",
-    "ATTACHMENTS_ADDED": "{{.user.name}} добавил новое вложение",
-    "ATTACHMENTS_DELETED": "{{.user.name}} удалил вложение",
-    "LINKS_ADDED": "{{.user.name}} добавил новую ссылку",
-    "LINKS_DELETED": "{{.user.name}} удалил ссылку",
+    "ATTACHMENT_ADDED": "{{.user.name}} добавил новое вложение",
+    "ATTACHMENT_DELETED": "{{.user.name}} удалил вложение",
+    "LINK_ADDED": "{{.user.name}} добавил новую ссылку",
+    "LINK_DELETED": "{{.user.name}} удалил ссылку",
+    "RECAP_ADDED": "{{.user.name}} добавил протокол",
     "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
     "chat.update": {
         "one":"{{.metadata}} был изменен {{.user.name}}",
@@ -90,6 +91,13 @@
         "many": "Отправил(-а) {{.plural_count}} контактов",
         "other": "Отправил(-а) {{.plural_count}} контактов"
     },
+    "message.recap": {
+        "one": "📝 Отправил(-а) протокол",
+        "few": "Отправил(-а) {{.plural_count}} протокола",
+        "many": "Отправил(-а) {{.plural_count}} протоколов",
+        "other": "Отправил(-а) {{.plural_count}} протоколов"
+    },
+    "ai.recap.processed": "Протокол {{.metadata.title}} готов",
     "email.subject": {
         "invite": "Вас пригласили в рабочее пространство",
         "confirm_email": "Код авторизации"

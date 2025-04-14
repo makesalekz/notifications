@@ -8,6 +8,7 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
+
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
@@ -159,6 +160,9 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 			uc.log.Debugf("sendMessage: send %d messages", len(multicastMessages))
 			_, err = uc.client.SendEachForMulticast(ctx, multicastMessage)
 			if err != nil {
+				if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
+					uc.deleteTokens(ctx, multicastMessage)
+				}
 				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 			} else {
 				uc.log.Debugf("sendMessage: sent successfully (%s)", multicastMessage.Notification.Body)
@@ -245,10 +249,12 @@ func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto)
 	}
 
 	if device.OldToken != "" {
-		_, err = uc.devicesRepo.DeleteDevice(ctx, data.DeviceKey{
-			UserID: device.UserID,
-			Token:  device.OldToken,
-		})
+		_, err = uc.devicesRepo.DeleteDevice(
+			ctx, data.DeviceKey{
+				UserID: device.UserID,
+				Token:  device.OldToken,
+			},
+		)
 		if err != nil {
 			return err
 		}
@@ -261,4 +267,20 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 	_, err := uc.devicesRepo.DeleteDevice(ctx, deviceKey)
 
 	return err
+}
+
+func (uc *FcmUsecase) deleteTokens(ctx context.Context, message *messaging.MulticastMessage) {
+	// extract device ids
+	tokens := make([]string, 0, len(message.Tokens))
+	for _, token := range message.Tokens {
+		tokens = append(tokens, token)
+	}
+
+	// delete devices
+	_, err := uc.devicesRepo.DeleteDevicesByTokens(ctx, tokens)
+	if err != nil {
+		uc.log.Errorf("deleteTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
+		return
+	}
+	uc.log.Debugf("deleteTokens: deleted %d tokens", len(tokens))
 }

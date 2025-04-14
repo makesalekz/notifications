@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/ent/device"
 )
@@ -30,6 +31,7 @@ type DevicesRepo interface {
 	DeleteDevice(ctx context.Context, deviceKey DeviceKey) (int, error)
 	GetDevicesForUser(ctx context.Context, userID int64) ([]*ent.Device, error)
 	GetDevicesForUsers(ctx context.Context, usersIDs []int64) ([]*ent.Device, error)
+	DeleteDevicesByTokens(ctx context.Context, tokens []string) (int, error)
 }
 
 type devicesRepo struct {
@@ -81,4 +83,10 @@ func (r *devicesRepo) GetDevicesForUser(ctx context.Context, userID int64) ([]*e
 
 func (r *devicesRepo) GetDevicesForUsers(ctx context.Context, usersIDs []int64) ([]*ent.Device, error) {
 	return r.db.Device.Query().Where(device.UserIDIn(usersIDs...)).All(ctx)
+}
+
+func (r *devicesRepo) DeleteDevicesByTokens(ctx context.Context, tokens []string) (int, error) {
+	return r.db.Device.Delete().
+		Where(device.TokenIn(tokens...)).
+		Exec(ctx)
 }

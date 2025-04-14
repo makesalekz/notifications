@@ -155,15 +155,19 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 
 	multicastMessages := uc.splitMessageToLanguages(devices, message)
 
+	candidatesToDelete := make([]string, 0, len(multicastMessages))
+
 	if uc.client != nil {
 		for _, multicastMessage := range multicastMessages {
 			uc.log.Debugf("sendMessage: send %d messages", len(multicastMessages))
 			_, err = uc.client.SendEachForMulticast(ctx, multicastMessage)
 			if err != nil {
 				if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
-					uc.deleteTokens(ctx, multicastMessage)
+					uc.log.Debugf("sendMessage: send %d messages: %s", len(multicastMessages), err.Error())
+					candidatesToDelete = append(candidatesToDelete, multicastMessage.Tokens...)
+				} else {
+					uc.log.Errorf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 				}
-				uc.log.Warnf("sendMessage: client.SendEachForMulticast: %s", err.Error())
 			} else {
 				uc.log.Debugf("sendMessage: sent successfully (%s)", multicastMessage.Notification.Body)
 			}
@@ -171,6 +175,8 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 	} else {
 		uc.log.Debug("sendMessage (debug): ", message)
 	}
+
+	go uc.deleteTokens(ctx, candidatesToDelete)
 
 	return err == nil
 }
@@ -269,14 +275,7 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 	return err
 }
 
-func (uc *FcmUsecase) deleteTokens(ctx context.Context, message *messaging.MulticastMessage) {
-	// extract device ids
-	tokens := make([]string, 0, len(message.Tokens))
-	for _, token := range message.Tokens {
-		tokens = append(tokens, token)
-	}
-
-	// delete devices
+func (uc *FcmUsecase) deleteTokens(ctx context.Context, tokens []string) {
 	_, err := uc.devicesRepo.DeleteDevicesByTokens(ctx, tokens)
 	if err != nil {
 		uc.log.Errorf("deleteTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())

@@ -6,7 +6,7 @@ server:
     addr: 0.0.0.0:9000
     timeout: 30s
 nats: nats://10.2.4.6:4222
-dragonfly: localhost:6379
+dragonfly: 172.20.128.180:6379
 discovery:
   iam: discovery:///iam
   iam_timeout: 30s

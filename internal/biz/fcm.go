@@ -182,12 +182,8 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 				message.Token = device.Token
 				err = uc.fcmClient.Send(ctx, device.Token, &message)
 				if err != nil {
-					if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
-						uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
-						inactiveTokens = append(inactiveTokens, device.Token)
-					} else {
-						uc.log.Errorf("sendMessage: Send: %s", err.Error())
-					}
+					uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
+					inactiveTokens = append(inactiveTokens, device.Token)
 				} else {
 					uc.log.Debugf("sendMessage: sent successfully (%s)", message.Notification.Body)
 				}

@@ -58,7 +58,7 @@ func (c *fcmClient) Send(ctx context.Context, token string, message *messaging.M
 			return err
 		}
 		c.log.Errorf("Send: %v", err)
-		return err
+		return nil
 	}
 
 	c.log.Debugf("Send: sent successfully (%s)", message.Notification.Body)

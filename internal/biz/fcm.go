@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"strconv"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
@@ -113,7 +112,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 		}
 
 		if msg.Type.IsValid() {
-			err = uc.badgeClient.IncrementBadge(ctx, strconv.FormatInt(userID, 10), msg.Type)
+			err = uc.badgeClient.IncrementBadge(ctx, userID, msg.Type)
 			if err != nil {
 				uc.log.Warnf("sendMessage: failed to increment badge for user %d: %v", userID, err)
 			}

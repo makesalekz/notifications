@@ -15,7 +15,7 @@ import (
 // DragonflyClient .
 type DragonflyClient interface {
 	GetBadges(ctx context.Context, userID int64) (map[enum.NotificationType]int64, error)
-	IncrementBadge(ctx context.Context, userID string, badgeType enum.NotificationType) error
+	IncrementBadge(ctx context.Context, userID int64, badgeType enum.NotificationType) error
 }
 
 type dragonflyClient struct {
@@ -115,11 +115,11 @@ func (c *dragonflyClient) GetBadges(ctx context.Context, userID int64) (map[enum
 	return badges, nil
 }
 
-func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID string, badgeType enum.NotificationType) error {
+func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badgeType enum.NotificationType) error {
 	if !badgeType.IsValid() {
 		return nil
 	}
-	key := "badges:" + userID
+	key := "badges:" + strconv.FormatInt(userID, 10)
 	_, err := c.client.HIncrBy(ctx, key, badgeType.Value(), 1).Result()
 	return err
 }

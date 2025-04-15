@@ -3,28 +3,27 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"os"
+	"strconv"
 
-	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/nats-io/nats.go/jetstream"
 
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/messages"
 	u_nats "gitlab.calendaria.team/services/utils/v2/nats"
-
-	"github.com/nats-io/nats.go/jetstream"
 )
 
-// SmsUsecase is a Greeter usecase.
+// FcmUsecase is a Greeter usecase.
 type FcmUsecase struct {
-	client            *messaging.Client
+	fcmClient         data.FcmClient
 	log               *log.Helper
 	devicesRepo       data.DevicesRepo
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	qm                u_nats.IQueueManager
+	badgeClient       data.DragonflyClient
 }
 
 func NewFcmUsecase(
@@ -33,6 +32,8 @@ func NewFcmUsecase(
 	notificationsRepo data.NotificationsRepo,
 	localizer *data.Localizer,
 	qm u_nats.IQueueManager,
+	badgeClient data.DragonflyClient,
+	fcmClient data.FcmClient,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
 		log:               log.NewHelper(logger),
@@ -40,20 +41,8 @@ func NewFcmUsecase(
 		notificationsRepo: notificationsRepo,
 		qm:                qm,
 		localizer:         localizer,
-	}
-
-	if os.Getenv("FIREBASE_CONFIG") != "" {
-		app, err := firebase.NewApp(context.Background(), nil)
-		if err != nil {
-			return nil, err
-		}
-
-		ctx := context.Background()
-		client, err := app.Messaging(ctx)
-		if err != nil {
-			return nil, err
-		}
-		uc.client = client
+		badgeClient:       badgeClient,
+		fcmClient:         fcmClient,
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
@@ -99,49 +88,6 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 }
 
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
-	defaultBadge := 1
-	message := &messaging.MulticastMessage{
-		APNS: &messaging.APNSConfig{
-			Payload: &messaging.APNSPayload{
-				Aps: &messaging.Aps{
-					MutableContent: true,
-					Badge:          &defaultBadge,
-				},
-			},
-		},
-		Android: &messaging.AndroidConfig{
-			Notification: &messaging.AndroidNotification{
-				NotificationCount: &defaultBadge,
-			},
-		},
-	}
-
-	if msg.Badge != nil {
-		message.APNS.Payload.Aps.Badge = msg.Badge
-		message.Android.Notification.NotificationCount = msg.Badge
-	}
-
-	empty := true
-
-	if len(msg.Data) > 0 {
-		message.Data = msg.Data
-		empty = false
-	}
-
-	if msg.Title != "" || msg.Body != "" || msg.Image != "" {
-		message.Notification = &messaging.Notification{
-			Title:    msg.Title,
-			Body:     msg.Body,
-			ImageURL: msg.Image,
-		}
-		empty = false
-	}
-
-	if empty {
-		uc.log.Error("sendMessage: Empty message")
-		return true
-	}
-
 	devices, err := uc.devicesRepo.GetDevicesForUsers(ctx, msg.UsersIds)
 	if err != nil {
 		uc.log.Warnf("sendMessage: devicesRepo.GetDevicesForUsers: %s", err.Error())
@@ -153,99 +99,105 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 		return true
 	}
 
-	multicastMessages := uc.splitMessageToLanguages(devices, message)
+	userDevicesMap := make(map[int64][]*ent.Device)
+	for _, device := range devices {
+		userDevicesMap[device.UserID] = append(userDevicesMap[device.UserID], device)
+	}
 
-	candidatesToDelete := make([]string, 0, len(multicastMessages))
+	inactiveTokens := make([]string, 0)
 
-	if uc.client != nil {
-		for _, multicastMessage := range multicastMessages {
-			uc.log.Debugf("sendMessage: send %d messages", len(multicastMessages))
-			_, err = uc.client.SendEachForMulticast(ctx, multicastMessage)
+	for userID, userDevices := range userDevicesMap {
+		badges, badgeErr := uc.badgeClient.GetBadges(ctx, userID)
+		if badgeErr != nil {
+			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, err)
+		}
+
+		if msg.Type.IsValid() {
+			err = uc.badgeClient.IncrementBadge(ctx, strconv.FormatInt(userID, 10), msg.Type)
 			if err != nil {
-				if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
-					uc.log.Debugf("sendMessage: send %d messages: %s", len(multicastMessages), err.Error())
-					candidatesToDelete = append(candidatesToDelete, multicastMessage.Tokens...)
-				} else {
-					uc.log.Errorf("sendMessage: client.SendEachForMulticast: %s", err.Error())
-				}
-			} else {
-				uc.log.Debugf("sendMessage: sent successfully (%s)", multicastMessage.Notification.Body)
+				uc.log.Warnf("sendMessage: failed to increment badge for user %d: %v", userID, err)
 			}
 		}
-	} else {
-		uc.log.Debug("sendMessage (debug): ", message)
-	}
 
-	go uc.deleteTokens(ctx, candidatesToDelete)
-
-	return err == nil
-}
-
-func (uc *FcmUsecase) splitMessageToLanguages(
-	devices []*ent.Device,
-	msg *messaging.MulticastMessage,
-) []*messaging.MulticastMessage {
-	langs := map[string][]string{}
-	for _, device := range devices {
-		lang := "null"
-		if device.Language != "" {
-			lang = device.Language
+		totalBadges := int64(1)
+		for _, count := range badges {
+			totalBadges += count
 		}
 
-		_, ok := langs[lang]
-		if !ok {
-			langs[lang] = []string{device.Token}
-			continue
-		}
-		langs[lang] = append(langs[lang], device.Token)
-	}
+		badgeCount := int(totalBadges)
 
-	localizedMsgs := make([]*messaging.MulticastMessage, 0, len(langs))
-	for lang, tokens := range langs {
-		localizedMessage := &messaging.MulticastMessage{
-			Tokens: tokens,
+		baseMessage := &messaging.Message{
+			APNS: &messaging.APNSConfig{
+				Payload: &messaging.APNSPayload{
+					Aps: &messaging.Aps{
+						MutableContent: true,
+						Badge:          &badgeCount,
+					},
+				},
+			},
+			Android: &messaging.AndroidConfig{
+				Notification: &messaging.AndroidNotification{
+					NotificationCount: &badgeCount,
+				},
+			},
 		}
 
 		if len(msg.Data) > 0 {
-			localizedMessage.Data = msg.Data
+			baseMessage.Data = msg.Data
 		}
 
-		if msg.Notification != nil {
-			localizedMessage.Notification = &messaging.Notification{
-				Title:    msg.Notification.Title,
-				Body:     msg.Notification.Body,
-				ImageURL: msg.Notification.ImageURL,
+		if msg.Title != "" || msg.Body != "" || msg.Image != "" {
+			baseMessage.Notification = &messaging.Notification{
+				Title:    msg.Title,
+				Body:     msg.Body,
+				ImageURL: msg.Image,
 			}
 		}
 
-		localizedMsgs = append(localizedMsgs, localizedMessage)
-
-		if lang == "null" {
-			continue
+		langDevicesMap := make(map[string][]*ent.Device)
+		for _, device := range userDevices {
+			lang := "null"
+			if device.Language != "" {
+				lang = device.Language
+			}
+			langDevicesMap[lang] = append(langDevicesMap[lang], device)
 		}
 
-		dto := &data.NotificationDto{}
-		err := dto.ParseAndSetNotificationData(msg.Data)
-		if err != nil {
-			uc.log.Errorf("splitMessageToLanguages: dto.ParseAndSetNotificationData: %s", err.Error())
-			continue
-		}
+		for lang, langDevices := range langDevicesMap {
+			message := *baseMessage
 
-		if dto.Type == nil {
-			continue
-		}
+			if lang != "null" {
+				dto := &data.NotificationDto{}
+				if err = dto.ParseAndSetNotificationData(msg.Data); err == nil && dto.Type != nil {
+					localizedBody, localizedErr := uc.localizer.GetLocalizedMessage(
+						lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount,
+					)
+					if localizedErr == nil && message.Notification != nil {
+						message.Notification.Body = localizedBody
+					}
+				}
+			}
 
-		localizedBody, err := uc.localizer.GetLocalizedMessage(lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
-		if err != nil {
-			uc.log.Errorf("splitMessageToLanguages: localizer.GetLocalizedMessage: %s", err.Error())
-			continue
+			for _, device := range langDevices {
+				message.Token = device.Token
+				err = uc.fcmClient.Send(ctx, device.Token, &message)
+				if err != nil {
+					if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
+						uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
+						inactiveTokens = append(inactiveTokens, device.Token)
+					} else {
+						uc.log.Errorf("sendMessage: Send: %s", err.Error())
+					}
+				} else {
+					uc.log.Debugf("sendMessage: sent successfully (%s)", message.Notification.Body)
+				}
+			}
 		}
-
-		// by pointer, also changes value in array
-		localizedMessage.Notification.Body = localizedBody
 	}
 
-	return localizedMsgs
+	go uc.deleteInactiveTokens(ctx, inactiveTokens)
+
+	return err == nil
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
@@ -275,11 +227,11 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 	return err
 }
 
-func (uc *FcmUsecase) deleteTokens(ctx context.Context, tokens []string) {
+func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string) {
 	_, err := uc.devicesRepo.DeleteDevicesByTokens(ctx, tokens)
 	if err != nil {
-		uc.log.Errorf("deleteTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
+		uc.log.Errorf("deleteInactiveTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
 		return
 	}
-	uc.log.Debugf("deleteTokens: deleted %d tokens", len(tokens))
+	uc.log.Debugf("deleteInactiveTokens: deleted %d tokens", len(tokens))
 }

@@ -9,7 +9,8 @@ message Bootstrap {
   Server server = 1;
   string db = 2;
   string nats = 3;
-  Discovery discovery = 4;
+  string dragonfly = 4;
+  Discovery discovery = 5;
 }
 
 message Server {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	u_config "gitlab.calendaria.team/services/utils/v1/config"
@@ -31,6 +32,8 @@ var ProviderSet = wire.NewSet(
 	NewDevicesRepo,
 	NewNotificationsRepo,
 	NewLocalizer,
+	NewFcmClient,
+	NewDragonflyClient,
 )
 
 // Data .

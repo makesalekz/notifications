@@ -56,6 +56,7 @@ func (r *EventsRemote) GetEventsCount(ctx context.Context, userIDs []int64) (map
 			MemberStatuses: []string{
 				"WAITING",
 			},
+			IsPublished: true,
 		},
 	)
 	if err != nil {

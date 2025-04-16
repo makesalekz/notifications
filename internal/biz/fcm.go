@@ -84,7 +84,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 			listDto[i] = dto
 		}
 
-		if notification.Type.IsValid() && notification.Title != "" {
+		if notification.Type.IsValid() && notification.Title != "" && notification.Type != u_struc.Chat {
 			_, err2 := uc.notificationsRepo.CreateNotifications(ctx, listDto)
 			if err2 != nil {
 				uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err2.Error())

@@ -28,7 +28,6 @@ type FcmUsecase struct {
 	badgeClient       data.DragonflyClient
 	chatsRemote       dialer.IChatsRemote
 	eventsRemote      dialer.IEventsRemote
-	maxRetries        int
 }
 
 func NewFcmUsecase(
@@ -52,7 +51,6 @@ func NewFcmUsecase(
 		fcmClient:         fcmClient,
 		chatsRemote:       chatsRemote,
 		eventsRemote:      eventsRemote,
-		maxRetries:        3,
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)

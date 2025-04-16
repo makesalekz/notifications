@@ -6,7 +6,7 @@ import (
 	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
-	u_dialer "gitlab.calendaria.team/services/utils/v2/dialer"
+	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/exp/maps"
@@ -70,10 +70,12 @@ func (r *IamRemote) GetUsers(
 		return nil, err
 	}
 
-	reply, err := client.GetUsers(ctx, &users_v1.GetUsersRequest{
-		Ids:           usersIDs,
-		WithPrivacies: withPrivacies,
-	})
+	reply, err := client.GetUsers(
+		ctx, &users_v1.GetUsersRequest{
+			Ids:           usersIDs,
+			WithPrivacies: withPrivacies,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

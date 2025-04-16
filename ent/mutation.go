@@ -12,11 +12,11 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"gitlab.calendaria.team/services/notifications/ent/device"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 const (
@@ -588,7 +588,7 @@ type LastReadNotificationMutation struct {
 	id              *int64
 	user_id         *int64
 	adduser_id      *int64
-	_type           *enum.NotificationType
+	_type           *struc.NotificationType
 	last_read_id    *int64
 	addlast_read_id *int64
 	clearedFields   map[string]struct{}
@@ -752,12 +752,12 @@ func (m *LastReadNotificationMutation) ResetUserID() {
 }
 
 // SetType sets the "type" field.
-func (m *LastReadNotificationMutation) SetType(et enum.NotificationType) {
-	m._type = &et
+func (m *LastReadNotificationMutation) SetType(st struc.NotificationType) {
+	m._type = &st
 }
 
 // GetType returns the value of the "type" field in the mutation.
-func (m *LastReadNotificationMutation) GetType() (r enum.NotificationType, exists bool) {
+func (m *LastReadNotificationMutation) GetType() (r struc.NotificationType, exists bool) {
 	v := m._type
 	if v == nil {
 		return
@@ -768,7 +768,7 @@ func (m *LastReadNotificationMutation) GetType() (r enum.NotificationType, exist
 // OldType returns the old "type" field's value of the LastReadNotification entity.
 // If the LastReadNotification object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LastReadNotificationMutation) OldType(ctx context.Context) (v enum.NotificationType, err error) {
+func (m *LastReadNotificationMutation) OldType(ctx context.Context) (v struc.NotificationType, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
@@ -933,7 +933,7 @@ func (m *LastReadNotificationMutation) SetField(name string, value ent.Value) er
 		m.SetUserID(v)
 		return nil
 	case lastreadnotification.FieldType:
-		v, ok := value.(enum.NotificationType)
+		v, ok := value.(struc.NotificationType)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1091,7 +1091,7 @@ type NotificationMutation struct {
 	id                       *int64
 	user_id                  *int64
 	adduser_id               *int64
-	_type                    *enum.NotificationType
+	_type                    *struc.NotificationType
 	title                    *string
 	text                     *string
 	event_id                 *int64
@@ -1266,12 +1266,12 @@ func (m *NotificationMutation) ResetUserID() {
 }
 
 // SetType sets the "type" field.
-func (m *NotificationMutation) SetType(et enum.NotificationType) {
-	m._type = &et
+func (m *NotificationMutation) SetType(st struc.NotificationType) {
+	m._type = &st
 }
 
 // GetType returns the value of the "type" field in the mutation.
-func (m *NotificationMutation) GetType() (r enum.NotificationType, exists bool) {
+func (m *NotificationMutation) GetType() (r struc.NotificationType, exists bool) {
 	v := m._type
 	if v == nil {
 		return
@@ -1282,7 +1282,7 @@ func (m *NotificationMutation) GetType() (r enum.NotificationType, exists bool) 
 // OldType returns the old "type" field's value of the Notification entity.
 // If the Notification object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *NotificationMutation) OldType(ctx context.Context) (v enum.NotificationType, err error) {
+func (m *NotificationMutation) OldType(ctx context.Context) (v struc.NotificationType, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
@@ -1904,7 +1904,7 @@ func (m *NotificationMutation) SetField(name string, value ent.Value) error {
 		m.SetUserID(v)
 		return nil
 	case notification.FieldType:
-		v, ok := value.(enum.NotificationType)
+		v, ok := value.(struc.NotificationType)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

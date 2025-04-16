@@ -12,13 +12,14 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	dialer2 "gitlab.calendaria.team/services/notifications/internal/data/dialer"
 	"gitlab.calendaria.team/services/notifications/internal/server"
 	"gitlab.calendaria.team/services/notifications/internal/service"
-	"gitlab.calendaria.team/services/utils/v1/config"
-	"gitlab.calendaria.team/services/utils/v2/dialer"
-	"gitlab.calendaria.team/services/utils/v2/jwt"
-	"gitlab.calendaria.team/services/utils/v2/nats"
-	"gitlab.calendaria.team/services/utils/v2/tracing"
+	"gitlab.calendaria.team/services/utils/v4/config"
+	"gitlab.calendaria.team/services/utils/v4/dialer"
+	"gitlab.calendaria.team/services/utils/v4/jwt"
+	"gitlab.calendaria.team/services/utils/v4/nats"
+	"gitlab.calendaria.team/services/utils/v4/tracing"
 )
 
 import (
@@ -29,21 +30,21 @@ import (
 
 // wireApp init kratos application.
 func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(), error) {
-	configConfig, err := config.NewConfig()
+	iConfig, err := config.NewConfig()
 	if err != nil {
 		return nil, nil, err
 	}
-	iJwtProcessor, err := jwt.NewJwtProcessor(configConfig)
+	iJwtProcessor, err := jwt.NewJwtProcessor(iConfig)
 	if err != nil {
 		return nil, nil, err
 	}
-	tracer := tracing.NewTracer(configConfig)
-	smscClient := data.NewSmscClient(configConfig, logger)
+	iTracer := tracing.NewTracer(iConfig)
+	smscClient := data.NewSmscClient(iConfig, logger)
 	smsUsecase, err := biz.NewSmsUsecase(logger, smscClient)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(bootstrap, configConfig, logger)
+	dataData, cleanup, err := data.NewData(bootstrap, iConfig, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -59,7 +60,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	iQueueManager := nats.NewQueueManager(configConfig, conn, logger)
+	iQueueManager := nats.NewQueueManager(iConfig, conn, logger)
 	dragonflyClient, cleanup3, err := data.NewDragonflyClient(bootstrap, logger)
 	if err != nil {
 		cleanup2()
@@ -73,43 +74,21 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, dragonflyClient, fcmClient)
+	iDialerManager, err := dialer.NewServiceDialerManager(iConfig, iTracer, iJwtProcessor)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	localizedEmailTemplates, err := biz.NewLocalizedEmailTemplates()
+	iChatsRemote, cleanup4, err := dialer2.NewChatsRemote(bootstrap, iDialerManager)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	emailUsecase, err := biz.NewEmailUsecase(configConfig, logger, iQueueManager, localizedEmailTemplates, localizer)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
-	iDialerManager, err := dialer.NewServiceDialerManager(configConfig, tracer, iJwtProcessor)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	iIamRemote, cleanup4, err := data.NewIamRemote(logger, bootstrap, iDialerManager)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote)
+	iEventsRemote, cleanup5, err := dialer2.NewEventsRemote(bootstrap, iDialerManager)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -117,11 +96,60 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, dragonflyClient, fcmClient, iChatsRemote, iEventsRemote)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	localizedEmailTemplates, err := biz.NewLocalizedEmailTemplates()
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	emailUsecase, err := biz.NewEmailUsecase(iConfig, logger, iQueueManager, localizedEmailTemplates, localizer)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
+	iIamRemote, cleanup6, err := data.NewIamRemote(logger, bootstrap, iDialerManager)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	notificationsService := service.NewNotificationsService(notificationsUsecase)
-	grpcServer := server.NewGRPCServer(bootstrap, iJwtProcessor, tracer, senderService, notificationsService)
+	grpcServer := server.NewGRPCServer(bootstrap, iJwtProcessor, iTracer, senderService, notificationsService)
 	httpServer := server.NewHTTPServer(bootstrap, iJwtProcessor)
-	app := newApp(logger, configConfig, grpcServer, httpServer)
+	app := newApp(logger, iConfig, grpcServer, httpServer)
 	return app, func() {
+		cleanup6()
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

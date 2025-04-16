@@ -4,7 +4,7 @@ package lastreadnotification
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 const (
@@ -42,7 +42,7 @@ func ValidColumn(column string) bool {
 
 var (
 	// DefaultType holds the default value on creation for the "type" field.
-	DefaultType enum.NotificationType
+	DefaultType struc.NotificationType
 )
 
 // OrderOption defines the ordering options for the LastReadNotification queries.

@@ -8,14 +8,14 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/redis/go-redis/v9"
 
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // DragonflyClient .
 type DragonflyClient interface {
-	GetBadges(ctx context.Context, userID int64) (map[enum.NotificationType]int64, error)
-	IncrementBadge(ctx context.Context, userID int64, badgeType enum.NotificationType) error
+	GetBadges(ctx context.Context, userID int64) (map[u_struc.NotificationType]int64, error)
+	IncrementBadge(ctx context.Context, userID int64, badgeType u_struc.NotificationType) error
 }
 
 type dragonflyClient struct {
@@ -57,48 +57,23 @@ func NewDragonflyClient(conf *conf.Bootstrap, logger log.Logger) (DragonflyClien
 	}, cleanup, nil
 }
 
-func (c *dragonflyClient) GetBadges(ctx context.Context, userID int64) (map[enum.NotificationType]int64, error) {
+func (c *dragonflyClient) GetBadges(ctx context.Context, userID int64) (map[u_struc.NotificationType]int64, error) {
 	key := "badges:" + strconv.FormatInt(userID, 10)
 
-	badges := make(map[enum.NotificationType]int64)
-
 	exists, err := c.client.Exists(ctx, key).Result()
-	if err != nil {
-		return badges, err
+	if exists == 0 || err != nil {
+		return nil, err
 	}
 
-	if exists == 0 {
-		fields := make(map[string]interface{})
-		for _, badgeType := range []enum.NotificationType{
-			enum.Common,
-			enum.Event,
-			enum.Contact,
-			enum.Tasks,
-			enum.Projects,
-		} {
-			fields[badgeType.Value()] = 0
-		}
-
-		err = c.client.HSet(ctx, key, fields).Err()
-		if err != nil {
-			return badges, err
-		}
-
-		// todo: increment or decrement expiration time
-		err = c.client.Expire(ctx, key, 5*time.Minute).Err()
-		if err != nil {
-			return badges, err
-		}
-		return badges, nil
-	}
+	badges := make(map[u_struc.NotificationType]int64)
 
 	result, err := c.client.HGetAll(ctx, key).Result()
 	if err != nil {
-		return badges, err
+		return nil, err
 	}
 
 	for k, v := range result {
-		badgeType := enum.NotificationType(k)
+		badgeType := u_struc.NotificationType(k)
 		if !badgeType.IsValid() {
 			c.log.Warnf("invalid badge type: %s", k)
 			continue
@@ -115,7 +90,7 @@ func (c *dragonflyClient) GetBadges(ctx context.Context, userID int64) (map[enum
 	return badges, nil
 }
 
-func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badgeType enum.NotificationType) error {
+func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badgeType u_struc.NotificationType) error {
 	if !badgeType.IsValid() {
 		return nil
 	}

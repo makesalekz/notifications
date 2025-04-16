@@ -6,9 +6,9 @@ import (
 
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/notifications/messages"
-	"gitlab.calendaria.team/services/utils/v1/config"
-	u_nats "gitlab.calendaria.team/services/utils/v2/nats"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	"gitlab.calendaria.team/services/utils/v4/config"
+	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
@@ -22,7 +22,7 @@ import (
 type EmailUsecase struct {
 	client      *ses.Client
 	log         *log.Helper
-	config      *config.Config
+	config      config.IConfig
 	templates   *LocalizedEmailTemplates
 	localizer   *data.Localizer
 	qm          u_nats.IQueueManager
@@ -30,7 +30,7 @@ type EmailUsecase struct {
 }
 
 func NewEmailUsecase(
-	config *config.Config,
+	config config.IConfig,
 	logger log.Logger,
 	qm u_nats.IQueueManager,
 	templates *LocalizedEmailTemplates,
@@ -44,7 +44,7 @@ func NewEmailUsecase(
 		localizer: localizer,
 	}
 
-	sourceEmail, err := uc.config.Value("SES_SOURCE_EMAIL").String()
+	sourceEmail, err := uc.config.GetValue("SES_SOURCE_EMAIL")
 	if err == nil {
 		err = uc.setupAWSClient()
 		if err != nil {
@@ -69,7 +69,7 @@ func (uc *EmailUsecase) setupAWSClient() error {
 	return nil
 }
 
-func loadAWSConfig(c *config.Config) (aws.Config, error) {
+func loadAWSConfig(c config.IConfig) (aws.Config, error) {
 	secrets, err := c.ReadSecretsFor(context.Background(), "aws")
 	if err != nil {
 		return aws.Config{}, v1.ErrorInternal("failed to read AWS secrets: %v", err)
@@ -83,12 +83,13 @@ func loadAWSConfig(c *config.Config) (aws.Config, error) {
 		return aws.Config{}, v1.ErrorInternal("failed to load secret_access_key")
 	}
 
-	region, err := c.Value("AWS_REGION").String()
+	region, err := c.GetValue("AWS_REGION")
 	if err != nil {
 		return aws.Config{}, v1.ErrorInternal("failed to load AWS_REGION: %v", err)
 	}
 
-	awsCfg, err := awsConfig.LoadDefaultConfig(context.TODO(),
+	awsCfg, err := awsConfig.LoadDefaultConfig(
+		context.TODO(),
 		awsConfig.WithRegion(region),
 		awsConfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
 	)
@@ -100,7 +101,7 @@ func loadAWSConfig(c *config.Config) (aws.Config, error) {
 }
 
 func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m jetstream.Msg) bool {
-	var request messages.EmailDetails
+	var request u_struc.EmailDetails
 	if err := json.Unmarshal(m.Data(), &request); err != nil {
 		uc.log.Errorf("handleEmailRequest: json.Unmarshal: %uc", err)
 		return true
@@ -112,7 +113,7 @@ func (uc *EmailUsecase) handleEmailRequest(ctx context.Context, m jetstream.Msg)
 	return true
 }
 
-func (uc *EmailUsecase) SendEmail(ctx context.Context, emailDetails *messages.EmailDetails) error {
+func (uc *EmailUsecase) SendEmail(ctx context.Context, emailDetails *u_struc.EmailDetails) error {
 	messageID := "email.subject." + emailDetails.Type
 	subject, err := uc.localizer.GetLocalizedMessage(emailDetails.Language, messageID, nil, nil)
 	if err != nil {

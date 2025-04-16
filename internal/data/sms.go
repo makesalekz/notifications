@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitlab.calendaria.team/services/utils/v1/config"
+	"gitlab.calendaria.team/services/utils/v4/config"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -111,7 +111,7 @@ type smscClient struct {
 	debug          bool
 }
 
-func NewSmscClient(config *config.Config, logger log.Logger) SmscClient {
+func NewSmscClient(config config.IConfig, logger log.Logger) SmscClient {
 	debug := os.Getenv("DEBUG") != ""
 	s := &smscClient{
 		debug: debug,
@@ -122,7 +122,7 @@ func NewSmscClient(config *config.Config, logger log.Logger) SmscClient {
 
 	if !debug {
 		// Get the SMSC endpoint and credentials
-		endpoint, err := config.Value("SMSC_ENDPOINT").String()
+		endpoint, err := config.GetValue("SMSC_ENDPOINT")
 		if err != nil {
 			s.log.Errorf("SMSC endpoint is not set: %v", err)
 			return s

@@ -9,10 +9,11 @@ import (
 
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
-	u_config "gitlab.calendaria.team/services/utils/v1/config"
-	u_dialer "gitlab.calendaria.team/services/utils/v2/dialer"
-	u_jwtp "gitlab.calendaria.team/services/utils/v2/jwt"
-	u_tracing "gitlab.calendaria.team/services/utils/v2/tracing"
+	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
+	u_config "gitlab.calendaria.team/services/utils/v4/config"
+	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
+	u_jwtp "gitlab.calendaria.team/services/utils/v4/jwt"
+	u_tracing "gitlab.calendaria.team/services/utils/v4/tracing"
 
 	_ "github.com/lib/pq"
 )
@@ -34,6 +35,8 @@ var ProviderSet = wire.NewSet(
 	NewLocalizer,
 	NewFcmClient,
 	NewDragonflyClient,
+	dialer.NewChatsRemote,
+	dialer.NewEventsRemote,
 )
 
 // Data .
@@ -43,7 +46,7 @@ type Data struct {
 }
 
 // NewData .
-func NewData(bc *conf.Bootstrap, c *u_config.Config, logger log.Logger) (*Data, func(), error) {
+func NewData(bc *conf.Bootstrap, c u_config.IConfig, logger log.Logger) (*Data, func(), error) {
 	l := log.NewHelper(logger)
 
 	dbDsn := bc.GetDb() // read from local config

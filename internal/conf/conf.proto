@@ -31,4 +31,8 @@ message Server {
 message Discovery {
   string iam = 1;
   google.protobuf.Duration iam_timeout = 2;
+  string events = 3;
+  google.protobuf.Duration events_timeout = 4;
+  string chats = 5;
+  google.protobuf.Duration chats_timeout = 6;
 }

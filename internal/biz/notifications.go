@@ -1,4 +1,4 @@
-//nolint: gosec // convertation to int32 is safe
+// nolint: gosec // convertation to int32 is safe
 package biz
 
 import (
@@ -7,9 +7,9 @@ import (
 	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 type NotificationsList struct {
@@ -61,7 +61,8 @@ func (uc *NotificationsUsecase) ReadNotification(
 			UserID:         userID,
 			NotificationID: notificationID,
 			Type:           notificationType,
-		})
+		},
+	)
 	if err != nil {
 		if !ent.IsNotFound(err) {
 			return v1.ErrorDatabaseQuery("can't read notifaction: %v", err)
@@ -106,7 +107,7 @@ func (uc *NotificationsUsecase) ListNotifications(
 ) (*NotificationsList, error) {
 	var notificationType string
 
-	if enum.NotificationType(filter.Type).IsValid() {
+	if u_struc.NotificationType(filter.Type).IsValid() {
 		notificationType = filter.Type
 	}
 

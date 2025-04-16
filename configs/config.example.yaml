@@ -11,3 +11,7 @@ dragonfly: localhost:6379
 discovery:
   iam: localhost:9000
   iam_timeout: 30s
+  events: localhost:9001
+  events_timeout: 30s
+  chats: localhost:9002
+  chats_timeout: 30s

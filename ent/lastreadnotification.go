@@ -8,8 +8,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // LastReadNotification is the model entity for the LastReadNotification schema.
@@ -20,7 +20,7 @@ type LastReadNotification struct {
 	// UserID holds the value of the "user_id" field.
 	UserID int64 `json:"user_id,omitempty"`
 	// Type holds the value of the "type" field.
-	Type enum.NotificationType `json:"type,omitempty"`
+	Type struc.NotificationType `json:"type,omitempty"`
 	// LastReadID holds the value of the "last_read_id" field.
 	LastReadID   int64 `json:"last_read_id,omitempty"`
 	selectValues sql.SelectValues
@@ -66,7 +66,7 @@ func (lrn *LastReadNotification) assignValues(columns []string, values []any) er
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				lrn.Type = enum.NotificationType(value.String)
+				lrn.Type = struc.NotificationType(value.String)
 			}
 		case lastreadnotification.FieldLastReadID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {

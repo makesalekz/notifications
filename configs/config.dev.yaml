@@ -11,3 +11,7 @@ dragonfly: dragonfly:6379
 discovery:
   iam: discovery:///iam
   iam_timeout: 30s
+  events: discovery:///events
+  events_timeout: 30s
+  chats: discovery:///chats
+  chats_timeout: 30s

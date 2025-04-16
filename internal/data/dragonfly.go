@@ -16,11 +16,13 @@ import (
 type DragonflyClient interface {
 	GetBadges(ctx context.Context, userID int64) (map[u_struc.NotificationType]int64, error)
 	IncrementBadge(ctx context.Context, userID int64, badgeType u_struc.NotificationType) error
+	SetBadges(ctx context.Context, userID int64, badges map[u_struc.NotificationType]int64) error
 }
 
 type dragonflyClient struct {
 	client *redis.Client
 	log    *log.Helper
+	ttl    time.Duration
 }
 
 func NewDragonflyClient(conf *conf.Bootstrap, logger log.Logger) (DragonflyClient, func(), error) {
@@ -54,6 +56,7 @@ func NewDragonflyClient(conf *conf.Bootstrap, logger log.Logger) (DragonflyClien
 	return &dragonflyClient{
 		client: client,
 		log:    l,
+		ttl:    8 * time.Hour,
 	}, cleanup, nil
 }
 
@@ -96,5 +99,33 @@ func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badg
 	}
 	key := "badges:" + strconv.FormatInt(userID, 10)
 	_, err := c.client.HIncrBy(ctx, key, badgeType.Value(), 1).Result()
+
+	return err
+}
+
+func (c *dragonflyClient) SetBadges(
+	ctx context.Context, userID int64, badges map[u_struc.NotificationType]int64,
+) error {
+	key := "badges:" + strconv.FormatInt(userID, 10)
+
+	data := make(map[string]interface{})
+	for badgeType, count := range badges {
+		if !badgeType.IsValid() {
+			c.log.Warnf("invalid badge type: %s", badgeType)
+			continue
+		}
+		data[badgeType.Value()] = count
+	}
+
+	if len(data) == 0 {
+		return nil
+	}
+
+	_, err := c.client.HSet(ctx, key, data).Result()
+	if err != nil {
+		return err
+	}
+
+	_, err = c.client.Expire(ctx, key, c.ttl).Result()
 	return err
 }

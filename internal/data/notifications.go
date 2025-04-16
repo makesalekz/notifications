@@ -26,6 +26,7 @@ type NotificationsRepo interface {
 	CountNotifications(ctx context.Context, userID int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
 	CountUnreadNotifications(ctx context.Context, userID int64) ([]Counter, error)
+	CountUnreadNotificationsByType(ctx context.Context, userID int64, notificationType string) (int32, error)
 }
 
 type notificationsRepo struct {
@@ -218,6 +219,46 @@ func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userID
 		Scan(ctx, &counters)
 
 	return counters, err
+}
+
+func (r *notificationsRepo) CountUnreadNotificationsByType(
+	ctx context.Context,
+	userID int64,
+	notificationType string,
+) (int32, error) {
+	countResult, err := r.db.Notification.Query().
+		Where(
+			func(notificationTable *sql.Selector) {
+				lastReadTable := sql.Table(lastreadnotification.Table)
+
+				notificationTable.LeftJoin(lastReadTable).
+					On(
+						notificationTable.C(notification.FieldUserID),
+						lastReadTable.C(lastreadnotification.FieldUserID),
+					).
+					On(
+						notificationTable.C(notification.FieldType),
+						lastReadTable.C(lastreadnotification.FieldType),
+					).
+					Where(
+						sql.Or(
+							sql.ColumnsGT(
+								notificationTable.C(notification.FieldID),
+								lastReadTable.C(lastreadnotification.FieldLastReadID),
+							),
+							sql.IsNull(lastReadTable.C(lastreadnotification.FieldLastReadID)),
+						),
+					)
+			},
+			notification.UserID(userID),
+			notification.Type(u_struc.NotificationType(notificationType)),
+		).
+		Count(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return int32(countResult), nil
 }
 
 func reverse[S ~[]E, E any](s S) {

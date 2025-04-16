@@ -3,6 +3,8 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"sync"
+	"time"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
@@ -68,7 +70,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 
 	uc.log.Debugf("sendNotifications: %v", notification)
 
-	ok := uc.sendMessage(ctx, notification, 0)
+	ok := uc.sendMessage(ctx, notification, true)
 	if ok {
 		listDto := make([]*data.NotificationDto, len(notification.UsersIds))
 
@@ -95,12 +97,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 	return ok
 }
 
-func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotification, retry int) bool {
-	if retry >= uc.maxRetries {
-		uc.log.Warnf("sendMessage: max retries reached for message: %v", msg)
-		return false
-	}
-
+func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotification, isFirst bool) bool {
 	if msg.Type.IsValid() {
 		if msg.Title == "" && msg.Body == "" {
 			uc.log.Debug("sendMessage: No title or body")
@@ -126,17 +123,21 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	inactiveTokens := make([]string, 0)
 
-	candidatesToRefech := make([]int64, 0)
+	var reFetchMu sync.Mutex
+	candidatesToReFetch := make([]int64, 0)
 
 	for userID, userDevices := range userDevicesMap {
 		badges, badgeErr := uc.badgeClient.GetBadges(ctx, userID)
-		if badgeErr != nil {
-			candidatesToRefech = append(candidatesToRefech, userID)
-			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, err)
+		if badgeErr != nil && isFirst {
+			reFetchMu.Lock()
+			candidatesToReFetch = append(candidatesToReFetch, userID)
+			reFetchMu.Unlock()
+
+			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, badgeErr)
 			continue
 		}
 
-		totalBadges := int64(0)
+		totalBadges := int64(1)
 		for _, count := range badges {
 			totalBadges += count
 		}
@@ -156,11 +157,12 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	go uc.deleteInactiveTokens(ctx, inactiveTokens)
 
-	if len(candidatesToRefech) > 0 {
-		uc.log.Debugf("sendMessage: re-fetching badges for %v", candidatesToRefech)
-		uc.fetchBadges(ctx, candidatesToRefech)
-		msg.UsersIds = candidatesToRefech
-		uc.sendMessage(ctx, msg, retry+1)
+	if len(candidatesToReFetch) > 0 {
+		uc.log.Debugf("sendMessage: re-fetching badges for %v", candidatesToReFetch)
+		uc.fetchBadges(ctx, candidatesToReFetch)
+		newMsg := msg
+		newMsg.UsersIds = candidatesToReFetch
+		uc.sendMessage(ctx, newMsg, false)
 	}
 
 	return err == nil
@@ -273,9 +275,82 @@ func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string)
 }
 
 func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
-	// events count
-	// chats count
-	// contacts count
+	if len(userIDs) == 0 {
+		return
+	}
 
-	// save counts in dragonfly
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var (
+		eventsCountMap = make(map[int64]int32)
+		chatsCountMap  = make(map[int64]int32)
+		mu             sync.Mutex
+		wg             sync.WaitGroup
+	)
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		events, err := uc.eventsRemote.GetEventsCount(ctxWithTimeout, userIDs)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get events count: %v", err)
+			return
+		}
+
+		mu.Lock()
+		for k, v := range events {
+			eventsCountMap[k] = v
+		}
+		mu.Unlock()
+	}()
+
+	go func() {
+		defer wg.Done()
+		chats, err := uc.chatsRemote.CountUnreadMessages(ctxWithTimeout, userIDs)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get chats count: %v", err)
+			return
+		}
+
+		mu.Lock()
+		for k, v := range chats {
+			chatsCountMap[k] = v
+		}
+		mu.Unlock()
+	}()
+
+	wg.Wait()
+
+	for _, userID := range userIDs {
+		contactsCount, err := uc.notificationsRepo.CountUnreadNotificationsByType(ctx, userID, u_struc.Contact.Value())
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get contacts count: %v", err)
+			contactsCount = 0
+		}
+
+		badges := make(map[u_struc.NotificationType]int64)
+
+		mu.Lock()
+		if count, ok := eventsCountMap[userID]; ok {
+			badges[u_struc.Event] = int64(count)
+		}
+
+		if count, ok := chatsCountMap[userID]; ok {
+			badges[u_struc.Chat] = int64(count)
+		}
+		mu.Unlock()
+
+		if contactsCount > 0 {
+			badges[u_struc.Contact] = int64(contactsCount)
+		}
+
+		err = uc.badgeClient.SetBadges(ctx, userID, badges)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to set badges for user %d: %v", userID, err)
+		} else {
+			uc.log.Infof("fetchBadges: updated badges for user %d: %v", userID, badges)
+		}
+	}
 }

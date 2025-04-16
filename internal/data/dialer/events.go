@@ -45,22 +45,22 @@ func (r *EventsRemote) getEventsClient(ctx context.Context) (events_v1.EventsCli
 }
 
 func (r *EventsRemote) GetEventsCount(ctx context.Context, userIDs []int64) (map[int64]int32, error) {
-	// client, err := e.getEventsClient(ctx)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// unreadedCount, err := client.GetEventsCount(ctx, &events_v1.GetEventsCountRequest{UserIds: userIDs})
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// return unreadedCount.GetCounts(), nil
-
-	mockResult := map[int64]int32{}
-	for _, userID := range userIDs {
-		mockResult[userID] = 1
+	client, err := r.getEventsClient(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return mockResult, nil
+	eventCountReply, err := client.GetEventsCount(
+		ctx, &events_v1.EventsCountRequest{
+			UserIds: userIDs,
+			MemberStatuses: []string{
+				"WAITING",
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return eventCountReply.GetEventsCount(), nil
 }

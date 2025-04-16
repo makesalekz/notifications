@@ -45,26 +45,19 @@ func (r *ChatsRemote) getMessagesClient(ctx context.Context) (chats_v1.MessagesC
 }
 
 func (r *ChatsRemote) CountUnreadMessages(ctx context.Context, userIDs []int64) (map[int64]int32, error) {
-	// client, err := r.getMessagesClient(ctx)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// unreadedCount, err := client.CreateEventChat(ctx, &chats_v1.CreateEventChatRequest{EventId: eventID})
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return unreadedCount, nil
-
-	mockResult := map[int64]int32{}
-	for _, userID := range userIDs {
-		if userID%2 == 0 {
-			mockResult[userID] = int32(userID)
-		} else {
-			mockResult[userID] = 0
-		}
+	client, err := r.getMessagesClient(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return mockResult, nil
+	unreadReply, err := client.CountUnreadMessages(
+		ctx, &chats_v1.CountUnreadedRequest{
+			UserIds: userIDs,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return unreadReply.UnreadMessages, nil
 }

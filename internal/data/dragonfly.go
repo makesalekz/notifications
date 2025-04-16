@@ -99,10 +99,16 @@ func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badg
 	}
 	key := "badges:" + strconv.FormatInt(userID, 10)
 	_, err := c.client.HIncrBy(ctx, key, badgeType.Value(), 1).Result()
+	if err != nil {
+		return err
+	}
 
 	_, err = c.client.Expire(ctx, key, c.ttl).Result()
+	if err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
 
 func (c *dragonflyClient) SetBadges(

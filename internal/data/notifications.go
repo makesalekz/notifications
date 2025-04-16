@@ -26,7 +26,10 @@ type NotificationsRepo interface {
 	CountNotifications(ctx context.Context, userID int64, notificationType string) (int32, error)
 	ReadNotification(ctx context.Context, readDto ReadNotificationDto) error
 	CountUnreadNotifications(ctx context.Context, userID int64) ([]Counter, error)
-	CountUnreadNotificationsByType(ctx context.Context, userID int64, notificationType string) (int32, error)
+	CountUnreadNotificationsByType(ctx context.Context, userIDs []int64, notificationType string) (
+		map[int64]int32,
+		error,
+	)
 }
 
 type notificationsRepo struct {
@@ -223,10 +226,21 @@ func (r *notificationsRepo) CountUnreadNotifications(ctx context.Context, userID
 
 func (r *notificationsRepo) CountUnreadNotificationsByType(
 	ctx context.Context,
-	userID int64,
+	userIDs []int64,
 	notificationType string,
-) (int32, error) {
-	countResult, err := r.db.Notification.Query().
+) (map[int64]int32, error) {
+	result := make(map[int64]int32)
+
+	if len(userIDs) == 0 {
+		return result, nil
+	}
+
+	var countResults []struct {
+		UserID int64 `sql:"user_id"`
+		Count  int   `sql:"count"`
+	}
+
+	err := r.db.Notification.Query().
 		Where(
 			func(notificationTable *sql.Selector) {
 				lastReadTable := sql.Table(lastreadnotification.Table)
@@ -250,15 +264,32 @@ func (r *notificationsRepo) CountUnreadNotificationsByType(
 						),
 					)
 			},
-			notification.UserID(userID),
+			notification.UserIDIn(userIDs...),
 			notification.Type(u_struc.NotificationType(notificationType)),
 		).
-		Count(ctx)
+		GroupBy(notification.FieldUserID).
+		Aggregate(
+			func(s *sql.Selector) string {
+				return sql.As(sql.Count("*"), "count")
+			},
+		).
+		Scan(ctx, &countResults)
+
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return int32(countResult), nil
+	for _, res := range countResults {
+		result[res.UserID] = int32(res.Count)
+	}
+
+	for _, userID := range userIDs {
+		if _, exists := result[userID]; !exists {
+			result[userID] = 0
+		}
+	}
+
+	return result, nil
 }
 
 func reverse[S ~[]E, E any](s S) {

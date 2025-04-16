@@ -121,15 +121,12 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	inactiveTokens := make([]string, 0)
 
-	var reFetchMu sync.Mutex
 	candidatesToReFetch := make([]int64, 0)
 
 	for userID, userDevices := range userDevicesMap {
 		badges, badgeErr := uc.badgeClient.GetBadges(ctx, userID)
 		if badgeErr != nil && isFirst {
-			reFetchMu.Lock()
 			candidatesToReFetch = append(candidatesToReFetch, userID)
-			reFetchMu.Unlock()
 
 			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, badgeErr)
 			continue
@@ -140,9 +137,11 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 			totalBadges += count
 		}
 
-		err = uc.badgeClient.IncrementBadge(ctx, userID, msg.Type)
-		if err != nil {
-			uc.log.Warnf("sendMessage: failed to increment badge for user %d: %v", userID, err)
+		if isFirst {
+			err = uc.badgeClient.IncrementBadge(ctx, userID, msg.Type)
+			if err != nil {
+				uc.log.Warnf("sendMessage: failed to increment badge for user %d: %v", userID, err)
+			}
 		}
 
 		badgeCount := int(totalBadges)
@@ -281,13 +280,13 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 	defer cancel()
 
 	var (
-		eventsCountMap = make(map[int64]int32)
-		chatsCountMap  = make(map[int64]int32)
-		mu             sync.Mutex
-		wg             sync.WaitGroup
+		eventsCountMap   = make(map[int64]int32)
+		chatsCountMap    = make(map[int64]int32)
+		contactsCountMap = make(map[int64]int32)
+		wg               sync.WaitGroup
 	)
 
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -297,11 +296,9 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 			return
 		}
 
-		mu.Lock()
 		for k, v := range events {
 			eventsCountMap[k] = v
 		}
-		mu.Unlock()
 	}()
 
 	go func() {
@@ -312,25 +309,32 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 			return
 		}
 
-		mu.Lock()
 		for k, v := range chats {
 			chatsCountMap[k] = v
 		}
-		mu.Unlock()
+	}()
+
+	go func() {
+		defer wg.Done()
+		contactsCount, err := uc.notificationsRepo.CountUnreadNotificationsByType(
+			ctxWithTimeout, userIDs, u_struc.Contact.Value(),
+		)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get contacts count: %v", err)
+			return
+		}
+
+		for k, v := range contactsCount {
+			contactsCountMap[k] = v
+		}
 	}()
 
 	wg.Wait()
 
 	for _, userID := range userIDs {
-		contactsCount, err := uc.notificationsRepo.CountUnreadNotificationsByType(ctx, userID, u_struc.Contact.Value())
-		if err != nil {
-			uc.log.Errorf("fetchBadges: failed to get contacts count: %v", err)
-			contactsCount = 0
-		}
 
 		badges := make(map[u_struc.NotificationType]int64)
 
-		mu.Lock()
 		if count, ok := eventsCountMap[userID]; ok {
 			badges[u_struc.Event] = int64(count)
 		}
@@ -338,13 +342,12 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 		if count, ok := chatsCountMap[userID]; ok {
 			badges[u_struc.Chat] = int64(count)
 		}
-		mu.Unlock()
 
-		if contactsCount > 0 {
-			badges[u_struc.Contact] = int64(contactsCount)
+		if count, ok := contactsCountMap[userID]; ok {
+			badges[u_struc.Contact] = int64(count)
 		}
 
-		err = uc.badgeClient.SetBadges(ctx, userID, badges)
+		err := uc.badgeClient.SetBadges(ctx, userID, badges)
 		if err != nil {
 			uc.log.Errorf("fetchBadges: failed to set badges for user %d: %v", userID, err)
 		} else {

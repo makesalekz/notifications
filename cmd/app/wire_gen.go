@@ -133,7 +133,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote)
+	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote, dragonflyClient, logger)
 	if err != nil {
 		cleanup6()
 		cleanup5()

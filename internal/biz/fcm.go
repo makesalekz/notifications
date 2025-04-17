@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"sync"
-	"time"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
@@ -277,9 +276,6 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 		return
 	}
 
-	ctxWithTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
 	var (
 		eventsCountMap   = make(map[int64]int32)
 		chatsCountMap    = make(map[int64]int32)
@@ -291,7 +287,7 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 
 	go func() {
 		defer wg.Done()
-		events, err := uc.eventsRemote.GetEventsCount(ctxWithTimeout, userIDs)
+		events, err := uc.eventsRemote.GetEventsCount(ctx, userIDs)
 		if err != nil {
 			uc.log.Errorf("fetchBadges: failed to get events count: %v", err)
 			return
@@ -304,7 +300,7 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 
 	go func() {
 		defer wg.Done()
-		chats, err := uc.chatsRemote.CountUnreadMessages(ctxWithTimeout, userIDs)
+		chats, err := uc.chatsRemote.CountUnreadMessages(ctx, userIDs)
 		if err != nil {
 			uc.log.Errorf("fetchBadges: failed to get chats count: %v", err)
 			return
@@ -318,7 +314,7 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 	go func() {
 		defer wg.Done()
 		contactsCount, err := uc.notificationsRepo.CountUnreadNotificationsByType(
-			ctxWithTimeout, userIDs, u_struc.Contact.Value(),
+			ctx, userIDs, u_struc.Contact.Value(),
 		)
 		if err != nil {
 			uc.log.Errorf("fetchBadges: failed to get contacts count: %v", err)
@@ -333,7 +329,6 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 	wg.Wait()
 
 	for _, userID := range userIDs {
-
 		badges := make(map[u_struc.NotificationType]int64)
 
 		if count, ok := eventsCountMap[userID]; ok {

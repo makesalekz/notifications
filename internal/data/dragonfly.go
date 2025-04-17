@@ -149,17 +149,18 @@ func (c *dragonflyClient) SetBadges(
 ) error {
 	key := "badges:" + strconv.FormatInt(userID, 10)
 
-	data := make(map[string]interface{})
+	data := map[string]interface{}{
+		u_struc.Event.Value():   0,
+		u_struc.Chat.Value():    0,
+		u_struc.Contact.Value(): 0,
+	}
+
 	for badgeType, count := range badges {
 		if !badgeType.IsValid() {
 			c.log.Warnf("invalid badge type: %s", badgeType)
 			continue
 		}
 		data[badgeType.Value()] = count
-	}
-
-	if len(data) == 0 {
-		return nil
 	}
 
 	_, err := c.client.HSet(ctx, key, data).Result()

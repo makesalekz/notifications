@@ -54,6 +54,7 @@ func NewFcmUsecase(
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
+	qm.AddConsumer(QueueDecrementBadge, uc.decrementBadgeHandler)
 
 	return uc, nil
 }
@@ -354,4 +355,43 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 			uc.log.Infof("fetchBadges: updated badges for user %d: %v", userID, badges)
 		}
 	}
+}
+
+func (uc *FcmUsecase) decrementBadgeHandler(ctx context.Context, m jetstream.Msg) bool {
+	type DecrementRequest struct {
+		UserID int64  `json:"userId"`
+		Type   string `json:"type"`
+		Count  int32  `json:"count,omitempty"`
+	}
+
+	req := DecrementRequest{}
+	err := json.Unmarshal(m.Data(), &req)
+	if err != nil {
+		uc.log.Errorf("decrementBadgeHandler: json.Unmarshal: %s", err.Error())
+		return true
+	}
+
+	notificationType := u_struc.NotificationType(req.Type)
+	if !notificationType.IsValid() {
+		uc.log.Warnf("decrementBadgeHandler: invalid notification type: %s", req.Type)
+		return true
+	}
+
+	count := req.Count
+	if count <= 0 {
+		count = 1
+	}
+
+	uc.log.Debugf("decrementBadgeHandler: user_id=%d, type=%s, count=%d", req.UserID, req.Type, count)
+
+	err = uc.badgeClient.DecrementBadge(ctx, req.UserID, notificationType, count)
+	if err != nil {
+		uc.log.Warnf(
+			"decrementBadgeHandler: failed to decrement badge for user %d, type %s: %v",
+			req.UserID, req.Type, err,
+		)
+		return false
+	}
+
+	return true
 }

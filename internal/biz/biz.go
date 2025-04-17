@@ -9,6 +9,7 @@ import (
 
 const QueueFCM = "fcm"
 const QueueEmail = "email"
+const QueueDecrementBadge = "notifications.decrement_badge"
 
 var DefaultLanguage = "en"
 

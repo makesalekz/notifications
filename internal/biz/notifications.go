@@ -79,7 +79,7 @@ func (uc *NotificationsUsecase) ReadNotification(
 	}
 
 	if notificationType == u_struc.Contact.Value() {
-		err = uc.cache.DecrementBadge(ctx, userID, u_struc.Contact)
+		err = uc.cache.DecrementBadge(ctx, userID, u_struc.Contact, 1)
 		if err != nil {
 			uc.log.Warnf("failed to decrement badge for user %d: %v", userID, err)
 		}

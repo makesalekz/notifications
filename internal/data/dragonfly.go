@@ -105,11 +105,6 @@ func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badg
 		return err
 	}
 
-	_, err = c.client.Expire(ctx, key, c.ttl).Result()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -146,11 +141,6 @@ func (c *dragonflyClient) DecrementBadge(
 		}
 	}
 
-	_, err = c.client.Expire(ctx, key, c.ttl).Result()
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -178,5 +168,9 @@ func (c *dragonflyClient) SetBadges(
 	}
 
 	_, err = c.client.Expire(ctx, key, c.ttl).Result()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

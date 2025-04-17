@@ -44,29 +44,31 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(bootstrap, iConfig, logger)
+	client, cleanup, err := data.NewRedisClient(bootstrap, logger)
 	if err != nil {
+		return nil, nil, err
+	}
+	dataData, cleanup2, err := data.NewData(bootstrap, iConfig, logger, client)
+	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)
 	notificationsRepo := data.NewNotificationsRepo(dataData)
 	localizer, err := data.NewLocalizer()
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	conn, cleanup2, err := data.NewNatsClient(bootstrap)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	iQueueManager := nats.NewQueueManager(iConfig, conn, logger)
-	dragonflyClient, cleanup3, err := data.NewDragonflyClient(bootstrap, logger)
+	conn, cleanup3, err := data.NewNatsClient(bootstrap)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
+	iQueueManager := nats.NewQueueManager(iConfig, conn, logger)
+	iBadgeClient := data.NewBadgeClient(client, logger)
 	fcmClient, err := data.NewFcmClient(logger)
 	if err != nil {
 		cleanup3()
@@ -96,7 +98,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, dragonflyClient, fcmClient, iChatsRemote, iEventsRemote)
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, iBadgeClient, fcmClient, iChatsRemote, iEventsRemote)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -133,7 +135,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote, dragonflyClient, logger)
+	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote, iBadgeClient, logger)
 	if err != nil {
 		cleanup6()
 		cleanup5()

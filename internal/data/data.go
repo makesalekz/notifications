@@ -3,13 +3,16 @@ package data
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
+	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
 	u_config "gitlab.calendaria.team/services/utils/v4/config"
 	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
 	u_jwtp "gitlab.calendaria.team/services/utils/v4/jwt"
@@ -23,6 +26,7 @@ import (
 //nolint:gochecknoglobals // global variables, used in wire
 var ProviderSet = wire.NewSet(
 	NewData,
+	NewRedisClient,
 	u_config.NewConfig,
 	u_jwtp.NewJwtProcessor,
 	u_dialer.NewServiceDialerManager,
@@ -34,19 +38,28 @@ var ProviderSet = wire.NewSet(
 	NewNotificationsRepo,
 	NewLocalizer,
 	NewFcmClient,
-	NewDragonflyClient,
 	dialer.NewChatsRemote,
 	dialer.NewEventsRemote,
+	NewBadgeClient,
 )
 
 // Data .
 type Data struct {
-	log *log.Helper
-	db  *ent.Client
+	log   *log.Helper
+	db    *ent.Client
+	redis *redis.Client
+	badge u_badge.IBadgeClient
+}
+
+// GetBadgeClient возвращает клиент для работы с бейджами
+func (d *Data) GetBadgeClient() u_badge.IBadgeClient {
+	return d.badge
 }
 
 // NewData .
-func NewData(bc *conf.Bootstrap, c u_config.IConfig, logger log.Logger) (*Data, func(), error) {
+func NewData(bc *conf.Bootstrap, c u_config.IConfig, logger log.Logger, redisClient *redis.Client) (
+	*Data, func(), error,
+) {
 	l := log.NewHelper(logger)
 
 	dbDsn := bc.GetDb() // read from local config
@@ -90,6 +103,9 @@ func NewData(bc *conf.Bootstrap, c u_config.IConfig, logger log.Logger) (*Data, 
 
 	l.Info("Connected to postgres")
 
+	// Создаем клиент для работы с бейджами
+	badgeClient := u_badge.NewRedisBadgeClient(redisClient, logger, 8*time.Hour)
+
 	cleanup := func() {
 		if err = client.Close(); err != nil {
 			l.Error(err)
@@ -97,7 +113,46 @@ func NewData(bc *conf.Bootstrap, c u_config.IConfig, logger log.Logger) (*Data, 
 	}
 
 	return &Data{
-		log: log.NewHelper(logger),
-		db:  client,
+		log:   log.NewHelper(logger),
+		db:    client,
+		redis: redisClient,
+		badge: badgeClient,
 	}, cleanup, nil
+}
+
+// NewRedisClient create new client for dragonfly
+func NewRedisClient(conf *conf.Bootstrap, logger log.Logger) (*redis.Client, func(), error) {
+	l := log.NewHelper(logger)
+
+	client := redis.NewClient(
+		&redis.Options{
+			Addr:     conf.GetDragonfly(),
+			Password: "",
+			DB:       0, // use default DB
+		},
+	)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := client.Ping(ctx).Result()
+	if err != nil {
+		l.Fatalf("failed opening connection to dragonfly: %v", err)
+		return nil, nil, err
+	}
+
+	l.Info("Connected to dragonfly")
+
+	cleanup := func() {
+		if err = client.Close(); err != nil {
+			l.Error(err)
+		}
+	}
+
+	return client, cleanup, nil
+}
+
+// NewBadgeClient .
+func NewBadgeClient(redis *redis.Client, logger log.Logger) u_badge.IBadgeClient {
+	return u_badge.NewRedisBadgeClient(redis, logger, 8*time.Hour)
 }

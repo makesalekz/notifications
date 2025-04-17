@@ -13,6 +13,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
 	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
 	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
 )
 
@@ -24,7 +25,7 @@ type FcmUsecase struct {
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	qm                u_nats.IQueueManager
-	badgeClient       data.DragonflyClient
+	badgeClient       u_badge.IBadgeClient
 	chatsRemote       dialer.IChatsRemote
 	eventsRemote      dialer.IEventsRemote
 }
@@ -35,7 +36,7 @@ func NewFcmUsecase(
 	notificationsRepo data.NotificationsRepo,
 	localizer *data.Localizer,
 	qm u_nats.IQueueManager,
-	badgeClient data.DragonflyClient,
+	badgeClient u_badge.IBadgeClient,
 	fcmClient data.FcmClient,
 	chatsRemote dialer.IChatsRemote,
 	eventsRemote dialer.IEventsRemote,

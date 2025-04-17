@@ -10,6 +10,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -21,28 +22,28 @@ type NotificationsList struct {
 
 type NotificationsCounters map[string]int32
 
-// NotificationsUsecase is a Greeter usecase.
+// NotificationsUsecase is a notifications usecase.
 type NotificationsUsecase struct {
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	iam               data.IIamRemote
-	cache             data.DragonflyClient
+	badgeClient       u_badge.IBadgeClient
 	log               *log.Helper
 }
 
-// NewGreeterUsecase new a Greeter usecase.
+// NewNotificationsUsecase new a notifications usecase.
 func NewNotificationsUsecase(
 	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
 	iam data.IIamRemote,
-	cache data.DragonflyClient,
+	badgeClient u_badge.IBadgeClient,
 	logger log.Logger,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
 		localizer:         localizer,
 		notificationsRepo: notificationsRepo,
 		iam:               iam,
-		cache:             cache,
+		badgeClient:       badgeClient,
 		log:               log.NewHelper(logger),
 	}, nil
 }
@@ -79,9 +80,9 @@ func (uc *NotificationsUsecase) ReadNotification(
 	}
 
 	if notificationType == u_struc.Contact.Value() {
-		err = uc.cache.DecrementBadge(ctx, userID, u_struc.Contact, 1)
+		err = uc.badgeClient.DecrementBadge(ctx, userID, u_struc.Contact, 1)
 		if err != nil {
-			uc.log.Warnf("failed to decrement badge for user %d: %v", userID, err)
+			uc.log.Errorf("failed to decrement badge: %v", err)
 		}
 	}
 

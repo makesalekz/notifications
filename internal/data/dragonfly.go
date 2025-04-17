@@ -16,6 +16,7 @@ import (
 type DragonflyClient interface {
 	GetBadges(ctx context.Context, userID int64) (map[u_struc.NotificationType]int64, error)
 	IncrementBadge(ctx context.Context, userID int64, badgeType u_struc.NotificationType) error
+	DecrementBadge(ctx context.Context, userID int64, badgeType u_struc.NotificationType) error
 	SetBadges(ctx context.Context, userID int64, badges map[u_struc.NotificationType]int64) error
 }
 
@@ -101,6 +102,35 @@ func (c *dragonflyClient) IncrementBadge(ctx context.Context, userID int64, badg
 	_, err := c.client.HIncrBy(ctx, key, badgeType.Value(), 1).Result()
 	if err != nil {
 		return err
+	}
+
+	_, err = c.client.Expire(ctx, key, c.ttl).Result()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *dragonflyClient) DecrementBadge(ctx context.Context, userID int64, badgeType u_struc.NotificationType) error {
+	if !badgeType.IsValid() {
+		return nil
+	}
+	key := "badges:" + strconv.FormatInt(userID, 10)
+
+	count, err := c.client.HGet(ctx, key, badgeType.Value()).Int64()
+	if err == redis.Nil {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		_, err = c.client.HIncrBy(ctx, key, badgeType.Value(), -1).Result()
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = c.client.Expire(ctx, key, c.ttl).Result()

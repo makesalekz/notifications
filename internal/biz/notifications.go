@@ -4,6 +4,7 @@ package biz
 import (
 	"context"
 
+	"github.com/go-kratos/kratos/v2/log"
 	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
@@ -24,6 +25,8 @@ type NotificationsUsecase struct {
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	iam               data.IIamRemote
+	cache             data.DragonflyClient
+	log               *log.Helper
 }
 
 // NewGreeterUsecase new a Greeter usecase.
@@ -31,11 +34,15 @@ func NewNotificationsUsecase(
 	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
 	iam data.IIamRemote,
+	cache data.DragonflyClient,
+	logger log.Logger,
 ) (*NotificationsUsecase, error) {
 	return &NotificationsUsecase{
 		localizer:         localizer,
 		notificationsRepo: notificationsRepo,
 		iam:               iam,
+		cache:             cache,
+		log:               log.NewHelper(logger),
 	}, nil
 }
 
@@ -68,6 +75,13 @@ func (uc *NotificationsUsecase) ReadNotification(
 			return v1.ErrorDatabaseQuery("can't read notifaction: %v", err)
 		}
 		return v1.ErrorNotificationNotFound("there is no such notification")
+	}
+
+	if notificationType == u_struc.Contact.Value() {
+		err = uc.cache.DecrementBadge(ctx, userID, u_struc.Contact)
+		if err != nil {
+			uc.log.Warnf("failed to decrement badge for user %d: %v", userID, err)
+		}
 	}
 
 	return nil

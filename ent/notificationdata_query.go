@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -86,7 +87,7 @@ func (ndq *NotificationDataQuery) QueryNotification() *NotificationQuery {
 // First returns the first NotificationData entity from the query.
 // Returns a *NotFoundError when no NotificationData was found.
 func (ndq *NotificationDataQuery) First(ctx context.Context) (*NotificationData, error) {
-	nodes, err := ndq.Limit(1).All(setContextOp(ctx, ndq.ctx, "First"))
+	nodes, err := ndq.Limit(1).All(setContextOp(ctx, ndq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (ndq *NotificationDataQuery) FirstX(ctx context.Context) *NotificationData 
 // Returns a *NotFoundError when no NotificationData ID was found.
 func (ndq *NotificationDataQuery) FirstID(ctx context.Context) (id int64, err error) {
 	var ids []int64
-	if ids, err = ndq.Limit(1).IDs(setContextOp(ctx, ndq.ctx, "FirstID")); err != nil {
+	if ids, err = ndq.Limit(1).IDs(setContextOp(ctx, ndq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -132,7 +133,7 @@ func (ndq *NotificationDataQuery) FirstIDX(ctx context.Context) int64 {
 // Returns a *NotSingularError when more than one NotificationData entity is found.
 // Returns a *NotFoundError when no NotificationData entities are found.
 func (ndq *NotificationDataQuery) Only(ctx context.Context) (*NotificationData, error) {
-	nodes, err := ndq.Limit(2).All(setContextOp(ctx, ndq.ctx, "Only"))
+	nodes, err := ndq.Limit(2).All(setContextOp(ctx, ndq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,7 @@ func (ndq *NotificationDataQuery) OnlyX(ctx context.Context) *NotificationData {
 // Returns a *NotFoundError when no entities are found.
 func (ndq *NotificationDataQuery) OnlyID(ctx context.Context) (id int64, err error) {
 	var ids []int64
-	if ids, err = ndq.Limit(2).IDs(setContextOp(ctx, ndq.ctx, "OnlyID")); err != nil {
+	if ids, err = ndq.Limit(2).IDs(setContextOp(ctx, ndq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -185,7 +186,7 @@ func (ndq *NotificationDataQuery) OnlyIDX(ctx context.Context) int64 {
 
 // All executes the query and returns a list of NotificationDataSlice.
 func (ndq *NotificationDataQuery) All(ctx context.Context) ([]*NotificationData, error) {
-	ctx = setContextOp(ctx, ndq.ctx, "All")
+	ctx = setContextOp(ctx, ndq.ctx, ent.OpQueryAll)
 	if err := ndq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func (ndq *NotificationDataQuery) IDs(ctx context.Context) (ids []int64, err err
 	if ndq.ctx.Unique == nil && ndq.path != nil {
 		ndq.Unique(true)
 	}
-	ctx = setContextOp(ctx, ndq.ctx, "IDs")
+	ctx = setContextOp(ctx, ndq.ctx, ent.OpQueryIDs)
 	if err = ndq.Select(notificationdata.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -225,7 +226,7 @@ func (ndq *NotificationDataQuery) IDsX(ctx context.Context) []int64 {
 
 // Count returns the count of the given query.
 func (ndq *NotificationDataQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, ndq.ctx, "Count")
+	ctx = setContextOp(ctx, ndq.ctx, ent.OpQueryCount)
 	if err := ndq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -243,7 +244,7 @@ func (ndq *NotificationDataQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (ndq *NotificationDataQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, ndq.ctx, "Exist")
+	ctx = setContextOp(ctx, ndq.ctx, ent.OpQueryExist)
 	switch _, err := ndq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -277,8 +278,9 @@ func (ndq *NotificationDataQuery) Clone() *NotificationDataQuery {
 		predicates:       append([]predicate.NotificationData{}, ndq.predicates...),
 		withNotification: ndq.withNotification.Clone(),
 		// clone intermediate query.
-		sql:  ndq.sql.Clone(),
-		path: ndq.path,
+		sql:       ndq.sql.Clone(),
+		path:      ndq.path,
+		modifiers: append([]func(*sql.Selector){}, ndq.modifiers...),
 	}
 }
 
@@ -543,7 +545,7 @@ func (ndgb *NotificationDataGroupBy) Aggregate(fns ...AggregateFunc) *Notificati
 
 // Scan applies the selector query and scans the result into the given value.
 func (ndgb *NotificationDataGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, ndgb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, ndgb.build.ctx, ent.OpQueryGroupBy)
 	if err := ndgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -591,7 +593,7 @@ func (nds *NotificationDataSelect) Aggregate(fns ...AggregateFunc) *Notification
 
 // Scan applies the selector query and scans the result into the given value.
 func (nds *NotificationDataSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, nds.ctx, "Select")
+	ctx = setContextOp(ctx, nds.ctx, ent.OpQuerySelect)
 	if err := nds.prepareQuery(ctx); err != nil {
 		return err
 	}

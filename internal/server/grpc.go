@@ -5,9 +5,9 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/service"
 	u_metrics "gitlab.calendaria.team/services/utils/v1/middlewares/metrics"
-	u_jwt "gitlab.calendaria.team/services/utils/v2/jwt"
-	u_auth "gitlab.calendaria.team/services/utils/v2/middlewares/auth"
-	u_tracing "gitlab.calendaria.team/services/utils/v2/tracing"
+	u_jwt "gitlab.calendaria.team/services/utils/v4/jwt"
+	u_auth "gitlab.calendaria.team/services/utils/v4/middlewares/auth"
+	u_tracing "gitlab.calendaria.team/services/utils/v4/tracing"
 
 	prom "github.com/go-kratos/kratos/contrib/metrics/prometheus/v2"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
@@ -21,7 +21,7 @@ import (
 func NewGRPCServer(
 	c *conf.Bootstrap,
 	jwtp u_jwt.IJwtProcessor,
-	tracer *u_tracing.Tracer,
+	tracer u_tracing.ITracer,
 	senderService *service.SenderService,
 	notificationsService *service.NotificationsService,
 ) *grpc.Server {

@@ -5,8 +5,13 @@ server:
   grpc:
     addr: 0.0.0.0:9003
     timeout: 30s
-db: host=localhost port=5432 user=me dbname=api password=password sslmode=disable
+db: host=localhost port=5434 user=me dbname=api password=password sslmode=disable
 nats: nats://localhost:4222
+dragonfly: localhost:6379
 discovery:
   iam: localhost:9000
   iam_timeout: 30s
+  events: localhost:9001
+  events_timeout: 30s
+  chats: localhost:9002
+  chats_timeout: 30s

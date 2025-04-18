@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // NotificationCreate is the builder for creating a Notification entity.
@@ -31,15 +31,15 @@ func (nc *NotificationCreate) SetUserID(i int64) *NotificationCreate {
 }
 
 // SetType sets the "type" field.
-func (nc *NotificationCreate) SetType(et enum.NotificationType) *NotificationCreate {
-	nc.mutation.SetType(et)
+func (nc *NotificationCreate) SetType(st struc.NotificationType) *NotificationCreate {
+	nc.mutation.SetType(st)
 	return nc
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (nc *NotificationCreate) SetNillableType(et *enum.NotificationType) *NotificationCreate {
-	if et != nil {
-		nc.SetType(*et)
+func (nc *NotificationCreate) SetNillableType(st *struc.NotificationType) *NotificationCreate {
+	if st != nil {
+		nc.SetType(*st)
 	}
 	return nc
 }
@@ -373,7 +373,7 @@ func (u *NotificationUpsert) AddUserID(v int64) *NotificationUpsert {
 }
 
 // SetType sets the "type" field.
-func (u *NotificationUpsert) SetType(v enum.NotificationType) *NotificationUpsert {
+func (u *NotificationUpsert) SetType(v struc.NotificationType) *NotificationUpsert {
 	u.Set(notification.FieldType, v)
 	return u
 }
@@ -596,7 +596,7 @@ func (u *NotificationUpsertOne) UpdateUserID() *NotificationUpsertOne {
 }
 
 // SetType sets the "type" field.
-func (u *NotificationUpsertOne) SetType(v enum.NotificationType) *NotificationUpsertOne {
+func (u *NotificationUpsertOne) SetType(v struc.NotificationType) *NotificationUpsertOne {
 	return u.Update(func(s *NotificationUpsert) {
 		s.SetType(v)
 	})
@@ -1010,7 +1010,7 @@ func (u *NotificationUpsertBulk) UpdateUserID() *NotificationUpsertBulk {
 }
 
 // SetType sets the "type" field.
-func (u *NotificationUpsertBulk) SetType(v enum.NotificationType) *NotificationUpsertBulk {
+func (u *NotificationUpsertBulk) SetType(v struc.NotificationType) *NotificationUpsertBulk {
 	return u.Update(func(s *NotificationUpsert) {
 		s.SetType(v)
 	})

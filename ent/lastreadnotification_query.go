@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -61,7 +62,7 @@ func (lrnq *LastReadNotificationQuery) Order(o ...lastreadnotification.OrderOpti
 // First returns the first LastReadNotification entity from the query.
 // Returns a *NotFoundError when no LastReadNotification was found.
 func (lrnq *LastReadNotificationQuery) First(ctx context.Context) (*LastReadNotification, error) {
-	nodes, err := lrnq.Limit(1).All(setContextOp(ctx, lrnq.ctx, "First"))
+	nodes, err := lrnq.Limit(1).All(setContextOp(ctx, lrnq.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (lrnq *LastReadNotificationQuery) FirstX(ctx context.Context) *LastReadNoti
 // Returns a *NotFoundError when no LastReadNotification ID was found.
 func (lrnq *LastReadNotificationQuery) FirstID(ctx context.Context) (id int64, err error) {
 	var ids []int64
-	if ids, err = lrnq.Limit(1).IDs(setContextOp(ctx, lrnq.ctx, "FirstID")); err != nil {
+	if ids, err = lrnq.Limit(1).IDs(setContextOp(ctx, lrnq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -107,7 +108,7 @@ func (lrnq *LastReadNotificationQuery) FirstIDX(ctx context.Context) int64 {
 // Returns a *NotSingularError when more than one LastReadNotification entity is found.
 // Returns a *NotFoundError when no LastReadNotification entities are found.
 func (lrnq *LastReadNotificationQuery) Only(ctx context.Context) (*LastReadNotification, error) {
-	nodes, err := lrnq.Limit(2).All(setContextOp(ctx, lrnq.ctx, "Only"))
+	nodes, err := lrnq.Limit(2).All(setContextOp(ctx, lrnq.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func (lrnq *LastReadNotificationQuery) OnlyX(ctx context.Context) *LastReadNotif
 // Returns a *NotFoundError when no entities are found.
 func (lrnq *LastReadNotificationQuery) OnlyID(ctx context.Context) (id int64, err error) {
 	var ids []int64
-	if ids, err = lrnq.Limit(2).IDs(setContextOp(ctx, lrnq.ctx, "OnlyID")); err != nil {
+	if ids, err = lrnq.Limit(2).IDs(setContextOp(ctx, lrnq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -160,7 +161,7 @@ func (lrnq *LastReadNotificationQuery) OnlyIDX(ctx context.Context) int64 {
 
 // All executes the query and returns a list of LastReadNotifications.
 func (lrnq *LastReadNotificationQuery) All(ctx context.Context) ([]*LastReadNotification, error) {
-	ctx = setContextOp(ctx, lrnq.ctx, "All")
+	ctx = setContextOp(ctx, lrnq.ctx, ent.OpQueryAll)
 	if err := lrnq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -182,7 +183,7 @@ func (lrnq *LastReadNotificationQuery) IDs(ctx context.Context) (ids []int64, er
 	if lrnq.ctx.Unique == nil && lrnq.path != nil {
 		lrnq.Unique(true)
 	}
-	ctx = setContextOp(ctx, lrnq.ctx, "IDs")
+	ctx = setContextOp(ctx, lrnq.ctx, ent.OpQueryIDs)
 	if err = lrnq.Select(lastreadnotification.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -200,7 +201,7 @@ func (lrnq *LastReadNotificationQuery) IDsX(ctx context.Context) []int64 {
 
 // Count returns the count of the given query.
 func (lrnq *LastReadNotificationQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, lrnq.ctx, "Count")
+	ctx = setContextOp(ctx, lrnq.ctx, ent.OpQueryCount)
 	if err := lrnq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -218,7 +219,7 @@ func (lrnq *LastReadNotificationQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (lrnq *LastReadNotificationQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, lrnq.ctx, "Exist")
+	ctx = setContextOp(ctx, lrnq.ctx, ent.OpQueryExist)
 	switch _, err := lrnq.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
@@ -251,8 +252,9 @@ func (lrnq *LastReadNotificationQuery) Clone() *LastReadNotificationQuery {
 		inters:     append([]Interceptor{}, lrnq.inters...),
 		predicates: append([]predicate.LastReadNotification{}, lrnq.predicates...),
 		// clone intermediate query.
-		sql:  lrnq.sql.Clone(),
-		path: lrnq.path,
+		sql:       lrnq.sql.Clone(),
+		path:      lrnq.path,
+		modifiers: append([]func(*sql.Selector){}, lrnq.modifiers...),
 	}
 }
 
@@ -465,7 +467,7 @@ func (lrngb *LastReadNotificationGroupBy) Aggregate(fns ...AggregateFunc) *LastR
 
 // Scan applies the selector query and scans the result into the given value.
 func (lrngb *LastReadNotificationGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, lrngb.build.ctx, "GroupBy")
+	ctx = setContextOp(ctx, lrngb.build.ctx, ent.OpQueryGroupBy)
 	if err := lrngb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
@@ -513,7 +515,7 @@ func (lrns *LastReadNotificationSelect) Aggregate(fns ...AggregateFunc) *LastRea
 
 // Scan applies the selector query and scans the result into the given value.
 func (lrns *LastReadNotificationSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, lrns.ctx, "Select")
+	ctx = setContextOp(ctx, lrns.ctx, ent.OpQuerySelect)
 	if err := lrns.prepareQuery(ctx); err != nil {
 		return err
 	}

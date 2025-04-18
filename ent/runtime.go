@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"gitlab.calendaria.team/services/notifications/ent/device"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	"gitlab.calendaria.team/services/notifications/ent/schema"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -39,7 +39,7 @@ func init() {
 	// lastreadnotificationDescType is the schema descriptor for type field.
 	lastreadnotificationDescType := lastreadnotificationFields[1].Descriptor()
 	// lastreadnotification.DefaultType holds the default value on creation for the type field.
-	lastreadnotification.DefaultType = enum.NotificationType(lastreadnotificationDescType.Default.(string))
+	lastreadnotification.DefaultType = struc.NotificationType(lastreadnotificationDescType.Default.(string))
 	notificationFields := schema.Notification{}.Fields()
 	_ = notificationFields
 	// notificationDescUserID is the schema descriptor for user_id field.
@@ -49,7 +49,7 @@ func init() {
 	// notificationDescType is the schema descriptor for type field.
 	notificationDescType := notificationFields[1].Descriptor()
 	// notification.DefaultType holds the default value on creation for the type field.
-	notification.DefaultType = enum.NotificationType(notificationDescType.Default.(string))
+	notification.DefaultType = struc.NotificationType(notificationDescType.Default.(string))
 	// notificationDescTitle is the schema descriptor for title field.
 	notificationDescTitle := notificationFields[2].Descriptor()
 	// notification.TitleValidator is a validator for the "title" field. It is called by the builders before save.

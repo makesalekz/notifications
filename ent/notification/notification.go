@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 const (
@@ -77,7 +77,7 @@ var (
 	// UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
 	UserIDValidator func(int64) error
 	// DefaultType holds the default value on creation for the "type" field.
-	DefaultType enum.NotificationType
+	DefaultType struc.NotificationType
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// TextValidator is a validator for the "text" field. It is called by the builders before save.

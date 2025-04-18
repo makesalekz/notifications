@@ -3,28 +3,31 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"os"
+	"sync"
 
-	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/nats-io/nats.go/jetstream"
 
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/notifications/messages"
-	u_nats "gitlab.calendaria.team/services/utils/v2/nats"
-
-	"github.com/nats-io/nats.go/jetstream"
+	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
+	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
 )
 
-// SmsUsecase is a Greeter usecase.
+// FcmUsecase is a Greeter usecase.
 type FcmUsecase struct {
-	client            *messaging.Client
+	fcmClient         data.FcmClient
 	log               *log.Helper
 	devicesRepo       data.DevicesRepo
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	qm                u_nats.IQueueManager
+	badgeClient       u_badge.IBadgeClient
+	chatsRemote       dialer.IChatsRemote
+	eventsRemote      dialer.IEventsRemote
 }
 
 func NewFcmUsecase(
@@ -33,6 +36,10 @@ func NewFcmUsecase(
 	notificationsRepo data.NotificationsRepo,
 	localizer *data.Localizer,
 	qm u_nats.IQueueManager,
+	badgeClient u_badge.IBadgeClient,
+	fcmClient data.FcmClient,
+	chatsRemote dialer.IChatsRemote,
+	eventsRemote dialer.IEventsRemote,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
 		log:               log.NewHelper(logger),
@@ -40,20 +47,10 @@ func NewFcmUsecase(
 		notificationsRepo: notificationsRepo,
 		qm:                qm,
 		localizer:         localizer,
-	}
-
-	if os.Getenv("FIREBASE_CONFIG") != "" {
-		app, err := firebase.NewApp(context.Background(), nil)
-		if err != nil {
-			return nil, err
-		}
-
-		ctx := context.Background()
-		client, err := app.Messaging(ctx)
-		if err != nil {
-			return nil, err
-		}
-		uc.client = client
+		badgeClient:       badgeClient,
+		fcmClient:         fcmClient,
+		chatsRemote:       chatsRemote,
+		eventsRemote:      eventsRemote,
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
@@ -62,7 +59,7 @@ func NewFcmUsecase(
 }
 
 func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bool {
-	notification := messages.FirebaseNotification{}
+	notification := u_struc.FirebaseNotification{}
 	err := json.Unmarshal(m.Data(), &notification)
 	if err != nil {
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
@@ -71,7 +68,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 
 	uc.log.Debugf("sendNotifications: %v", notification)
 
-	ok := uc.sendMessage(ctx, notification)
+	ok := uc.sendMessage(ctx, notification, true)
 	if ok {
 		listDto := make([]*data.NotificationDto, len(notification.UsersIds))
 
@@ -87,7 +84,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 			listDto[i] = dto
 		}
 
-		if notification.Type.IsValid() && notification.Title != "" {
+		if notification.Type.IsValid() && notification.Title != "" && notification.Type != u_struc.Chat {
 			_, err2 := uc.notificationsRepo.CreateNotifications(ctx, listDto)
 			if err2 != nil {
 				uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err2.Error())
@@ -98,48 +95,12 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 	return ok
 }
 
-func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNotification) bool {
-	defaultBadge := 1
-	message := &messaging.MulticastMessage{
-		APNS: &messaging.APNSConfig{
-			Payload: &messaging.APNSPayload{
-				Aps: &messaging.Aps{
-					MutableContent: true,
-					Badge:          &defaultBadge,
-				},
-			},
-		},
-		Android: &messaging.AndroidConfig{
-			Notification: &messaging.AndroidNotification{
-				NotificationCount: &defaultBadge,
-			},
-		},
-	}
-
-	if msg.Badge != nil {
-		message.APNS.Payload.Aps.Badge = msg.Badge
-		message.Android.Notification.NotificationCount = msg.Badge
-	}
-
-	empty := true
-
-	if len(msg.Data) > 0 {
-		message.Data = msg.Data
-		empty = false
-	}
-
-	if msg.Title != "" || msg.Body != "" || msg.Image != "" {
-		message.Notification = &messaging.Notification{
-			Title:    msg.Title,
-			Body:     msg.Body,
-			ImageURL: msg.Image,
+func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotification, isFirst bool) bool {
+	if msg.Type.IsValid() {
+		if msg.Title == "" && msg.Body == "" {
+			uc.log.Debug("sendMessage: No title or body")
+			return true
 		}
-		empty = false
-	}
-
-	if empty {
-		uc.log.Error("sendMessage: Empty message")
-		return true
 	}
 
 	devices, err := uc.devicesRepo.GetDevicesForUsers(ctx, msg.UsersIds)
@@ -153,99 +114,125 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg messages.FirebaseNoti
 		return true
 	}
 
-	multicastMessages := uc.splitMessageToLanguages(devices, message)
-
-	candidatesToDelete := make([]string, 0, len(multicastMessages))
-
-	if uc.client != nil {
-		for _, multicastMessage := range multicastMessages {
-			uc.log.Debugf("sendMessage: send %d messages", len(multicastMessages))
-			_, err = uc.client.SendEachForMulticast(ctx, multicastMessage)
-			if err != nil {
-				if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
-					uc.log.Debugf("sendMessage: send %d messages: %s", len(multicastMessages), err.Error())
-					candidatesToDelete = append(candidatesToDelete, multicastMessage.Tokens...)
-				} else {
-					uc.log.Errorf("sendMessage: client.SendEachForMulticast: %s", err.Error())
-				}
-			} else {
-				uc.log.Debugf("sendMessage: sent successfully (%s)", multicastMessage.Notification.Body)
-			}
-		}
-	} else {
-		uc.log.Debug("sendMessage (debug): ", message)
+	userDevicesMap := make(map[int64][]*ent.Device)
+	for _, device := range devices {
+		userDevicesMap[device.UserID] = append(userDevicesMap[device.UserID], device)
 	}
 
-	go uc.deleteTokens(ctx, candidatesToDelete)
+	inactiveTokens := make([]string, 0)
+
+	candidatesToReFetch := make([]int64, 0)
+
+	for userID, userDevices := range userDevicesMap {
+		badges, badgeErr := uc.badgeClient.GetBadges(ctx, userID)
+		if badgeErr != nil && isFirst {
+			candidatesToReFetch = append(candidatesToReFetch, userID)
+
+			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, badgeErr)
+			continue
+		}
+
+		totalBadges := int64(1)
+		for _, count := range badges {
+			totalBadges += count
+		}
+
+		if isFirst {
+			err = uc.badgeClient.IncrementBadge(ctx, userID, msg.Type)
+			if err != nil {
+				uc.log.Warnf("sendMessage: failed to increment badge for user %d: %v", userID, err)
+			}
+		}
+
+		badgeCount := int(totalBadges)
+
+		userInactiveTokens := uc.sendFcmMessageToUserDevices(ctx, msg, badgeCount, userDevices)
+		if len(userInactiveTokens) > 0 {
+			inactiveTokens = append(inactiveTokens, userInactiveTokens...)
+		}
+	}
+
+	go uc.deleteInactiveTokens(ctx, inactiveTokens)
+
+	if len(candidatesToReFetch) > 0 {
+		uc.log.Debugf("sendMessage: re-fetching badges for %v", candidatesToReFetch)
+		uc.fetchBadges(ctx, candidatesToReFetch)
+		newMsg := msg
+		newMsg.UsersIds = candidatesToReFetch
+		uc.sendMessage(ctx, newMsg, false)
+	}
 
 	return err == nil
 }
 
-func (uc *FcmUsecase) splitMessageToLanguages(
-	devices []*ent.Device,
-	msg *messaging.MulticastMessage,
-) []*messaging.MulticastMessage {
-	langs := map[string][]string{}
-	for _, device := range devices {
+func (uc *FcmUsecase) sendFcmMessageToUserDevices(
+	ctx context.Context, msg u_struc.FirebaseNotification, badgeCount int, userDevices []*ent.Device,
+) []string {
+	inactiveTokens := make([]string, 0)
+	baseMessage := &messaging.Message{
+		APNS: &messaging.APNSConfig{
+			Payload: &messaging.APNSPayload{
+				Aps: &messaging.Aps{
+					MutableContent: true,
+					Badge:          &badgeCount,
+				},
+			},
+		},
+		Android: &messaging.AndroidConfig{
+			Notification: &messaging.AndroidNotification{
+				NotificationCount: &badgeCount,
+			},
+		},
+	}
+
+	if len(msg.Data) > 0 {
+		baseMessage.Data = msg.Data
+	}
+
+	if msg.Title != "" || msg.Body != "" || msg.Image != "" {
+		baseMessage.Notification = &messaging.Notification{
+			Title:    msg.Title,
+			Body:     msg.Body,
+			ImageURL: msg.Image,
+		}
+	}
+
+	langDevicesMap := make(map[string][]*ent.Device)
+	for _, device := range userDevices {
 		lang := "null"
 		if device.Language != "" {
 			lang = device.Language
 		}
-
-		_, ok := langs[lang]
-		if !ok {
-			langs[lang] = []string{device.Token}
-			continue
-		}
-		langs[lang] = append(langs[lang], device.Token)
+		langDevicesMap[lang] = append(langDevicesMap[lang], device)
 	}
 
-	localizedMsgs := make([]*messaging.MulticastMessage, 0, len(langs))
-	for lang, tokens := range langs {
-		localizedMessage := &messaging.MulticastMessage{
-			Tokens: tokens,
-		}
+	for lang, langDevices := range langDevicesMap {
+		message := *baseMessage
 
-		if len(msg.Data) > 0 {
-			localizedMessage.Data = msg.Data
-		}
-
-		if msg.Notification != nil {
-			localizedMessage.Notification = &messaging.Notification{
-				Title:    msg.Notification.Title,
-				Body:     msg.Notification.Body,
-				ImageURL: msg.Notification.ImageURL,
+		if lang != "null" {
+			dto := &data.NotificationDto{}
+			if err := dto.ParseAndSetNotificationData(msg.Data); err == nil && dto.Type != nil {
+				localizedBody, localizedErr := uc.localizer.GetLocalizedMessage(
+					lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount,
+				)
+				if localizedErr == nil && message.Notification != nil {
+					message.Notification.Body = localizedBody
+				}
 			}
 		}
 
-		localizedMsgs = append(localizedMsgs, localizedMessage)
-
-		if lang == "null" {
-			continue
+		for _, device := range langDevices {
+			message.Token = device.Token
+			err := uc.fcmClient.Send(ctx, device.Token, &message)
+			if err != nil {
+				uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
+				inactiveTokens = append(inactiveTokens, device.Token)
+			} else {
+				uc.log.Debugf("sendMessage: sent successfully (%s)", message.Notification.Body)
+			}
 		}
-
-		dto := &data.NotificationDto{}
-		err := dto.ParseAndSetNotificationData(msg.Data)
-		if err != nil {
-			uc.log.Errorf("splitMessageToLanguages: dto.ParseAndSetNotificationData: %s", err.Error())
-			continue
-		}
-
-		if dto.Type == nil {
-			continue
-		}
-
-		localizedBody, err := uc.localizer.GetLocalizedMessage(lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount)
-		if err != nil {
-			uc.log.Errorf("splitMessageToLanguages: localizer.GetLocalizedMessage: %s", err.Error())
-			continue
-		}
-
-		// by pointer, also changes value in array
-		localizedMessage.Notification.Body = localizedBody
 	}
-
-	return localizedMsgs
+	return inactiveTokens
 }
 
 func (uc *FcmUsecase) RegisterDevice(ctx context.Context, device data.DeviceDto) error {
@@ -275,11 +262,92 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 	return err
 }
 
-func (uc *FcmUsecase) deleteTokens(ctx context.Context, tokens []string) {
+func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string) {
 	_, err := uc.devicesRepo.DeleteDevicesByTokens(ctx, tokens)
 	if err != nil {
-		uc.log.Errorf("deleteTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
+		uc.log.Errorf("deleteInactiveTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
 		return
 	}
-	uc.log.Debugf("deleteTokens: deleted %d tokens", len(tokens))
+	uc.log.Debugf("deleteInactiveTokens: deleted %d tokens", len(tokens))
+}
+
+func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
+	if len(userIDs) == 0 {
+		return
+	}
+
+	var (
+		eventsCountMap   = make(map[int64]int32)
+		chatsCountMap    = make(map[int64]int32)
+		contactsCountMap = make(map[int64]int32)
+		wg               sync.WaitGroup
+	)
+
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+		events, err := uc.eventsRemote.GetEventsCount(ctx, userIDs)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get events count: %v", err)
+			return
+		}
+
+		for k, v := range events {
+			eventsCountMap[k] = v
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		chats, err := uc.chatsRemote.CountUnreadMessages(ctx, userIDs)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get chats count: %v", err)
+			return
+		}
+
+		for k, v := range chats {
+			chatsCountMap[k] = v
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		contactsCount, err := uc.notificationsRepo.CountUnreadNotificationsByType(
+			ctx, userIDs, u_struc.Contact.Value(),
+		)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to get contacts count: %v", err)
+			return
+		}
+
+		for k, v := range contactsCount {
+			contactsCountMap[k] = v
+		}
+	}()
+
+	wg.Wait()
+
+	for _, userID := range userIDs {
+		badges := make(map[u_struc.NotificationType]int64)
+
+		if count, ok := eventsCountMap[userID]; ok {
+			badges[u_struc.Event] = int64(count)
+		}
+
+		if count, ok := chatsCountMap[userID]; ok {
+			badges[u_struc.Chat] = int64(count)
+		}
+
+		if count, ok := contactsCountMap[userID]; ok {
+			badges[u_struc.Contact] = int64(count)
+		}
+
+		err := uc.badgeClient.SetBadges(ctx, userID, badges)
+		if err != nil {
+			uc.log.Errorf("fetchBadges: failed to set badges for user %d: %v", userID, err)
+		} else {
+			uc.log.Infof("fetchBadges: updated badges for user %d: %v", userID, badges)
+		}
+	}
 }

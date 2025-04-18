@@ -7,8 +7,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // ID filters vertices based on their ID field.
@@ -62,7 +62,7 @@ func UserID(v int64) predicate.Notification {
 }
 
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
-func Type(v enum.NotificationType) predicate.Notification {
+func Type(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldEQ(FieldType, vc))
 }
@@ -148,19 +148,19 @@ func UserIDLTE(v int64) predicate.Notification {
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v enum.NotificationType) predicate.Notification {
+func TypeEQ(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldEQ(FieldType, vc))
 }
 
 // TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v enum.NotificationType) predicate.Notification {
+func TypeNEQ(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldNEQ(FieldType, vc))
 }
 
 // TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...enum.NotificationType) predicate.Notification {
+func TypeIn(vs ...struc.NotificationType) predicate.Notification {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = string(vs[i])
@@ -169,7 +169,7 @@ func TypeIn(vs ...enum.NotificationType) predicate.Notification {
 }
 
 // TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...enum.NotificationType) predicate.Notification {
+func TypeNotIn(vs ...struc.NotificationType) predicate.Notification {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = string(vs[i])
@@ -178,55 +178,55 @@ func TypeNotIn(vs ...enum.NotificationType) predicate.Notification {
 }
 
 // TypeGT applies the GT predicate on the "type" field.
-func TypeGT(v enum.NotificationType) predicate.Notification {
+func TypeGT(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldGT(FieldType, vc))
 }
 
 // TypeGTE applies the GTE predicate on the "type" field.
-func TypeGTE(v enum.NotificationType) predicate.Notification {
+func TypeGTE(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldGTE(FieldType, vc))
 }
 
 // TypeLT applies the LT predicate on the "type" field.
-func TypeLT(v enum.NotificationType) predicate.Notification {
+func TypeLT(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldLT(FieldType, vc))
 }
 
 // TypeLTE applies the LTE predicate on the "type" field.
-func TypeLTE(v enum.NotificationType) predicate.Notification {
+func TypeLTE(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldLTE(FieldType, vc))
 }
 
 // TypeContains applies the Contains predicate on the "type" field.
-func TypeContains(v enum.NotificationType) predicate.Notification {
+func TypeContains(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldContains(FieldType, vc))
 }
 
 // TypeHasPrefix applies the HasPrefix predicate on the "type" field.
-func TypeHasPrefix(v enum.NotificationType) predicate.Notification {
+func TypeHasPrefix(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldHasPrefix(FieldType, vc))
 }
 
 // TypeHasSuffix applies the HasSuffix predicate on the "type" field.
-func TypeHasSuffix(v enum.NotificationType) predicate.Notification {
+func TypeHasSuffix(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldHasSuffix(FieldType, vc))
 }
 
 // TypeEqualFold applies the EqualFold predicate on the "type" field.
-func TypeEqualFold(v enum.NotificationType) predicate.Notification {
+func TypeEqualFold(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldEqualFold(FieldType, vc))
 }
 
 // TypeContainsFold applies the ContainsFold predicate on the "type" field.
-func TypeContainsFold(v enum.NotificationType) predicate.Notification {
+func TypeContainsFold(v struc.NotificationType) predicate.Notification {
 	vc := string(v)
 	return predicate.Notification(sql.FieldContainsFold(FieldType, vc))
 }

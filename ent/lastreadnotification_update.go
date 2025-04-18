@@ -10,9 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // LastReadNotificationUpdate is the builder for updating LastReadNotification entities.
@@ -30,15 +30,15 @@ func (lrnu *LastReadNotificationUpdate) Where(ps ...predicate.LastReadNotificati
 }
 
 // SetType sets the "type" field.
-func (lrnu *LastReadNotificationUpdate) SetType(et enum.NotificationType) *LastReadNotificationUpdate {
-	lrnu.mutation.SetType(et)
+func (lrnu *LastReadNotificationUpdate) SetType(st struc.NotificationType) *LastReadNotificationUpdate {
+	lrnu.mutation.SetType(st)
 	return lrnu
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (lrnu *LastReadNotificationUpdate) SetNillableType(et *enum.NotificationType) *LastReadNotificationUpdate {
-	if et != nil {
-		lrnu.SetType(*et)
+func (lrnu *LastReadNotificationUpdate) SetNillableType(st *struc.NotificationType) *LastReadNotificationUpdate {
+	if st != nil {
+		lrnu.SetType(*st)
 	}
 	return lrnu
 }
@@ -143,15 +143,15 @@ type LastReadNotificationUpdateOne struct {
 }
 
 // SetType sets the "type" field.
-func (lrnuo *LastReadNotificationUpdateOne) SetType(et enum.NotificationType) *LastReadNotificationUpdateOne {
-	lrnuo.mutation.SetType(et)
+func (lrnuo *LastReadNotificationUpdateOne) SetType(st struc.NotificationType) *LastReadNotificationUpdateOne {
+	lrnuo.mutation.SetType(st)
 	return lrnuo
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (lrnuo *LastReadNotificationUpdateOne) SetNillableType(et *enum.NotificationType) *LastReadNotificationUpdateOne {
-	if et != nil {
-		lrnuo.SetType(*et)
+func (lrnuo *LastReadNotificationUpdateOne) SetNillableType(st *struc.NotificationType) *LastReadNotificationUpdateOne {
+	if st != nil {
+		lrnuo.SetType(*st)
 	}
 	return lrnuo
 }

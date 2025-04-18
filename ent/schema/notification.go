@@ -3,7 +3,7 @@ package schema
 import (
 	"time"
 
-	"gitlab.calendaria.team/services/notifications/ent/enum"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
@@ -20,7 +20,7 @@ type Notification struct {
 func (Notification) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("user_id").Positive(),
-		field.String("type").GoType(enum.NotificationType("")).Default(enum.Common.Value()),
+		field.String("type").GoType(u_struc.NotificationType("")).Default(u_struc.Common.Value()),
 		field.String("title").NotEmpty(),
 		field.String("text").NotEmpty(),
 		field.Int64("event_id").Optional().Nillable(),

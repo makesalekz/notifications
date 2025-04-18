@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // LastReadNotificationCreate is the builder for creating a LastReadNotification entity.
@@ -29,15 +29,15 @@ func (lrnc *LastReadNotificationCreate) SetUserID(i int64) *LastReadNotification
 }
 
 // SetType sets the "type" field.
-func (lrnc *LastReadNotificationCreate) SetType(et enum.NotificationType) *LastReadNotificationCreate {
-	lrnc.mutation.SetType(et)
+func (lrnc *LastReadNotificationCreate) SetType(st struc.NotificationType) *LastReadNotificationCreate {
+	lrnc.mutation.SetType(st)
 	return lrnc
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (lrnc *LastReadNotificationCreate) SetNillableType(et *enum.NotificationType) *LastReadNotificationCreate {
-	if et != nil {
-		lrnc.SetType(*et)
+func (lrnc *LastReadNotificationCreate) SetNillableType(st *struc.NotificationType) *LastReadNotificationCreate {
+	if st != nil {
+		lrnc.SetType(*st)
 	}
 	return lrnc
 }
@@ -192,7 +192,7 @@ type (
 )
 
 // SetType sets the "type" field.
-func (u *LastReadNotificationUpsert) SetType(v enum.NotificationType) *LastReadNotificationUpsert {
+func (u *LastReadNotificationUpsert) SetType(v struc.NotificationType) *LastReadNotificationUpsert {
 	u.Set(lastreadnotification.FieldType, v)
 	return u
 }
@@ -267,7 +267,7 @@ func (u *LastReadNotificationUpsertOne) Update(set func(*LastReadNotificationUps
 }
 
 // SetType sets the "type" field.
-func (u *LastReadNotificationUpsertOne) SetType(v enum.NotificationType) *LastReadNotificationUpsertOne {
+func (u *LastReadNotificationUpsertOne) SetType(v struc.NotificationType) *LastReadNotificationUpsertOne {
 	return u.Update(func(s *LastReadNotificationUpsert) {
 		s.SetType(v)
 	})
@@ -513,7 +513,7 @@ func (u *LastReadNotificationUpsertBulk) Update(set func(*LastReadNotificationUp
 }
 
 // SetType sets the "type" field.
-func (u *LastReadNotificationUpsertBulk) SetType(v enum.NotificationType) *LastReadNotificationUpsertBulk {
+func (u *LastReadNotificationUpsertBulk) SetType(v struc.NotificationType) *LastReadNotificationUpsertBulk {
 	return u.Update(func(s *LastReadNotificationUpsert) {
 		s.SetType(v)
 	})

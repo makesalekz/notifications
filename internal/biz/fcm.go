@@ -146,7 +146,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 		badgeCount := int(totalBadges)
 
-		userInactiveTokens := uc.sendFcmMessageToUserDevices(ctx, msg, badgeCount, userDevices)
+		userInactiveTokens := uc.sendFcmMessageToUserDevices(ctx, msg, badgeCount, userDevices, true, true)
 		if len(userInactiveTokens) > 0 {
 			inactiveTokens = append(inactiveTokens, userInactiveTokens...)
 		}
@@ -167,6 +167,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 	ctx context.Context, msg u_struc.FirebaseNotification, badgeCount int, userDevices []*ent.Device,
+	withSound, withVibration bool,
 ) []string {
 	inactiveTokens := make([]string, 0)
 	baseMessage := &messaging.Message{
@@ -183,6 +184,21 @@ func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 				NotificationCount: &badgeCount,
 			},
 		},
+	}
+
+	if withSound {
+		baseMessage.APNS.Payload.Aps.Sound = "default"
+		baseMessage.Android.Notification.Sound = "default"
+	} else {
+		baseMessage.APNS.Payload.Aps.Sound = ""
+		baseMessage.Android.Notification.Sound = ""
+	}
+
+	if withVibration {
+		if baseMessage.Data == nil {
+			baseMessage.Data = make(map[string]string)
+		}
+		baseMessage.Data["vibrate"] = "true"
 	}
 
 	if len(msg.Data) > 0 {

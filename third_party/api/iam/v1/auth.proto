@@ -34,6 +34,7 @@ message AuthByPhoneRequest {
   string phone = 1;
   bool isRegistrationNeeded = 2;
   bool isRegistration = 3;
+  string appSignature = 4;
 }
 
 /* AuthByEmailRequest is a request to authenticate by email */

@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+package chats.v1;
+
+import "api/media/v1/models.proto";
+import "api/utils/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/chats/api/chats/v1;chats_v1";
+option java_package = "chats.v1";
+
+//---------------------------------- Models ----------------------------------
+// request
+message ChatRequest {
+  int64 chatId = 2;
+}
+
+message CommonGroupsPaginateRequest {
+  int32 limit = 1;
+  string fromDate = 5;  // fromDate, toDate, aroundDate – to paginate by date
+  string toDate = 6;
+  optional bool descending = 9;  // descending – to paginate in descending order
+  optional bool isPinned = 10;
+}
+
+message CommonGroupsPaginateReply {
+  optional int32 total = 1;
+  optional string fromDate = 4;
+  optional string toDate = 5;
+  optional bool isPinned = 6;
+}
+
+message InviteLinkRequest {
+  int64 chatId = 1;
+  int64 linkId = 2;
+}
+
+message InviteLinkReply {
+  InviteLink link = 1;
+}
+
+// dto
+message MessageAdditions {
+  string type = 1;
+  string value = 2;
+  int32 start = 3;
+  int32 end = 4;
+}
+
+message LocationDto {
+  double latitude = 1;
+  double longitude = 2;
+  string label = 3;
+}
+
+// reply
+message Attachment {
+  int64 id = 1;
+  string type = 2;
+
+  int64 mediaId = 3;
+  media.v1.Media media = 4;
+}
+
+message Location {
+  int64 id = 1;
+  double latitude = 2;
+  double longitude = 3;
+  string label = 4;
+
+  optional Member member = 5;
+}
+
+message Link {
+  int64 id = 1;
+  int64 messageId = 2;
+  string url = 3;
+  int64 ownerId = 6;
+}
+
+message Chat {
+  int64 id = 1;
+  string type = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional string cover = 5;
+  int32 membersCount = 6;
+  string createdAt = 7;
+  string updatedAt = 8;
+  optional int64 companionId =
+      9;  // companion of the direct chat OR owner of other chats
+
+  Membership membership = 10;
+  optional Message lastMessage = 11;
+  optional int64 eventId = 12;
+}
+
+message Member {
+  int64 id = 1;
+  string status = 2;
+  string role = 3;
+
+  optional int64 userId = 4;
+}
+
+message Membership {
+  int64 chatId = 1;
+  string status = 2;
+  string role = 3;
+  optional string updatedAt = 4;
+  int32 unreadCount = 5;
+  bool isPinned = 6;
+  bool isMuted = 7;
+  optional string mutedTill = 8;
+  optional string archivedAt = 9;
+  optional int64 firstMessageId = 10;
+  optional int64 lastReadId = 11;
+  bool autoSave = 12;
+}
+
+message Message {
+  int64 id = 1;
+  optional string cid = 2;
+  string type = 3;  // REGULAR/SYSTEM
+  bool pinned = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+  int64 userId = 7;
+
+  optional MessageContent content = 8;
+  optional MessageAction action = 9;
+}
+
+message MessageContent {
+  optional string text = 1;
+
+  optional Message replyTo = 2;
+  optional Location location = 3;
+  optional int64 eventId = 4;
+  optional int64 contactId = 6;
+  optional int64 recapId = 10;
+
+  repeated Attachment attachments = 8;
+  repeated MessageAdditions additions = 9;
+}
+
+message MessageAction {
+  string type = 1;  // System message actions/type
+  repeated int64 targetUsersIds = 2;
+  optional string changedFrom = 3;
+  optional string changedTo = 4;
+
+  optional Message message = 5;
+}
+
+message InviteLink {
+  int64 id = 1;
+  int64 chatId = 2;
+  optional int64 userId = 3;
+  string uuid = 4;
+}
+
+message SearchInChatsRequest {
+  string type = 1;
+  string search = 2;
+  utils.v1.PaginateRequest paginate = 3;
+}

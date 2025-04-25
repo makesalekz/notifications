@@ -33,7 +33,7 @@ var ProviderSet = wire.NewSet(
 	u_tracing.NewTracer,
 	NewNatsClient,
 	NewSmscClient,
-	NewIamRemote,
+	dialer.NewIamRemote,
 	NewDevicesRepo,
 	NewNotificationsRepo,
 	NewLocalizer,
@@ -51,7 +51,7 @@ type Data struct {
 	badge u_badge.IBadgeClient
 }
 
-// GetBadgeClient возвращает клиент для работы с бейджами
+// GetBadgeClient возвращает клиент для работы с бейджами.
 func (d *Data) GetBadgeClient() u_badge.IBadgeClient {
 	return d.badge
 }
@@ -120,7 +120,7 @@ func NewData(bc *conf.Bootstrap, c u_config.IConfig, logger log.Logger, redisCli
 	}, cleanup, nil
 }
 
-// NewRedisClient create new client for dragonfly
+// NewRedisClient create new client for dragonfly.
 func NewRedisClient(conf *conf.Bootstrap, logger log.Logger) (*redis.Client, func(), error) {
 	l := log.NewHelper(logger)
 

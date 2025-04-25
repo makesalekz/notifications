@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package chats.v1;
+
+import "api/utils/v1/models.proto";
+import "api/chats/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/chats/api/chats/v1;chats_v1";
+option java_multiple_files = true;
+option java_package = "chats.v1";
+
+service Members {
+  rpc InviteMembers(InviteMembersRequest) returns (InviteMembersReply);
+  rpc ListMembers(ListMembersRequest) returns (ListMembersReply);
+  rpc JoinChat(ChatRequest) returns (utils.v1.EmptyReply);
+  rpc KickMember(ChatMemberRequest) returns (utils.v1.EmptyReply);
+  rpc ChangeMemberRole(ChangeMemberRoleRequest) returns (utils.v1.EmptyReply);
+  rpc ChangeMemberAutosave(ChangeMemberAutosaveRequest) returns (utils.v1.EmptyReply);
+  rpc GetDirectChatMembership(DirectChatMembershipRequest) returns (MembershipReply);
+  rpc DeleteUsersData(DeleteUsersDataRequest) returns (utils.v1.EmptyReply);
+}
+
+message InviteMembersRequest {
+  int64 chatId = 2;
+  repeated int64 members = 3;
+}
+
+message InviteMembersReply {
+  repeated int64 privateUsers = 1;
+  int32 blockedCount = 2;
+}
+
+message ListMembersRequest {
+  int64 chatId = 2;
+  bool adminsOnly = 3;
+  bool ownersOnly = 4;
+  utils.v1.PaginateRequest paginate = 5;
+}
+
+message ListMembersReply {
+  repeated Member members = 1;
+  utils.v1.PaginateReply paginate = 2;
+}
+
+message ChatMemberRequest {
+  int64 chatId = 2;
+  int64 userId = 3;
+}
+
+message ChangeMemberRoleRequest {
+  int64 chatId = 2;
+  int64 userId = 3;
+  string role = 4;
+}
+
+message ChangeMemberAutosaveRequest {
+  int64 chatId = 2;
+  bool autoSave = 3;
+}
+
+message DirectChatMembershipRequest {
+  int64 userId = 2;
+}
+
+message MembershipReply {
+  Membership membership = 1;
+}
+
+message DeleteUsersDataRequest {
+  repeated int64 usersIds = 1;
+}

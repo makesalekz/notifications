@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package chats.v1;
+
+import "api/utils/v1/models.proto";
+import "api/chats/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/chats/api/chats/v1;chats_v1";
+option java_multiple_files = true;
+option java_package = "chats.v1";
+
+service Messages {
+  rpc SendMessage(SendMessageRequest) returns (MessageReply);
+  rpc ListMessages(ListMessagesRequest) returns (ListMessagesReply);
+  rpc ListExtendedMessages(ListExtendedMessagesRequest)
+      returns (ListMessagesReply);
+  rpc DeleteMessage(MessageRequest) returns (utils.v1.EmptyReply);
+  rpc DoActionOnMessage(MessageActionRequest) returns (MessageReply);
+  rpc CountUnreadMessages(CountUnreadedRequest) returns (CountUnreadMessagesReply);
+}
+
+message SendMessageRequest {
+  int64 chatId = 2;
+  string cid = 3;
+  string text = 4;
+  optional int64 replyTo = 5;
+  optional int64 eventId = 6;
+  optional int64 contactId = 7;
+  optional int64 recapId = 11;
+  repeated int64 mediaIds = 8;
+  optional LocationDto location = 9;
+  repeated MessageAdditions additions = 10;
+}
+message MessageReply {
+  Message message = 1;
+}
+
+message ListMessagesRequest {
+  int64 chatId = 2;
+  bool pinnedOnly = 3;
+  string search = 5;
+  utils.v1.PaginateRequest paginate = 4;
+}
+message ListMessagesReply {
+  repeated Message messages = 1;
+  Membership membership = 2;
+}
+
+message ListExtendedMessagesRequest {
+  int64 chatId = 1;
+  string type = 2;
+  string search = 3;
+  utils.v1.PaginateRequest paginate = 4;
+}
+
+message MessageRequest {
+  int64 messageId = 2;
+}
+
+message MessageActionRequest {
+  int64 messageId = 2;
+  string action = 3;
+}
+
+message CountUnreadedRequest {
+  repeated int64 userIds = 1;
+}
+
+message CountUnreadMessagesReply {
+  map<int64, int32> unreadMessages = 1;
+}

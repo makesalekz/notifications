@@ -38,6 +38,4 @@ message ListAttachmentsRequest {
 message ListAttachmentsReply {
   repeated Attachment attachments = 1;
   repeated Member members = 2;
-
-  utils.v1.PaginateReply paginate = 3;
 }

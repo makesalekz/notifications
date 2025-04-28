@@ -25,6 +25,8 @@ enum ErrorReason {
   INVALID_DATE_RANGE = 12 [(errors.code) = 400];
   // ----------------- Unauthorized --------------------
   UNAUTHORIZED = 13 [(errors.code) = 401];
+  // ----------------- Payment Required --------------------
+  INSUFFICIENT_PLAN = 16 [(errors.code) = 402];
   // ----------------- Forbidden --------------------
   FORBIDDEN = 14 [(errors.code) = 403];
   INVALID_UPDATE_MEMBER_STATUS = 15 [(errors.code) = 403];

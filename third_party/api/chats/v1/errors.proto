@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package chats.v1;
+
+import "errors/errors.proto";
+
+option go_package = "gitlab.calendaria.team/services/chats/api/chats/v1;chats_v1";
+option java_package = "chats.v1";
+
+enum ErrorReason {
+  // Set default error code.
+  option (errors.default_code) = 500;
+
+  // Set the error code separately for an enumeration.
+  INTERNAL = 0;
+  GRPC_CONNECTION = 1;
+  SERVICE_FAILED = 2;
+  DATABASE_QUERY = 3;
+  FORBIDDEN = 4 [(errors.code) = 403];
+  EMPTY_ACTOR_ID = 5;
+
+  UNAUTHORIZED = 10 [(errors.code) = 401];
+
+  INVALID_REQUEST = 20 [(errors.code) = 400];
+  NOT_FOUND = 21 [(errors.code) = 404];
+}

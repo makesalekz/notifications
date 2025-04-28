@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package chats.v1;
+
+import "api/utils/v1/models.proto";
+import "api/chats/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/chats/api/chats/v1;chats_v1";
+option java_multiple_files = true;
+option java_package = "chats.v1";
+
+service Attachments {
+  rpc DeleteAttachment(DeleteAttachmentRequest) returns (utils.v1.EmptyReply);
+  rpc ListAttachments(ListAttachmentsRequest) returns (ListAttachmentsReply);
+  rpc ListAttachmentsInChats(SearchInChatsRequest) returns (ListAttachmentsReply);
+}
+
+message DeleteAttachmentRequest {
+  int64 attachmentId = 2;
+}
+
+message ListAttachmentsRequest {
+  int64 chatId = 2;
+  repeated string types = 3;
+  string search = 5;
+  utils.v1.PaginateRequest paginate = 4;
+}
+
+message ListAttachmentsReply {
+  repeated Attachment attachments = 1;
+  repeated Member members = 2;
+}

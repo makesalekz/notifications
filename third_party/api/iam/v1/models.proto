@@ -55,22 +55,22 @@ message TenantShort {
 }
 
 /* UserCredentialsShort is a short version of UserCredentials */
-message UserCredentialsShort {
+message UserCredentialShort {
   int64 id = 1;
   // email on third party service
-  optional string mail = 3;
+  string mail = 3;
   // display name on third party service
   optional string displayName = 4;
   // provider name (google)
   optional string provider = 5;
 }
 
-/* UserCredentials is a user's credentials on third party service (provider) */
-message UserCredentials {
+/* UserCredential is a user's credential on third party service (provider) */
+message UserCredential {
   int64 id = 1;
   string accessToken = 2;
   // email on third party service
-  optional string mail = 3;
+  string mail = 3;
   // display name on third party service
   optional string displayName = 4;
   // provider name (google)

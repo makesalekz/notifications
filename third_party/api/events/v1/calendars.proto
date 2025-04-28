@@ -14,10 +14,17 @@ service Calendars {
   rpc CreateCalendar(CreateCalendarRequest) returns (CalendarReply);
   rpc UpdateCalendar(UpdateCalendarRequest) returns (CalendarReply);
   rpc DeleteCalendar(CalendarRequest) returns (utils.v1.EmptyReply);
-  rpc ListCalendars(ListCalendarsRequest) returns (ListCalendarsReply);
-  rpc ListExternalCalendars(ListExternalCalendarsRequest) returns (ListExternalCalendarsReply);
-  rpc ConnectExternalCalendar(ConnectExternalCalendarRequest) returns (CalendarReply);
-  rpc DisconnectExternalCalendar(DisconnectExternalCalendarRequest) returns (CalendarReply);
+  rpc ListCalendars(utils.v1.EmptyRequest) returns (ListCalendarsReply);
+  rpc ListExternalCalendars(ListExternalCalendarsRequest)
+      returns (ListExternalCalendarsReply);
+  rpc ConnectExternalCalendar(ConnectExternalCalendarRequest)
+      returns (CalendarReply);
+  rpc DisconnectExternalCalendar(DisconnectExternalCalendarRequest)
+      returns (CalendarReply);
+  rpc DisconnectExternalCalendarsBulk(DisconnectExternalCalendarsBulkRequest)
+      returns (utils.v1.EmptyReply);
+  rpc SynchronizeExternalCalendar(SynchronizeExternalCalendarRequest)
+      returns (CalendarReply);
 }
 
 message CreateCalendarRequest {
@@ -29,18 +36,12 @@ message UpdateCalendarRequest {
   CalendarDto calendar = 2;
 }
 
-message ListCalendarsRequest {
-  string search = 1;
-
-  utils.v1.PaginateRequest paginate = 2;
-}
-
 message ListCalendarsReply {
   repeated Calendar calendars = 1;
 }
 
 message ListExternalCalendarsRequest {
-  string provider = 1;
+  int64 credentialId = 1;
 }
 
 message ListExternalCalendarsReply {
@@ -48,11 +49,19 @@ message ListExternalCalendarsReply {
 }
 
 message ConnectExternalCalendarRequest {
-  int64 calendarId = 1;
-  string provider = 2;
+  int64 credentialId = 1;
+  int64 calendarId = 2;
   string externalId = 3;
 }
 
 message DisconnectExternalCalendarRequest {
+  int64 calendarId = 1;
+}
+
+message DisconnectExternalCalendarsBulkRequest {
+  int64 credentialId = 1;
+}
+
+message SynchronizeExternalCalendarRequest {
   int64 calendarId = 1;
 }

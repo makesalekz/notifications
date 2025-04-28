@@ -13,7 +13,7 @@ service Events {
   rpc GetEvent(EventRequest) returns (EventReply);
   rpc CreateEvent(CreateEventRequest) returns (EventReply);
   rpc UpdateEvent(UpdateEventRequest) returns (EventReply);
-  rpc DeleteEvent(EventRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventReply);
   rpc DeleteEventCover(EventRequest) returns (utils.v1.EmptyReply);
   rpc DeleteEventLocation(EventRequest) returns (utils.v1.EmptyReply);
   rpc ListEvents(ListEventsRequest) returns (ListEventsReply);
@@ -21,6 +21,12 @@ service Events {
   rpc GetEvents(GetEventsRequest) returns (GetEventsReply);
   rpc ListSlots(ListSlotsRequest) returns (ListSlotsReply);
   rpc NotifyPendingMembers(EventRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteUsersData(DeleteUsersDataRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteCredentialData(DeleteCredentialDataRequest)
+      returns (utils.v1.EmptyReply);
+  rpc GetGoogleNotification(GoogleNotificationRequest)
+      returns (utils.v1.EmptyReply);
+  rpc GetEventsCount(EventsCountRequest) returns (EventsCountReply);
 }
 
 message CreateEventRequest {
@@ -34,33 +40,39 @@ message UpdateEventRequest {
   EventDto event = 2;
 }
 
+message DeleteEventRequest {
+  int64 eventId = 1;
+  string deleteStartDateTime = 2;
+  string eventModifyType = 3;
+}
+
+message DeleteEventReply {
+  optional Event event = 1;
+  repeated EventSchedule schedules = 2;
+}
+
 message ListEventsRequest {
-  optional bool isAllDay = 3;
-  bool isSetRemind = 4;
-  bool isPublished = 13;
-  bool withRecurrence = 12;
-  bool withSchedule = 14;
-  bool byMemberId = 7;
-  optional string fromDateTime = 5;
-  optional string toDateTime = 6;
   string search = 8;
-  repeated string memberStatuses = 9;
+  bool byMemberId = 7;
+  bool bySelectedCalendars = 15;
+  bool isPublished = 13;
+  bool isSetRemind = 4;
+  bool withSchedule = 14;
+  bool withRecurrence = 12;
   repeated string eventTypes = 10;
+  repeated string memberStatuses = 9;
 
   utils.v1.PaginateRequest paginate = 11;
 }
 
 message ListSlotsRequest {
   int64 userId = 1;
-  SlotType slotType = 2;
-  bool withSchedule = 14;
-  string fromDateTime = 5;
-  string toDateTime = 6;
+  string fromDateTime = 2;
+  string toDateTime = 3;
 }
 
 message ListSlotsReply {
-  repeated EventSlot slots = 1;
-  repeated EventRecurrence recurrences = 3;
+  repeated EventByPrivacy events = 1;
   repeated EventSchedule schedules = 4;
 }
 
@@ -74,6 +86,7 @@ message ListEventsReply {
   repeated Event events = 1;
   repeated EventRecurrence recurrences = 3;
   repeated EventSchedule schedules = 4;
+  repeated Calendar calendars = 5;
 }
 
 message GetEventsRequest {
@@ -83,4 +96,30 @@ message GetEventsRequest {
 
 message GetEventsReply {
   repeated Event events = 1;
+}
+
+message DeleteUsersDataRequest {
+  repeated int64 usersIds = 1;
+}
+
+message DeleteCredentialDataRequest {
+  int64 credentialId = 1;
+}
+
+message GoogleNotificationRequest {
+  string channelId = 1;
+  string channelExpiration = 2;
+  string resourceId = 3;
+  string resourceUri = 4;
+}
+
+message EventsCountRequest {
+  repeated int64 userIds = 1;
+  repeated string eventTypes = 2;
+  repeated string memberStatuses = 3;
+  bool isPublished = 4;
+}
+
+message EventsCountReply {
+  map<int64, int32> eventsCount = 1;
 }

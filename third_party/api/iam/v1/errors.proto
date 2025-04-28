@@ -18,6 +18,7 @@ enum ErrorReason {
   SERVICE_FAILED = 2;
   DATABASE_QUERY = 3;
   EMPTY_ACTOR_ID = 5;
+  EMPTY_APP_ID = 7;
 
   UNAUTHORIZED = 10 [(errors.code) = 401];
   INVALID_PHONE_NUMBER = 11 [(errors.code) = 400];
@@ -34,5 +35,5 @@ enum ErrorReason {
   RELATION_NOT_FOUND = 23 [(errors.code) = 404];
   COMMON_CHAT_NOT_FOUND = 24 [(errors.code) = 404];
   CREDENTIAL_NOT_FOUND = 25 [(errors.code) = 404];
-  USER_ALREADY_EXIST = 26[(errors.code) = 409];
+  USER_ALREADY_EXIST = 26 [(errors.code) = 409];
 }

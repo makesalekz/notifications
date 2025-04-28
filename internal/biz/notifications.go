@@ -8,6 +8,7 @@ import (
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
@@ -26,7 +27,7 @@ type NotificationsCounters map[string]int32
 type NotificationsUsecase struct {
 	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
-	iam               data.IIamRemote
+	iam               dialer.IIamRemote
 	badgeClient       u_badge.IBadgeClient
 	log               *log.Helper
 }
@@ -35,7 +36,7 @@ type NotificationsUsecase struct {
 func NewNotificationsUsecase(
 	localizer *data.Localizer,
 	notificationsRepo data.NotificationsRepo,
-	iam data.IIamRemote,
+	iam dialer.IIamRemote,
 	badgeClient u_badge.IBadgeClient,
 	logger log.Logger,
 ) (*NotificationsUsecase, error) {

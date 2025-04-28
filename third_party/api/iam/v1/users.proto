@@ -50,6 +50,11 @@ service Users {
   // Request: IDs, or search filter
   // Returns: users' short information
   rpc ListUsers(ListUsersRequest) returns (UsersReply);
+
+  // Update user activity time this method is used s2s
+  // Request: user ID and activity time
+  // Returns: empty reply
+  rpc UpdateUserActivityTime(UpdateActivityTimeRequest) returns (utils.v1.EmptyReply);
 }
 
 /* UserFullReply is a reply with full user information */
@@ -128,4 +133,9 @@ message ListUsersRequest {
 
 message UsersReply {
   repeated UserShort users = 1;
+}
+
+message UpdateActivityTimeRequest {
+  int64 userId = 1;
+  string activityTime = 2; // RFC 3339 format
 }

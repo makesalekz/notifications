@@ -29,6 +29,7 @@ message User {
   optional string bioUpdatedAt = 12;
   optional bool isPhoneVerified = 13;
   optional bool isEmailVerified = 14;
+  string lastActivityAt = 16;
 }
 
 /* User's short information */
@@ -42,6 +43,7 @@ message UserShort {
 
   // last login at in RFC 3339 format
   string lastLoginAt = 7;
+  string lastActivityAt = 13;
   optional bool isPhoneVerified = 10;
   optional bool isEmailVerified = 11;
 

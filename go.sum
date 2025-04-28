@@ -454,8 +454,8 @@ gitlab.calendaria.team/services/contacts v1.8.0 h1:HBc9yg7MnNRWk3ygVY/fgmxbYHLSC
 gitlab.calendaria.team/services/contacts v1.8.0/go.mod h1:CNo3exZmnyNfPkp0Hy4PITkEais/P1oMaGyVsKJ0eg4=
 gitlab.calendaria.team/services/events v1.10.0-dev h1:SpDR+jbMzX2lzbIUJCnojg/9gFP1u1ov9vNxzPzQgdQ=
 gitlab.calendaria.team/services/events v1.10.0-dev/go.mod h1:Dgbyde/d6YaQPp8eQxopU2YuDxSn+PcEHnpW7mXaCFM=
-gitlab.calendaria.team/services/iam v1.8.11-upd h1:HwrSDtqLWjCMyT7v1QbMdgXNpiuRUmGkfPa0+2rqPDw=
-gitlab.calendaria.team/services/iam v1.8.11-upd/go.mod h1:MSmFcWT5KtiTyDEjZRT5gGQjXotJcTMxErZb3VDBvac=
+gitlab.calendaria.team/services/iam v1.8.16-dev h1:/QpU6SiB1jznimcZgY3lhxVySYWEX4F6zwtofMAcZW4=
+gitlab.calendaria.team/services/iam v1.8.16-dev/go.mod h1:R6cARHjtLrC9puxnRvu2G13WuHasAQ8y6HJAKSlH8Z8=
 gitlab.calendaria.team/services/media v1.5.0-pre h1:HjIJmdpgLFPp/HMMNJuwwPMaMiLBEtioCg03Nj+PIAE=
 gitlab.calendaria.team/services/media v1.5.0-pre/go.mod h1:OA/Ab4T/vVkoVhn/H1eYTvvXcIYFBSSLbROrk9kjqP0=
 gitlab.calendaria.team/services/pms/projects v0.1.0-dev h1:tInkcS/gl39uRiGJ9P5OegSaBb2bvor1YUqFwvUU+NU=

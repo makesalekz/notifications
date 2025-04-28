@@ -28,6 +28,7 @@ type FcmUsecase struct {
 	badgeClient       u_badge.IBadgeClient
 	chatsRemote       dialer.IChatsRemote
 	eventsRemote      dialer.IEventsRemote
+	iam               dialer.IIamRemote
 }
 
 func NewFcmUsecase(
@@ -40,6 +41,7 @@ func NewFcmUsecase(
 	fcmClient data.FcmClient,
 	chatsRemote dialer.IChatsRemote,
 	eventsRemote dialer.IEventsRemote,
+	iam dialer.IIamRemote,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
 		log:               log.NewHelper(logger),
@@ -51,6 +53,7 @@ func NewFcmUsecase(
 		fcmClient:         fcmClient,
 		chatsRemote:       chatsRemote,
 		eventsRemote:      eventsRemote,
+		iam:               iam,
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
@@ -114,6 +117,8 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 		return true
 	}
 
+	userSettings, err := uc.iam.GetUsersSettings(ctx, msg.UsersIds)
+
 	userDevicesMap := make(map[int64][]*ent.Device)
 	for _, device := range devices {
 		userDevicesMap[device.UserID] = append(userDevicesMap[device.UserID], device)
@@ -146,7 +151,11 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 		badgeCount := int(totalBadges)
 
-		userInactiveTokens := uc.sendFcmMessageToUserDevices(ctx, msg, badgeCount, userDevices)
+		withSound, withVibration := uc.userSettings(userID, userSettings)
+
+		userInactiveTokens := uc.sendFcmMessageToUserDevices(
+			ctx, msg, badgeCount, userDevices, withSound, withVibration,
+		)
 		if len(userInactiveTokens) > 0 {
 			inactiveTokens = append(inactiveTokens, userInactiveTokens...)
 		}
@@ -165,8 +174,30 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 	return err == nil
 }
 
+func (uc *FcmUsecase) userSettings(userID int64, userSettings map[int64]map[string]string) (bool, bool) {
+	withSound := true
+	withVibration := true
+
+	userSettingsMap, ok := userSettings[userID]
+	if ok {
+		if soundSetting, hasSoundSetting := userSettingsMap["NOTIFICATION_SOUND_ENABLED"]; hasSoundSetting {
+			if soundSetting == "false" {
+				withSound = false
+			}
+		}
+
+		if vibrationSetting, hasVibrationSetting := userSettingsMap["NOTIFICATION_VIBRATION_ENABLED"]; hasVibrationSetting {
+			if vibrationSetting == "false" {
+				withVibration = false
+			}
+		}
+	}
+	return withSound, withVibration
+}
+
 func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 	ctx context.Context, msg u_struc.FirebaseNotification, badgeCount int, userDevices []*ent.Device,
+	withSound, withVibration bool,
 ) []string {
 	inactiveTokens := make([]string, 0)
 	baseMessage := &messaging.Message{
@@ -183,6 +214,21 @@ func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 				NotificationCount: &badgeCount,
 			},
 		},
+	}
+
+	if withSound {
+		baseMessage.APNS.Payload.Aps.Sound = "default"
+		baseMessage.Android.Notification.Sound = "default"
+	} else {
+		baseMessage.APNS.Payload.Aps.Sound = ""
+		baseMessage.Android.Notification.Sound = ""
+	}
+
+	if withVibration {
+		if baseMessage.Data == nil {
+			baseMessage.Data = make(map[string]string)
+		}
+		baseMessage.Data["vibrate"] = "true"
 	}
 
 	if len(msg.Data) > 0 {

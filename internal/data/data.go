@@ -33,7 +33,7 @@ var ProviderSet = wire.NewSet(
 	u_tracing.NewTracer,
 	NewNatsClient,
 	NewSmscClient,
-	NewIamRemote,
+	dialer.NewIamRemote,
 	NewDevicesRepo,
 	NewNotificationsRepo,
 	NewLocalizer,

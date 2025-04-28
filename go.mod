@@ -23,7 +23,7 @@ require (
 	gitlab.calendaria.team/services/chats v1.4.9-dev
 	gitlab.calendaria.team/services/contacts v1.8.0
 	gitlab.calendaria.team/services/events v1.10.0-dev
-	gitlab.calendaria.team/services/iam v1.8.11-upd
+	gitlab.calendaria.team/services/iam v1.8.16-dev
 	gitlab.calendaria.team/services/pms/projects v0.1.0-dev
 	gitlab.calendaria.team/services/pms/tasks v0.1.1
 	gitlab.calendaria.team/services/utils v0.3.19-pre.3

@@ -98,8 +98,18 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		cleanup()
 		return nil, nil, err
 	}
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, iBadgeClient, fcmClient, iChatsRemote, iEventsRemote)
+	iIamRemote, cleanup6, err := dialer2.NewIamRemote(logger, bootstrap, iDialerManager)
 	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, iBadgeClient, fcmClient, iChatsRemote, iEventsRemote, iIamRemote)
+	if err != nil {
+		cleanup6()
 		cleanup5()
 		cleanup4()
 		cleanup3()
@@ -109,6 +119,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	}
 	localizedEmailTemplates, err := biz.NewLocalizedEmailTemplates()
 	if err != nil {
+		cleanup6()
 		cleanup5()
 		cleanup4()
 		cleanup3()
@@ -118,6 +129,7 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 	}
 	emailUsecase, err := biz.NewEmailUsecase(iConfig, logger, iQueueManager, localizedEmailTemplates, localizer)
 	if err != nil {
+		cleanup6()
 		cleanup5()
 		cleanup4()
 		cleanup3()
@@ -126,15 +138,6 @@ func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(),
 		return nil, nil, err
 	}
 	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
-	iIamRemote, cleanup6, err := data.NewIamRemote(logger, bootstrap, iDialerManager)
-	if err != nil {
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote, iBadgeClient, logger)
 	if err != nil {
 		cleanup6()

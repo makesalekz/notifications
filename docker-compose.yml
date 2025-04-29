@@ -1,29 +1,10 @@
-version: '3.5'
-
 services:
-  db:
-    container_name: ${SERVICE_NAME}_db
-    restart: always
-    image: postgres:15.4
-    volumes:
-      - ${DB_VOLUME}:/var/lib/postgresql/data
-    ports:
-      - '${DB_PORT}:5432'
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASS}
-    networks:
-      - backend
   service:
     image: ${REGISTRY_IMAGE}
     container_name: ${SERVICE_NAME}_service
     networks:
       - backend
     restart: unless-stopped
-    depends_on:
-      - db
     environment:
       - DEBUG=1
       - SERVICE_NAME=${SERVICE_NAME}
@@ -40,36 +21,6 @@ services:
       - firebase
       - vault_secret_id
     command: ["./app","-conf","config.yaml"]
-  local-service:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-      args:
-        - TOKEN=${TOKEN}
-        - ENV=dev
-    container_name: ${SERVICE_NAME}_service
-    ports:
-      - '${HTTP_PORT}:8000'
-      - '${GRPC_PORT}:9000'
-    networks:
-      - backend
-    restart: unless-stopped
-    environment:
-      - DEBUG=1
-      - AUTOMIGRATE=true
-      - SERVICE_NAME=${SERVICE_NAME}
-      - GOOGLE_APPLICATION_CREDENTIALS=/data/conf/credentials.json
-      - FIREBASE_CONFIG=/data/conf/firebase.json
-      - CONSUL_ADDRESS=http://consul:8500
-      - VAULT_ADDRESS=http://vault:8200
-      - VAULT_TOKEN=myroot
-      - AWS_REGION=${AWS_REGION}
-    command: ["./app","-conf","config.yaml"]
-
-volumes:
-  dbvol:
-    name: ${SERVICE_NAME}_db
-    external: true
 
 networks:
   backend:

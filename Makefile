@@ -39,24 +39,33 @@ doc:
 
 .PHONY: run
 # run locally
-run:
-	GOFLAGS='-mod=readonly' kratos run -w ./ $(DIR)
+run:	
+	GOFLAGS='-mod=readonly' kratos run -w ./configs
 
 .PHONY: db
-# run docker db container
+# create db
 db:
-	docker compose up -d db
+	docker exec -it postgres_db psql -U $(DB_USER) -d postgres -c 'CREATE DATABASE $(DB_NAME);'
+
+.PHONY: db-restore
+# restore db after migration to new dev-environment
+db-restore:
+	docker exec -i $(SERVICE_NAME)_db pg_dump -U me -d api > ./dump.sql;
+	docker exec -i postgres_db psql $(DB_NAME) $(DB_USER) < ./dump.sql;
+	rm ./dump.sql;
+	docker stop $(SERVICE_NAME)_db;
+	docker rm $(SERVICE_NAME)_db;
 
 .PHONY: start
 # start docker container locally
 start:
-	docker compose build --ssh rsa=$(HOME)/.ssh/id_rsa local-service && \
-	docker compose up -d local-service
+	docker compose -f docker-compose.local.yml build --ssh rsa=$(HOME)/.ssh/id_rsa service && \
+	docker compose -f docker-compose.local.yml up -d
 
 .PHONY: stop
 # stop docker container locally
 stop:
-	docker compose down local-service
+	docker compose -f docker-compose.local.yml down
 
 .PHONY: config
 # generate internal proto

@@ -6,6 +6,7 @@
     "MEMBER_KICKED": "Вас удалили из события",
     "MEMBER_MAYBE": "{{.user.name}} думает о приглашении",
     "MEMBER_ACCEPTED": "{{.user.name}} принял приглашение на событие",
+    "CALENDAR_DELETED": "{{.user.name}} удалил календарь, содержащий мероприятия, на которые вы были приглашены",
     "EVENT_UPDATED": "{{.user.name}} изменил данные события: {{.metadata}}",
     "EVENT_DELETED": "{{.user.name}} удалил событие",
     "EVENT_STARTS_SOON": {

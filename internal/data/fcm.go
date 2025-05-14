@@ -61,7 +61,6 @@ func (c *fcmClient) Send(ctx context.Context, token string, message *messaging.M
 		return nil
 	}
 
-	c.log.Debugf("Send: sent successfully (%s)", message.Notification.Body)
 	return nil
 }
 
@@ -81,6 +80,5 @@ func (c *fcmClient) SendMulticast(ctx context.Context, message *messaging.Multic
 		return err
 	}
 
-	c.log.Debugf("SendMulticast: sent successfully (%s)", message.Notification.Body)
 	return nil
 }

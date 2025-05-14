@@ -284,25 +284,6 @@ func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 					}
 				}
 			}
-		} else {
-			if _, ok := msg.Data["chatId"]; ok {
-				title = authorName
-				if authorAvatar != "" {
-					imageURL = authorAvatar
-				}
-
-				if messageJSON, ok := msg.Data["message"]; ok {
-					var message map[string]interface{}
-					err := json.Unmarshal([]byte(messageJSON), &message)
-					if err == nil {
-						if content, ok := message["content"].(map[string]interface{}); ok {
-							if text, ok := content["text"].(string); ok && msg.Body == "New message" {
-								msg.Body = text
-							}
-						}
-					}
-				}
-			}
 		}
 
 		msg.Title = title

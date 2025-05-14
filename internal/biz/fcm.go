@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"sync"
 
 	"firebase.google.com/go/v4/messaging"
@@ -580,12 +581,12 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 
 		badgeCount := int(totalBadges)
 		baseMessage.Data = map[string]string{
-			"badge": string(rune(badgeCount)),
+			"badge": strconv.Itoa(badgeCount),
 		}
 		baseMessage.APNS.Payload.Aps.Badge = &badgeCount
 		baseMessage.Android.Notification.NotificationCount = &badgeCount
 		baseMessage.Android.Data = map[string]string{
-			"badge": string(rune(badgeCount)),
+			"badge": strconv.Itoa(badgeCount),
 		}
 
 		for _, device := range userDevices {

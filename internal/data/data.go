@@ -33,14 +33,15 @@ var ProviderSet = wire.NewSet(
 	u_tracing.NewTracer,
 	NewNatsClient,
 	NewSmscClient,
-	dialer.NewIamRemote,
 	NewDevicesRepo,
 	NewNotificationsRepo,
 	NewLocalizer,
 	NewFcmClient,
+	NewBadgeClient,
+	dialer.NewIamRemote,
 	dialer.NewChatsRemote,
 	dialer.NewEventsRemote,
-	NewBadgeClient,
+	dialer.NewContactsRemote,
 )
 
 // Data .

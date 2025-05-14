@@ -35,4 +35,6 @@ message Discovery {
   google.protobuf.Duration events_timeout = 4;
   string chats = 5;
   google.protobuf.Duration chats_timeout = 6;
+  string contacts = 7;
+  google.protobuf.Duration contacts_timeout = 8;
 }

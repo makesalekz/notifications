@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"sync"
 
 	"firebase.google.com/go/v4/messaging"
@@ -12,6 +13,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
+	"gitlab.calendaria.team/services/utils/v2/auth"
 	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
 	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
@@ -29,6 +31,7 @@ type FcmUsecase struct {
 	chatsRemote       dialer.IChatsRemote
 	eventsRemote      dialer.IEventsRemote
 	iam               dialer.IIamRemote
+	contactsRemote    dialer.IContactsRemote
 }
 
 func NewFcmUsecase(
@@ -42,6 +45,7 @@ func NewFcmUsecase(
 	chatsRemote dialer.IChatsRemote,
 	eventsRemote dialer.IEventsRemote,
 	iam dialer.IIamRemote,
+	contactsRemote dialer.IContactsRemote,
 ) (*FcmUsecase, error) {
 	uc := &FcmUsecase{
 		log:               log.NewHelper(logger),
@@ -54,6 +58,7 @@ func NewFcmUsecase(
 		chatsRemote:       chatsRemote,
 		eventsRemote:      eventsRemote,
 		iam:               iam,
+		contactsRemote:    contactsRemote,
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
@@ -233,6 +238,9 @@ func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 	}
 
 	if len(msg.Data) > 0 {
+		if msg.Type == u_struc.Chat {
+			uc.processChatNotification(ctx, &msg, userDevices)
+		}
 		baseMessage.Data = msg.Data
 	}
 
@@ -307,6 +315,121 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 	_, err := uc.devicesRepo.DeleteDevice(ctx, deviceKey)
 
 	return err
+}
+
+func (uc *FcmUsecase) getAuthorNameFromUser(
+	ctx context.Context, user map[string]interface{}, userDevices []*ent.Device,
+) string {
+	if user == nil || len(userDevices) == 0 {
+		return ""
+	}
+
+	authorID, ok := user["id"]
+	authorIDInt := authorID.(int64)
+	if !ok {
+		return ""
+	}
+
+	authorName := ""
+	if name, ok := user["name"].(string); ok && name != "" {
+		authorName = name
+	} else if username, ok := user["username"].(string); ok && username != "" {
+		authorName = username
+	}
+
+	receivedUserID := userDevices[0].UserID
+
+	ctxWithUserID := auth.AppendAuthIds(ctx, receivedUserID, 0)
+	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, authorIDInt)
+	if err != nil {
+		uc.log.Debugf("failed to fetch contact name: %v", err)
+		return authorName
+	}
+
+	for _, contact := range contacts {
+		if contact.GetUserId() == authorIDInt {
+			if contact.GetLabel() != "" {
+				return contact.GetLabel()
+			}
+			break
+		}
+	}
+
+	return authorName
+}
+
+func (uc *FcmUsecase) getAuthorAvatar(user map[string]interface{}) string {
+	if user == nil {
+		return ""
+	}
+
+	if avatar, ok := user["avatar"].(string); ok && avatar != "" {
+		return avatar
+	}
+
+	return ""
+}
+
+func (uc *FcmUsecase) processChatNotification(
+	ctx context.Context, msg *u_struc.FirebaseNotification, userDevices []*ent.Device,
+) {
+	var user map[string]interface{}
+	if userJSON, ok := msg.Data["user"]; ok {
+		err := json.Unmarshal([]byte(userJSON), &user)
+		if err != nil {
+			uc.log.Debugf("failed to parse user json: %v", err)
+		}
+	}
+
+	authorName := msg.Title
+	if len(user) > 0 {
+		authorNameFromUser := uc.getAuthorNameFromUser(ctx, user, userDevices)
+		if authorNameFromUser != "" {
+			authorName = authorNameFromUser
+		}
+	}
+
+	authorAvatar := uc.getAuthorAvatar(user)
+	title := msg.Title
+	imageURL := msg.Image
+
+	if chatJSON, ok := msg.Data["chat"]; ok {
+		var chat map[string]interface{}
+		err := json.Unmarshal([]byte(chatJSON), &chat)
+		if err != nil {
+			uc.log.Debugf("failed to parse chat json: %v", err)
+			return
+		}
+
+		chatType, _ := chat["type"].(string)
+
+		if chatType == "GROUP" {
+			groupName, _ := chat["title"].(string)
+			if groupName != "" {
+				title = groupName
+				msg.Body = authorName + ": " + msg.Body
+			}
+
+			if cover, ok := chat["cover"].(string); ok && cover != "" {
+				imageURL = cover
+			}
+		} else {
+			title = authorName
+			if authorAvatar != "" {
+				imageURL = authorAvatar
+			}
+		}
+	} else if _, ok := msg.Data["chatId"]; ok {
+		title = authorName
+		if authorAvatar != "" {
+			imageURL = authorAvatar
+		}
+	}
+
+	msg.Title = title
+	if imageURL != "" {
+		msg.Image = imageURL
+	}
 }
 
 func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string) {
@@ -458,12 +581,12 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 
 		badgeCount := int(totalBadges)
 		baseMessage.Data = map[string]string{
-			"badge": string(rune(badgeCount)),
+			"badge": strconv.Itoa(badgeCount),
 		}
 		baseMessage.APNS.Payload.Aps.Badge = &badgeCount
 		baseMessage.Android.Notification.NotificationCount = &badgeCount
 		baseMessage.Android.Data = map[string]string{
-			"badge": string(rune(badgeCount)),
+			"badge": strconv.Itoa(badgeCount),
 		}
 
 		for _, device := range userDevices {

@@ -325,8 +325,27 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 	}
 
 	authorID, ok := user["id"]
-	authorIDInt := authorID.(int64)
 	if !ok {
+		return ""
+	}
+
+	var authorIDInt int64
+	switch id := authorID.(type) {
+	case int64:
+		authorIDInt = id
+	case float64:
+		authorIDInt = int64(id)
+	case int:
+		authorIDInt = int64(id)
+	case string:
+		parsed, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			uc.log.Debugf("failed to parse author id string: %v", err)
+			return ""
+		}
+		authorIDInt = parsed
+	default:
+		uc.log.Debugf("unexpected author id type: %T", id)
 		return ""
 	}
 

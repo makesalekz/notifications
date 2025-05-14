@@ -426,12 +426,6 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 		return true
 	}
 
-	decrementCount := int64(1)
-	countStr, ok := notification.Data["decrement_badge_count"]
-	if ok {
-		decrementCount, _ = json.Number(countStr).Int64()
-	}
-
 	userDevicesMap := make(map[int64][]*ent.Device)
 	for _, device := range devices {
 		userDevicesMap[device.UserID] = append(userDevicesMap[device.UserID], device)
@@ -451,7 +445,6 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 	}
 
 	for userID, userDevices := range userDevicesMap {
-		uc.badgeClient.DecrementBadge(ctx, userID, notification.Type, int32(decrementCount))
 		badges, badgeErr := uc.badgeClient.GetBadges(ctx, userID)
 		if badgeErr != nil {
 			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, badgeErr)
@@ -464,7 +457,9 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 		}
 
 		badgeCount := int(totalBadges)
-
+		baseMessage.Data = map[string]string{
+			"badge": string(rune(badgeCount)),
+		}
 		baseMessage.APNS.Payload.Aps.Badge = &badgeCount
 		baseMessage.Android.Notification.NotificationCount = &badgeCount
 		baseMessage.Android.Data = map[string]string{

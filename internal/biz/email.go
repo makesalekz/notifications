@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"os"
 
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/data"
@@ -60,6 +61,9 @@ func NewEmailUsecase(
 }
 
 func (uc *EmailUsecase) setupAWSClient() error {
+	if os.Getenv("DEBUG") == "true" {
+		return nil
+	}
 	awsCfg, err := loadAWSConfig(uc.config)
 	if err != nil {
 		return err

@@ -8,6 +8,7 @@ import (
 )
 
 const QueueFCM = "fcm"
+const QueueFCMSilent = "fcm_silent"
 const QueueEmail = "email"
 
 var DefaultLanguage = "en"

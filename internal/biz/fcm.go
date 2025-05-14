@@ -57,6 +57,7 @@ func NewFcmUsecase(
 	}
 
 	qm.AddConsumer(QueueFCM, uc.sendNotifications)
+	qm.AddConsumer(QueueFCMSilent, uc.sendSilentPushes)
 
 	return uc, nil
 }
@@ -396,4 +397,87 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 			uc.log.Infof("fetchBadges: updated badges for user %d: %v", userID, badges)
 		}
 	}
+}
+
+func (uc *FcmUsecase) sendSilentPushes(ctx context.Context, m jetstream.Msg) bool {
+	notification := u_struc.FirebaseNotification{}
+	err := json.Unmarshal(m.Data(), &notification)
+	if err != nil {
+		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+		return true
+	}
+
+	uc.log.Debugf("sendNotifications: %v", notification)
+
+	ok := uc.sendSilentMessage(ctx, notification)
+
+	return ok
+}
+
+func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_struc.FirebaseNotification) bool {
+	devices, err := uc.devicesRepo.GetDevicesForUsers(ctx, notification.UsersIds)
+	if err != nil {
+		uc.log.Warnf("sendMessage: devicesRepo.GetDevicesForUsers: %s", err.Error())
+		return false
+	}
+
+	if len(devices) == 0 {
+		uc.log.Debug("sendMessage: No devices found")
+		return true
+	}
+
+	userDevicesMap := make(map[int64][]*ent.Device)
+	for _, device := range devices {
+		userDevicesMap[device.UserID] = append(userDevicesMap[device.UserID], device)
+	}
+
+	baseMessage := &messaging.Message{
+		APNS: &messaging.APNSConfig{
+			Payload: &messaging.APNSPayload{
+				Aps: &messaging.Aps{
+					ContentAvailable: true,
+				},
+			},
+		},
+		Android: &messaging.AndroidConfig{
+			Notification: &messaging.AndroidNotification{},
+		},
+	}
+
+	for userID, userDevices := range userDevicesMap {
+		badges, badgeErr := uc.badgeClient.GetBadges(ctx, userID)
+		if badgeErr != nil {
+			uc.log.Warnf("sendMessage: failed to get badges for user %d: %v", userID, badgeErr)
+			continue
+		}
+
+		totalBadges := int64(0)
+		for _, count := range badges {
+			totalBadges += count
+		}
+
+		badgeCount := int(totalBadges)
+		baseMessage.Data = map[string]string{
+			"badge": string(rune(badgeCount)),
+		}
+		baseMessage.APNS.Payload.Aps.Badge = &badgeCount
+		baseMessage.Android.Notification.NotificationCount = &badgeCount
+		baseMessage.Android.Data = map[string]string{
+			"badge": string(rune(badgeCount)),
+		}
+
+		for _, device := range userDevices {
+			message := *baseMessage
+
+			message.Token = device.Token
+			err = uc.fcmClient.Send(ctx, device.Token, &message)
+			if err != nil {
+				uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
+			} else {
+				uc.log.Debugf("sendMessage: sent successfully (%s)", message.Token)
+			}
+		}
+	}
+
+	return err == nil
 }

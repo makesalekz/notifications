@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"firebase.google.com/go/v4/messaging"
@@ -230,6 +231,84 @@ func (uc *FcmUsecase) sendFcmMessageToUserDevices(
 			baseMessage.Data = make(map[string]string)
 		}
 		baseMessage.Data["vibrate"] = "true"
+	}
+
+	if len(msg.Data) > 0 && msg.Type == u_struc.Chat {
+		var user map[string]interface{}
+		if userJSON, ok := msg.Data["user"]; ok {
+			err := json.Unmarshal([]byte(userJSON), &user)
+			if err != nil {
+				uc.log.Debugf("failed to parse user json: %v", err)
+			}
+		}
+
+		authorName := msg.Title
+		if user != nil {
+			if name, ok := user["name"].(string); ok && name != "" {
+				authorName = name
+			} else if username, ok := user["username"].(string); ok && username != "" {
+				authorName = username
+			}
+		}
+
+		authorAvatar := ""
+		if user != nil {
+			if avatar, ok := user["avatar"].(string); ok && avatar != "" {
+				authorAvatar = avatar
+			}
+		}
+
+		title := msg.Title
+		imageURL := msg.Image
+
+		if chatJSON, ok := msg.Data["chat"]; ok {
+			var chat map[string]interface{}
+			err := json.Unmarshal([]byte(chatJSON), &chat)
+			if err != nil {
+				uc.log.Debugf("failed to parse chat json: %v", err)
+			} else {
+				chatType, _ := chat["type"].(string)
+
+				if chatType == "GROUP" {
+					groupName, _ := chat["title"].(string)
+					if groupName != "" {
+						title = fmt.Sprintf("%s в %s", authorName, groupName)
+					}
+					if cover, ok := chat["cover"].(string); ok && cover != "" {
+						imageURL = cover
+					}
+				} else {
+					title = authorName
+					if authorAvatar != "" {
+						imageURL = authorAvatar
+					}
+				}
+			}
+		} else {
+			if _, ok := msg.Data["chatId"]; ok {
+				title = authorName
+				if authorAvatar != "" {
+					imageURL = authorAvatar
+				}
+
+				if messageJSON, ok := msg.Data["message"]; ok {
+					var message map[string]interface{}
+					err := json.Unmarshal([]byte(messageJSON), &message)
+					if err == nil {
+						if content, ok := message["content"].(map[string]interface{}); ok {
+							if text, ok := content["text"].(string); ok && msg.Body == "New message" {
+								msg.Body = text
+							}
+						}
+					}
+				}
+			}
+		}
+
+		msg.Title = title
+		if imageURL != "" {
+			msg.Image = imageURL
+		}
 	}
 
 	if len(msg.Data) > 0 {

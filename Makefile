@@ -179,8 +179,6 @@ mock:
 	mockgen -source internal/data/devices.go -destination internal/data/mock/devices.go -package mock
 	mockgen -source internal/data/fcm.go -destination internal/data/mock/fcm.go -package mock
 	mockgen -source internal/data/notifications.go -destination internal/data/mock/notifications.go -package mock
-	mockgen -source internal/data/localizer.go -destination internal/data/mock/localizer.go -package mock
-	mockgen -source internal/data/mock/badge.go -destination internal/data/mock/badge_mock.go -package mock
 
 # show help
 help:

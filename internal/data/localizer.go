@@ -23,7 +23,7 @@ func NewLocalizer() (*Localizer, error) {
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		// return nil, err
+		return nil, err
 	}
 
 	for _, file := range files {

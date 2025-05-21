@@ -1,0 +1,240 @@
+package biz
+
+import (
+	"context"
+	"io"
+	"testing"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
+	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
+	"gitlab.calendaria.team/services/notifications/ent"
+	"gitlab.calendaria.team/services/notifications/internal/data"
+	"gitlab.calendaria.team/services/notifications/internal/data/mock"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+)
+
+func TestNotificationTextFormatting(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	logger := log.NewStdLogger(io.Discard)
+
+	tests := []struct {
+		name                string
+		userId              int64
+		userDevices         []*ent.Device
+		inputMessage        *u_struc.FirebaseNotification
+		expectedTitle       string
+		expectedBody        string
+		expectedImage       string
+		contacts            []*contacts_v1.Contact
+		shouldFormatMessage bool
+		mockLocalizer       func(*mock.MockILocalizer)
+	}{
+		{
+			name:   "group_chat_with_text_message",
+			userId: 137,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 137, Token: "token137", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Нуралина Жанна Ануарбековна",
+				Body:  "Привет",
+				Type:  u_struc.Chat,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg",
+				Data: map[string]string{
+					"chatId":       "1423",
+					"createdAt":    "2025-05-20T06:22:26Z",
+					"message":      `{"id":10872,"cid":"afc01565-6f7c-4695-8dea-714ccd2753e7","type":"REGULAR","createdAt":"2025-05-20T06:22:26Z","updatedAt":"2025-05-20T06:22:26Z","userId":43,"content":{"text":"Привет"}}`,
+					"type":         "message.new",
+					"plural_count": "1",
+					"user":         `{"id":43,"phone":"+77011291625","email":"zh.nuralina@calendaria.ai","username":"zhanna","name":"Нуралина Жанна Ануарбековна ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","lastLoginAt":"2025-05-20T06:21:59Z"}`,
+					"chat":         `{"type":"GROUP","title":"Test Push-notifications","description":"","cover":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg"}`,
+				},
+			},
+			expectedTitle: "Test Push-notifications",
+			expectedBody:  "Жанна из контактов: Привет",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(43); return &id }(),
+					Label:  "Жанна из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+		},
+		{
+			name:   "personal_chat_with_text_message",
+			userId: 137,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 137, Token: "token137", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Нуралина Жанна Ануарбековна",
+				Body:  "Привет",
+				Type:  u_struc.Chat,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg",
+				Data: map[string]string{
+					"chatId":       "1423",
+					"createdAt":    "2025-05-20T06:22:26Z",
+					"message":      `{"id":10872,"cid":"afc01565-6f7c-4695-8dea-714ccd2753e7","type":"REGULAR","createdAt":"2025-05-20T06:22:26Z","updatedAt":"2025-05-20T06:22:26Z","userId":43,"content":{"text":"Привет"}}`,
+					"type":         "message.new",
+					"plural_count": "1",
+					"user":         `{"id":43,"phone":"+77011291625","email":"zh.nuralina@calendaria.ai","username":"zhanna","name":"Нуралина Жанна Ануарбековна ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","lastLoginAt":"2025-05-20T06:21:59Z"}`,
+					"chat":         `{"type":"DIRECT"}`,
+				},
+			},
+			expectedTitle: "Жанна из контактов",
+			expectedBody:  "Привет",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(43); return &id }(),
+					Label:  "Жанна из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+		},
+		{
+			name:   "message_with_image",
+			userId: 37,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 37, Token: "token37", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Serhio",
+				Body:  "Тест медиа",
+				Type:  u_struc.Chat,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/3/2025/04/fac2eddf-9488-4339-b1bb-94e106c1b573.jpg",
+				Data: map[string]string{
+					"chatId":       "1066",
+					"createdAt":    "2025-05-20T06:29:40Z",
+					"message":      `{"id":10879,"cid":"7429c65c-daf8-417e-86d2-77b49ebb18e2","type":"REGULAR","createdAt":"2025-05-20T06:29:40Z","updatedAt":"2025-05-20T06:29:40Z","userId":3,"content":{"text":"Тест медиа","attachments":[{"id":1348,"type":"IMAGE","mediaId":6962,"media":{"id":6962,"ownerId":3,"url":"https://calendaria-test.s3.eu-north-1.amazonaws.com/3/2025/05/2b21dd86-5e59-4b2e-9b74-44bc386b55ef.jpg","fileName":"b7a3ae3a3e65c9e3a34c18db13b8bb66_exif.jpg","extension":"jpg","createdAt":"2025-05-20T06:29:40Z","size":140507,"width":1080,"height":991}}]}}`,
+					"plural_count": "1",
+					"type":         "message.photo",
+					"user":         `{"id":3,"phone":"+77058429737","email":"soberzerg@gmail.com","username":"serhio","name":"Serhio","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/3/2025/04/fac2eddf-9488-4339-b1bb-94e106c1b573.jpg","lastLoginAt":"2025-05-20T06:28:02Z"}`,
+					"chat":         `{"type":"GROUP","title":"Тестовая группа","cover":""}`,
+				},
+			},
+			expectedTitle: "Тестовая группа",
+			expectedBody:  "Serhio (из контактов): 🖼️ 1 фото",
+			expectedImage: "",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(3); return &id }(),
+					Label:  "Serhio (из контактов)",
+				},
+			},
+			shouldFormatMessage: true,
+		},
+		{
+			name:   "add_to_group",
+			userId: 472,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 472, Token: "token472", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Group",
+				Body:  "New message",
+				Type:  u_struc.Chat,
+				Data: map[string]string{
+					"chat": `{"id":1434,"type":"GROUP","title":"Group","description":"","cover":"",
+"membersCount":1,"createdAt":"2025-05-20T07:44:01Z","updatedAt":"2025-05-20T07:44:01Z","companionId":391,"membership":{"chatId":1434,"status":"ACTIVE","role":"OWNER","updatedAt":"2025-05-20T07:44:01Z","lastReadId":10883},"lastMessage":{"id":10884,"cid":"369c88bb-1c37-42f7-b65d-f36eb1dd5629","type":"SYSTEM","createdAt":"2025-05-20T07:44:02Z","updatedAt":"2025-05-20T07:44:02Z","userId":391,"action":{"type":"MEMBER_ADDED","targetUsersIds":[4,472,69,206,303,216,42]}}}`,
+					"chatId":       "1434",
+					"createdAt":    "2025-05-20T07:44:02Z",
+					"message":      `{"id":10884,"cid":"369c88bb-1c37-42f7-b65d-f36eb1dd5629","type":"SYSTEM","createdAt":"2025-05-20T07:44:02Z","updatedAt":"2025-05-20T07:44:02Z","userId":391,"action":{"type":"MEMBER_ADDED","targetUsersIds":[4,472,69,206,303,216,42]}}`,
+					"plural_count": "0",
+					"type":         "GROUP_ADDED",
+					"user":         `{"id":391,"phone":"+77473518566","username":"akoflacko123","name":"Akzhol Serikkaliyev","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/391/2025/03/95c665bb-cb17-4e63-bf22-9556f265f464.jpg","lastLoginAt":"2025-05-20T07:42:56Z","privacies":{"EVENT_INVITE":"ALL","GROUP_CHAT_INVITE":"ALL","LAST_VISIT":"ALL","MY_EVENTS":"ALL","MY_LAST_ACTIONS":"ALL","MY_PROFILE_IMAGE":"ALL","MY_SLOTS":"ALL","SLOTS_DETAILS":"ALL"}}`,
+				},
+			},
+			expectedTitle: "Group",
+			expectedBody:  "Акжол (из контактов) добавил вас в группу",
+			expectedImage: "",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(391); return &id }(),
+					Label:  "Акжол (из контактов)",
+				},
+			},
+			shouldFormatMessage: true,
+			mockLocalizer:       nil,
+		},
+		{
+			name:   "change_group_cover_image",
+			userId: 137,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 137, Token: "token137", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Test Push-notifications",
+				Body:  "Title, Cover image have been changed by Нуралина Жанна Ануарбековна",
+				Type:  u_struc.Chat,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg",
+				Data: map[string]string{
+					"chat":         `{"id":1423,"type":"GROUP","title":"Test Push-notifications ","description":"","cover":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg","membersCount":16,"createdAt":"2025-05-19T12:46:44Z","updatedAt":"2025-05-20T06:22:57Z","companionId":43,"membership":{"chatId":1423,"status":"ACTIVE","role":"OWNER","updatedAt":"2025-05-20T06:22:26Z","lastReadId":10872},"lastMessage":{"id":10874,"cid":"3ce6487e-2034-4276-859a-e9abdf90a419","type":"SYSTEM","createdAt":"2025-05-20T06:22:57Z","updatedAt":"2025-05-20T06:22:57Z","userId":43,"action":{"type":"COVER_CHANGED","changedFrom":"","changedTo":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg"}}}`,
+					"chatId":       "1423",
+					"createdAt":    "2025-05-20T06:22:57Z",
+					"message":      `{"id":10874,"cid":"3ce6487e-2034-4276-859a-e9abdf90a419","type":"SYSTEM","createdAt":"2025-05-20T06:22:57Z","updatedAt":"2025-05-20T06:22:57Z","userId":43,"action":{"type":"COVER_CHANGED","changedFrom":"","changedTo":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg"}}`,
+					"metadata":     "Title, Cover image",
+					"plural_count": "2",
+					"type":         "chat.update",
+					"user":         `{"id":43,"phone":"+77011291625","email":"zh.nuralina@calendaria.ai","username":"zhanna","name":"Нуралина Жанна Ануарбековна ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","lastLoginAt":"2025-05-20T06:21:59Z"}`,
+				},
+			},
+			expectedTitle: "Test Push-notifications ",
+			expectedBody:  "Жанна из контактов: изменил(а) название, обложку группы",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/05/77bd8b9b-2225-4074-a2ba-704e4125b9d2.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(43); return &id }(),
+					Label:  "Жанна из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+			mockLocalizer:       func(mockLocalizer *mock.MockILocalizer) {},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(
+			tt.name, func(t *testing.T) {
+				mockContactsRemote := mock.NewMockIContactsRemote(ctrl)
+				mockLocalizer, err := data.NewLocalizer()
+				if err != nil {
+					t.Fatalf("Failed to create localizer: %v", err)
+					return
+				}
+
+				if tt.shouldFormatMessage && len(tt.contacts) > 0 {
+					mockContactsRemote.EXPECT().
+						GetContactsByUserId(gomock.Any(), tt.userId).
+						Return(tt.contacts, nil)
+				}
+
+				uc := &FcmUsecase{
+					log:            log.NewHelper(logger),
+					contactsRemote: mockContactsRemote,
+					localizer:      mockLocalizer,
+				}
+
+				message := tt.inputMessage
+				uc.ProcessChatNotification(context.Background(), message, tt.userDevices)
+
+				assert.Equal(t, tt.expectedTitle, message.Title, "Wrong title")
+				assert.Equal(t, tt.expectedBody, message.Body, "Wrong notification body")
+				if tt.expectedImage != "" {
+					assert.Equal(t, tt.expectedImage, message.Image, "Wrong image URL")
+				}
+			},
+		)
+	}
+}

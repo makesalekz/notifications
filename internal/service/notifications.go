@@ -131,7 +131,8 @@ func (s *NotificationsService) DoActionOnNotification(
 	}
 
 	if req.GetAction() == "read" {
-		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, actorID, req.GetNotificationId(), req.GetType())
+		notificationType := req.GetType()
+		return &utils_v1.EmptyReply{}, s.nu.ReadNotification(ctx, actorID, req.GetNotificationId(), notificationType)
 	}
 
 	return &utils_v1.EmptyReply{}, nil

@@ -11,8 +11,7 @@ option java_package = "events.v1";
 
 service Members {
   rpc InviteMembers(InviteMembersRequest) returns (InviteMembersReply);
-  rpc UpdateMemberStatus(UpdateMemberStatusRequest)
-      returns (utils.v1.EmptyReply);
+  rpc UpdateMemberStatus(UpdateMemberStatusRequest) returns (EventReply);
   rpc UpdateMemberRemind(UpdateMemberRemindRequest)
       returns (utils.v1.EmptyReply);
   rpc UpdateMemberRole(UpdateMemberRoleRequest) returns (utils.v1.EmptyReply);

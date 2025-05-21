@@ -12,13 +12,14 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
 	"gitlab.calendaria.team/services/notifications/internal/data"
+	dialer2 "gitlab.calendaria.team/services/notifications/internal/data/dialer"
 	"gitlab.calendaria.team/services/notifications/internal/server"
 	"gitlab.calendaria.team/services/notifications/internal/service"
-	"gitlab.calendaria.team/services/utils/v1/config"
-	"gitlab.calendaria.team/services/utils/v2/dialer"
-	"gitlab.calendaria.team/services/utils/v2/jwt"
-	"gitlab.calendaria.team/services/utils/v2/nats"
-	"gitlab.calendaria.team/services/utils/v2/tracing"
+	"gitlab.calendaria.team/services/utils/v4/config"
+	"gitlab.calendaria.team/services/utils/v4/dialer"
+	"gitlab.calendaria.team/services/utils/v4/jwt"
+	"gitlab.calendaria.team/services/utils/v4/nats"
+	"gitlab.calendaria.team/services/utils/v4/tracing"
 )
 
 import (
@@ -29,80 +30,147 @@ import (
 
 // wireApp init kratos application.
 func wireApp(bootstrap *conf.Bootstrap, logger log.Logger) (*kratos.App, func(), error) {
-	configConfig, err := config.NewConfig()
+	iConfig, err := config.NewConfig()
 	if err != nil {
 		return nil, nil, err
 	}
-	iJwtProcessor, err := jwt.NewJwtProcessor(configConfig)
+	iJwtProcessor, err := jwt.NewJwtProcessor(iConfig)
 	if err != nil {
 		return nil, nil, err
 	}
-	tracer := tracing.NewTracer(configConfig)
-	smscClient := data.NewSmscClient(configConfig, logger)
+	iTracer := tracing.NewTracer(iConfig)
+	smscClient := data.NewSmscClient(iConfig, logger)
 	smsUsecase, err := biz.NewSmsUsecase(logger, smscClient)
 	if err != nil {
 		return nil, nil, err
 	}
-	dataData, cleanup, err := data.NewData(bootstrap, configConfig, logger)
+	client, cleanup, err := data.NewRedisClient(bootstrap, logger)
 	if err != nil {
+		return nil, nil, err
+	}
+	dataData, cleanup2, err := data.NewData(bootstrap, iConfig, logger, client)
+	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	devicesRepo := data.NewDevicesRepo(dataData, logger)
 	notificationsRepo := data.NewNotificationsRepo(dataData)
 	localizer, err := data.NewLocalizer()
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	conn, cleanup2, err := data.NewNatsClient(bootstrap)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	iQueueManager := nats.NewQueueManager(configConfig, conn, logger)
-	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager)
+	conn, cleanup3, err := data.NewNatsClient(bootstrap)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	localizedEmailTemplates, err := biz.NewLocalizedEmailTemplates()
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	emailUsecase, err := biz.NewEmailUsecase(configConfig, logger, iQueueManager, localizedEmailTemplates, localizer)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
-	iDialerManager, err := dialer.NewServiceDialerManager(configConfig, tracer, iJwtProcessor)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	iIamRemote, cleanup3, err := data.NewIamRemote(logger, bootstrap, iDialerManager)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote)
+	iQueueManager := nats.NewQueueManager(iConfig, conn, logger)
+	iBadgeClient := data.NewBadgeClient(client, logger)
+	fcmClient, err := data.NewFcmClient(logger)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
+	iDialerManager, err := dialer.NewServiceDialerManager(iConfig, iTracer, iJwtProcessor)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	iChatsRemote, cleanup4, err := dialer2.NewChatsRemote(bootstrap, iDialerManager)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	iEventsRemote, cleanup5, err := dialer2.NewEventsRemote(bootstrap, iDialerManager)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	iIamRemote, cleanup6, err := dialer2.NewIamRemote(logger, bootstrap, iDialerManager)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	iContactsRemote, cleanup7, err := dialer2.NewContactsRemote(bootstrap, iDialerManager)
+	if err != nil {
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	fcmUsecase, err := biz.NewFcmUsecase(logger, devicesRepo, notificationsRepo, localizer, iQueueManager, iBadgeClient, fcmClient, iChatsRemote, iEventsRemote, iIamRemote, iContactsRemote)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	localizedEmailTemplates, err := biz.NewLocalizedEmailTemplates()
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	emailUsecase, err := biz.NewEmailUsecase(iConfig, logger, iQueueManager, localizedEmailTemplates, localizer)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	senderService := service.NewSenderService(smsUsecase, fcmUsecase, emailUsecase)
+	notificationsUsecase, err := biz.NewNotificationsUsecase(localizer, notificationsRepo, iIamRemote, iBadgeClient, logger)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	notificationsService := service.NewNotificationsService(notificationsUsecase)
-	grpcServer := server.NewGRPCServer(bootstrap, iJwtProcessor, tracer, senderService, notificationsService)
+	grpcServer := server.NewGRPCServer(bootstrap, iJwtProcessor, iTracer, senderService, notificationsService)
 	httpServer := server.NewHTTPServer(bootstrap, iJwtProcessor)
-	app := newApp(logger, configConfig, grpcServer, httpServer)
+	app := newApp(logger, iConfig, grpcServer, httpServer)
 	return app, func() {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()

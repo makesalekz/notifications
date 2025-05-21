@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
 	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // NotificationUpdate is the builder for updating Notification entities.
@@ -53,15 +53,15 @@ func (nu *NotificationUpdate) AddUserID(i int64) *NotificationUpdate {
 }
 
 // SetType sets the "type" field.
-func (nu *NotificationUpdate) SetType(et enum.NotificationType) *NotificationUpdate {
-	nu.mutation.SetType(et)
+func (nu *NotificationUpdate) SetType(st struc.NotificationType) *NotificationUpdate {
+	nu.mutation.SetType(st)
 	return nu
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (nu *NotificationUpdate) SetNillableType(et *enum.NotificationType) *NotificationUpdate {
-	if et != nil {
-		nu.SetType(*et)
+func (nu *NotificationUpdate) SetNillableType(st *struc.NotificationType) *NotificationUpdate {
+	if st != nil {
+		nu.SetType(*st)
 	}
 	return nu
 }
@@ -444,15 +444,15 @@ func (nuo *NotificationUpdateOne) AddUserID(i int64) *NotificationUpdateOne {
 }
 
 // SetType sets the "type" field.
-func (nuo *NotificationUpdateOne) SetType(et enum.NotificationType) *NotificationUpdateOne {
-	nuo.mutation.SetType(et)
+func (nuo *NotificationUpdateOne) SetType(st struc.NotificationType) *NotificationUpdateOne {
+	nuo.mutation.SetType(st)
 	return nuo
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (nuo *NotificationUpdateOne) SetNillableType(et *enum.NotificationType) *NotificationUpdateOne {
-	if et != nil {
-		nuo.SetType(*et)
+func (nuo *NotificationUpdateOne) SetNillableType(st *struc.NotificationType) *NotificationUpdateOne {
+	if st != nil {
+		nuo.SetType(*st)
 	}
 	return nuo
 }

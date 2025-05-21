@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package chats.v1;
+
+import "api/utils/v1/models.proto";
+import "api/chats/v1/models.proto";
+
+option go_package = "gitlab.calendaria.team/services/chats/api/chats/v1;chats_v1";
+option java_multiple_files = true;
+option java_package = "chats.v1";
+
+service Chats {
+  rpc CreateDirectChat(CreateDirectChatRequest) returns (ChatReply);
+  rpc CreateGroupChat(CreateGroupChatRequest) returns (ChatReply);
+  rpc CreateEventChat(CreateEventChatRequest) returns (ChatReply);
+  rpc UpdateChat(UpdateChatRequest) returns (utils.v1.EmptyReply);
+  rpc GetChat(ChatRequest) returns (ChatReply);
+  rpc ClearChat(ClearChatRequest) returns (utils.v1.EmptyReply);
+  rpc LeaveChat(ChatRequest) returns (utils.v1.EmptyReply);
+  rpc DeleteChat(ChatRequest) returns (utils.v1.EmptyReply);
+  rpc DoActionOnChat(ChatActionRequest) returns (utils.v1.EmptyReply);
+  rpc ListChats(ListChatsRequest) returns (ListChatsReply);
+  // List objects in the chats by type
+  rpc ListLinksInChats(SearchInChatsRequest) returns (ListChatLinksReply);
+  rpc ListEventsInChats(SearchInChatsRequest) returns (ListChatEventsReply);
+  rpc ListContactsInChats(SearchInChatsRequest) returns (ListChatContactsReply);
+  // Lists common chats between two users
+  rpc ListCommonChats(ChatUserListRequest) returns (CommonChatsReply);
+}
+
+message CreateDirectChatRequest {
+  int64 userId = 1;
+}
+
+message CreateGroupChatRequest {
+  string title = 1;
+  string description = 2;
+  string coverImage = 3;
+}
+
+message CreateEventChatRequest {
+  int64 eventId = 1;
+}
+
+message ChatReply {
+  Chat chat = 1;
+}
+
+message UpdateChatRequest {
+  int64 chatId = 1;
+  string title = 2;
+  string description = 3;
+  string coverImage = 4;
+}
+
+message ClearChatRequest {
+  int64 chatId = 1;
+  bool isHard = 2;
+}
+
+message ChatActionRequest {
+  int64 chatId = 1;
+  string action = 2;
+  string muteTill = 3;
+}
+
+message ListChatsRequest {
+  bool unreadOnly = 2;
+  bool isArchived = 3;
+  repeated string types = 4;
+  utils.v1.PaginateRequest paginate = 5;
+}
+
+message ListChatsReply {
+  repeated Chat chats = 1;
+  int32 totalUnreadCount = 2;
+}
+
+message CommonChatsReply {
+  repeated Chat chats = 1;
+}
+
+message ChatUserListRequest {
+  int64 userId = 1;
+  string search = 3;
+  CommonGroupsPaginateRequest paginate = 2;
+}
+
+message ListChatLinksReply {
+  repeated Link links = 1;
+}
+
+message ListChatEventsReply {
+  repeated int64 eventsIds = 1;
+}
+
+message ListChatContactsReply {
+  repeated int64 contactsIds = 1;
+}

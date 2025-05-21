@@ -40,10 +40,12 @@ message CalendarDto {
   string title = 1;
   string color = 2;
   string description = 3;
+  bool isSelected = 4;
 }
 
 message EventDto {
   int64 calendarId = 14;
+  int64 exploreEventId = 15;
   string title = 2;
   string description = 3;
   optional int64 mediaId = 4;
@@ -78,9 +80,11 @@ message Calendar {
   string description = 3;
   string color = 4;
   bool isPrimary = 5;
-  string provider = 7;
-
+  bool isSelected = 10;
   int64 ownerId = 6;
+  string provider = 7;
+  optional string externalId = 8;
+  optional int64 credentialId = 9;
 }
 
 message ExternalCalendar {
@@ -89,7 +93,7 @@ message ExternalCalendar {
   string description = 3;
   string color = 4;
   bool isPrimary = 5;
-  bool isConnected = 6;
+  optional Calendar calendar = 6;
 }
 
 message Event {
@@ -102,16 +106,18 @@ message Event {
   bool isAllDay = 8;
   int32 noticeBefore = 9;
   optional int64 chatId = 10;
-  optional int64 locationId = 11;
   string type = 12;
   optional string recurrenceRule = 13;
   repeated string avatars = 14;
   int32 membersCount = 15;
   int64 ownerId = 16;
   string publishedAt = 20;
+  int64 threadId = 22;
+  optional int64 exploreEventId = 23;
 
   optional Membership membership = 18;
   optional LocationDto location = 19;
+  optional Calendar calendar = 21;
 }
 
 message EventRecurrence {
@@ -136,8 +142,10 @@ message Attachment {
   int64 id = 1;
   string type = 2;
   int64 eventId = 3;
+  string createdAt = 4;
 
-  media.v1.Media media = 4;
+  optional media.v1.Media media = 5;
+  optional Link link = 6;
 }
 
 message Link {
@@ -146,6 +154,7 @@ message Link {
   string url = 3;
   int64 ownerId = 4;
   int64 eventId = 5;
+  string createdAt = 6;
 }
 
 message InviteLink {
@@ -171,6 +180,7 @@ message Membership {
   string role = 3;
   optional int32 remind = 4;
   optional string remindAt = 5;
+  optional int64 calendarId = 6;
 }
 
 message MemberHistory {
@@ -181,16 +191,7 @@ message MemberHistory {
   string createdAt = 5;
 }
 
-message EventSlot {
-  string startDateTime = 1;
-  string endDateTime = 2;
-  SlotType slotType = 3;
-  repeated Event events = 4;
-}
-
-enum SlotType {
-  EmptySlotType = 0;
-  EventSlotType = 1;
-
-  AnySlotType = 100;
+message EventByPrivacy {
+  int64 eventId = 1;
+  optional Event event = 2;
 }

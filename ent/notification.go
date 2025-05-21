@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
 	"gitlab.calendaria.team/services/notifications/ent/notification"
 	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
+	"gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // Notification is the model entity for the Notification schema.
@@ -22,7 +22,7 @@ type Notification struct {
 	// UserID holds the value of the "user_id" field.
 	UserID int64 `json:"user_id,omitempty"`
 	// Type holds the value of the "type" field.
-	Type enum.NotificationType `json:"type,omitempty"`
+	Type struc.NotificationType `json:"type,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Text holds the value of the "text" field.
@@ -107,7 +107,7 @@ func (n *Notification) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				n.Type = enum.NotificationType(value.String)
+				n.Type = struc.NotificationType(value.String)
 			}
 		case notification.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {

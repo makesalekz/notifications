@@ -3,10 +3,12 @@ package biz
 
 import (
 	"github.com/google/wire"
-	"gitlab.calendaria.team/services/utils/v2/nats"
+
+	"gitlab.calendaria.team/services/utils/v4/nats"
 )
 
 const QueueFCM = "fcm"
+const QueueFCMSilent = "fcm_silent"
 const QueueEmail = "email"
 
 var DefaultLanguage = "en"

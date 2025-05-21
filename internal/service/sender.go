@@ -6,9 +6,9 @@ import (
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
 	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/notifications/messages"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 	"gitlab.calendaria.team/services/utils/v2/auth"
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 type SenderService struct {
@@ -37,16 +37,18 @@ func (s *SenderService) CreateFcmDevice(ctx context.Context, req *v1.FcmDataRequ
 		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
-	err := s.fcm.RegisterDevice(ctx, data.DeviceDto{
-		DeviceKey: data.DeviceKey{
-			UserID:   actorID,
-			Token:    req.GetToken(),
-			OldToken: req.GetOldToken(),
+	err := s.fcm.RegisterDevice(
+		ctx, data.DeviceDto{
+			DeviceKey: data.DeviceKey{
+				UserID:   actorID,
+				Token:    req.GetToken(),
+				OldToken: req.GetOldToken(),
+			},
+			DeviceData: data.DeviceData{
+				Language: req.GetLanguage(),
+			},
 		},
-		DeviceData: data.DeviceData{
-			Language: req.GetLanguage(),
-		},
-	})
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -60,10 +62,12 @@ func (s *SenderService) DeleteFcmDevice(ctx context.Context, req *v1.FcmDeviceRe
 		return nil, v1.ErrorEmptyActorId("empty actor id")
 	}
 
-	err := s.fcm.UnregisterDevice(ctx, data.DeviceKey{
-		UserID: actorID,
-		Token:  req.GetToken(),
-	})
+	err := s.fcm.UnregisterDevice(
+		ctx, data.DeviceKey{
+			UserID: actorID,
+			Token:  req.GetToken(),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -75,11 +79,13 @@ func (s *SenderService) PersonalSmsSender(
 	ctx context.Context,
 	req *v1.PersonalSmsSenderRequest,
 ) (*utils_v1.EmptyReply, error) {
-	err := s.sms.SendSms(ctx, data.Sms{
-		Sender:  req.GetSender(),
-		Message: req.GetMessage(),
-		Phones:  []string{req.GetPhone()},
-	})
+	err := s.sms.SendSms(
+		ctx, data.Sms{
+			Sender:  req.GetSender(),
+			Message: req.GetMessage(),
+			Phones:  []string{req.GetPhone()},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -93,12 +99,14 @@ func (s *SenderService) EmailSender(ctx context.Context, req *v1.EmailSenderRequ
 		language = biz.DefaultLanguage
 	}
 
-	err := s.email.SendEmail(ctx, &messages.EmailDetails{
-		Language: language,
-		Type:     req.GetType(),
-		Emails:   req.GetEmails(),
-		Data:     req.GetData(),
-	})
+	err := s.email.SendEmail(
+		ctx, &u_struc.EmailDetails{
+			Language: language,
+			Type:     req.GetType(),
+			Emails:   req.GetEmails(),
+			Data:     req.GetData(),
+		},
+	)
 
 	if err != nil {
 		return nil, err

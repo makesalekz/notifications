@@ -4,7 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"gitlab.calendaria.team/services/notifications/ent/enum"
+
+	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 )
 
 // LastReadNotification holds the schema definition for the LastReadNotification entity.
@@ -16,7 +17,7 @@ type LastReadNotification struct {
 func (LastReadNotification) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("user_id").Immutable(),
-		field.String("type").GoType(enum.NotificationType(enum.Common.Value())).Default(enum.Common.Value()),
+		field.String("type").GoType(u_struc.NotificationType(u_struc.Common.Value())).Default(u_struc.Common.Value()),
 		field.Int64("last_read_id"),
 	}
 }

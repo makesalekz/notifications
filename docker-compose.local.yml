@@ -1,0 +1,32 @@
+services:
+  service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - TOKEN=${TOKEN}
+        - ENV=dev
+    container_name: ${SERVICE_NAME}_service
+    ports:
+      - '${HTTP_PORT}:8000'
+      - '${GRPC_PORT}:9000'
+    networks:
+      - backend
+    restart: unless-stopped
+    environment:
+      - DEBUG=1
+      - AUTOMIGRATE=true
+      - SERVICE_NAME=${SERVICE_NAME}
+      - GOOGLE_APPLICATION_CREDENTIALS=/data/conf/credentials.json
+      - FIREBASE_CONFIG=/data/conf/firebase.json
+      - CONSUL_ADDRESS=http://consul:8500
+      - VAULT_ADDRESS=http://vault:8200
+      - VAULT_TOKEN=myroot
+      - AWS_REGION=${AWS_REGION}
+    command: ["./app","-conf","config.yaml"]
+
+networks:
+  backend:
+    name: ${NETWORK}
+    driver: bridge
+    external: true

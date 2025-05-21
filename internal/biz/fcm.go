@@ -132,7 +132,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	var inactiveTokens []string
 	for _, dispatchResult := range result {
-		if dispatchResult.InactiveTokens != nil && len(dispatchResult.InactiveTokens) > 0 {
+		if len(dispatchResult.InactiveTokens) > 0 {
 			inactiveTokens = append(inactiveTokens, dispatchResult.InactiveTokens...)
 		}
 	}
@@ -175,6 +175,9 @@ func (uc *FcmUsecase) SendUserNotifications(
 	}
 
 	userSettings, err := uc.iam.GetUsersSettings(ctx, msg.UsersIds)
+	if err != nil {
+		uc.log.Warnf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
+	}
 
 	result := make(map[int64]PushDispatchResult)
 

@@ -3,25 +3,37 @@ package data
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )
+
+type ILocalizer interface {
+	GetLocalizedMessage(
+		langTag string, id string, templateData map[string]interface{}, pluralCount *int64,
+	) (string, error)
+}
 
 type Localizer struct {
 	bundle *i18n.Bundle
 }
 
 func NewLocalizer() (*Localizer, error) {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := filepath.Clean(filepath.Join(filepath.Dir(filename), "..", "..", "locales"))
+
 	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
-	files, err := os.ReadDir("locales/")
+
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, file := range files {
-		bundle.MustLoadMessageFile("locales/" + file.Name())
+		bundle.MustLoadMessageFile(filepath.Join(dir, file.Name()))
 	}
 
 	return &Localizer{
@@ -30,7 +42,7 @@ func NewLocalizer() (*Localizer, error) {
 }
 
 func (loc *Localizer) GetLocalizedMessage(
-	langTag string, id string, templateData map[string]interface{}, plularCount *int64,
+	langTag string, id string, templateData map[string]interface{}, pluralCount *int64,
 ) (string, error) {
 	localizer := i18n.NewLocalizer(loc.bundle, langTag)
 
@@ -38,8 +50,8 @@ func (loc *Localizer) GetLocalizedMessage(
 		MessageID:    id,
 		TemplateData: templateData,
 	}
-	if plularCount != nil {
-		locConfig.PluralCount = *plularCount
+	if pluralCount != nil {
+		locConfig.PluralCount = *pluralCount
 	}
 
 	message, err := localizer.Localize(locConfig)

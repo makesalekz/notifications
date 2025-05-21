@@ -32,10 +32,13 @@
   "RECAP_ADDED": "{{.user.name}} толықтыру қосты",
   "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-да тіркелді",
   "chat.update": {
-    "one": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}",
-    "other": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}"
+    "one": "{{.metadata}} {{.user.name}} өзгерді",
+    "other": "{{.metadata}} {{.user.name}} өзгерді"
   },
-  "member.added": "Сізді {{.chat.title}} тобына қосты",
+  "chat.update_metadata.title": "атауы",
+  "chat.update_metadata.description": "сипаттамасы",
+  "chat.update_metadata.cover_image": "топтың мұқабасы",
+  "member.added": "{{.user.name}} сізді топқа қосты",
   "message.new": {
     "one": "{{.message.content.text}}",
     "other": "Жаңа хабарлама"
@@ -76,5 +79,7 @@
   "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "
-  }
+  },
+  "GROUP_ADDED": "{{.user.name}} сізді топқа қосты",
+  "GROUP_TITLE_CHANGED": "{{.user.name}} топтың атауын {{.oldTitle}} {{.newTitle}} деп өзгертті"
 }

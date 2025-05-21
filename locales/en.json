@@ -32,10 +32,13 @@
     "RECAP_ADDED": "{{.user.name}} added a recap",
     "CONTACT_CREATED": "Your contact {{.contact.label}} has signed up for Calendaria",
     "chat.update": {
-        "one": "{{.metadata}} has been changed by {{.user.name}}",
-        "other": "{{.metadata}} have been changed by {{.user.name}}"
+        "one": "{{.user.name}} has changed {{.metadata}}",
+        "other": "{{.user.name}} has changed {{.metadata}}"
     },
-    "member.added": "Your were added to the group {{.chat.title}}",
+    "chat.update_metadata.title": "title",
+    "chat.update_metadata.description": "description",
+    "chat.update_metadata.cover_image": "cover image",
+    "member.added": "{{.user.name}} has added you to the group",
     "message.new": {
         "one": "{{.message.content.text}}",
         "other": "New message"
@@ -76,5 +79,7 @@
     "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"
-    }
+    },
+    "GROUP_ADDED": "{{.user.name}} has added you to the group",
+    "GROUP_TITLE_CHANGED": "{{.user.name}} has changed the group name from {{.oldTitle}} to {{.newTitle}}"
 }

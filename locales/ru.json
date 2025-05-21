@@ -38,12 +38,15 @@
     "RECAP_ADDED": "{{.user.name}} добавил протокол",
     "CONTACT_CREATED": "Ваш контакт {{.contact.label}} зарегистрировался в Calendaria.",
     "chat.update": {
-        "one":"{{.metadata}} был изменен {{.user.name}}",
-        "few":"{{.metadata}} были изменены {{.user.name}}",
-        "many":"{{.metadata}} были изменены {{.user.name}}",
-        "other":"{{.metadata}} были изменены {{.user.name}}"
+        "one":"{{.user.name}}: изменил(а) {{.metadata}}",
+        "few":"{{.user.name}}: изменил(а) {{.metadata}}",
+        "many":"{{.user.name}}: изменил(а) {{.metadata}}",
+        "other":"{{.user.name}}: изменил(а) {{.metadata}}"
     },
-    "member.added": "Вас добавили в группу {{.chat.title}}",
+    "chat.update_metadata.title": "название",
+    "chat.update_metadata.description": "описание",
+    "chat.update_metadata.cover_image": "обложку группы",
+    "member.added": "{{.user.name}} добавил вас в группу",
     "message.new": {
         "one": "{{.message.content.text}}",
         "few": "{{.message.content.text}}",
@@ -102,5 +105,7 @@
     "email.subject": {
         "invite": "Вас пригласили в рабочее пространство",
         "confirm_email": "Код авторизации"
-    }
+    },
+    "GROUP_ADDED": "{{.user.name}} добавил вас в группу",
+    "GROUP_TITLE_CHANGED": "{{.user.name}} изменил название группы с {{.oldTitle}} на {{.newTitle}}"
 }

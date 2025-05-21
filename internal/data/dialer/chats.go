@@ -59,5 +59,5 @@ func (r *ChatsRemote) CountUnreadMessages(ctx context.Context, userIDs []int64) 
 		return nil, err
 	}
 
-	return unreadReply.UnreadMessages, nil
+	return unreadReply.GetUnreadMessages(), nil
 }

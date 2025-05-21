@@ -1,4 +1,4 @@
-// nolint: gochecknoglobals, stylecheck, promlinter // no need refactor http server
+//nolint: gochecknoglobals, stylecheck, promlinter // no need refactor http server
 package server
 
 import (

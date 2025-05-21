@@ -36,7 +36,7 @@ type FcmUsecase struct {
 	fcmClient         data.FcmClient
 	log               *log.Helper
 	devicesRepo       data.DevicesRepo
-	localizer         data.ILocalizer
+	localizer         *data.Localizer
 	notificationsRepo data.NotificationsRepo
 	qm                u_nats.IQueueManager
 	badgeClient       u_badge.IBadgeClient
@@ -50,7 +50,7 @@ func NewFcmUsecase(
 	logger log.Logger,
 	devicesRepo data.DevicesRepo,
 	notificationsRepo data.NotificationsRepo,
-	localizer data.ILocalizer,
+	localizer *data.Localizer,
 	qm u_nats.IQueueManager,
 	badgeClient u_badge.IBadgeClient,
 	fcmClient data.FcmClient,

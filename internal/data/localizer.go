@@ -10,12 +10,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-type ILocalizer interface {
-	GetLocalizedMessage(
-		langTag string, id string, templateData map[string]interface{}, pluralCount *int64,
-	) (string, error)
-}
-
 type Localizer struct {
 	bundle *i18n.Bundle
 }
@@ -29,7 +23,7 @@ func NewLocalizer() (*Localizer, error) {
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		// return nil, err
 	}
 
 	for _, file := range files {

@@ -32,7 +32,6 @@ func TestNotificationTextFormatting(t *testing.T) {
 		expectedImage       string
 		contacts            []*contacts_v1.Contact
 		shouldFormatMessage bool
-		mockLocalizer       func(*mock.MockILocalizer)
 	}{
 		{
 			name:   "group_chat_with_text_message",
@@ -165,7 +164,6 @@ func TestNotificationTextFormatting(t *testing.T) {
 				},
 			},
 			shouldFormatMessage: true,
-			mockLocalizer:       nil,
 		},
 		{
 			name:   "change_group_cover_image",
@@ -200,7 +198,6 @@ func TestNotificationTextFormatting(t *testing.T) {
 				},
 			},
 			shouldFormatMessage: true,
-			mockLocalizer:       func(mockLocalizer *mock.MockILocalizer) {},
 		},
 	}
 

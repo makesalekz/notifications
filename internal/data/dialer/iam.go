@@ -6,6 +6,7 @@ import (
 	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
 	"gitlab.calendaria.team/services/notifications/internal/conf"
+	"gitlab.calendaria.team/services/utils/v2/auth"
 	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -113,6 +114,11 @@ func (r *IamRemote) GetUsersSettings(ctx context.Context, userIDs []int64) (map[
 		return nil, err
 	}
 
+	if len(userIDs) == 0 {
+		return nil, nil
+	}
+
+	ctx = auth.AppendAuthIds(ctx, userIDs[0], 0)
 	reply, err := client.GetUsersSettings(
 		ctx, &users_v1.GetUsersSettingsRequest{
 			UserIds: userIDs,

@@ -57,6 +57,10 @@ func (c *fcmClient) Send(ctx context.Context, token string, message *messaging.M
 			c.log.Debugf("Send: invalid token %s: %v", token, err)
 			return err
 		}
+		if messaging.IsSenderIDMismatch(err) {
+			c.log.Debugf("Send: sender ID mismatch %s: %v", token, err)
+			return err
+		}
 		c.log.Errorf("Send: %v", err)
 		return nil
 	}

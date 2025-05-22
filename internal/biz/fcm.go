@@ -321,7 +321,6 @@ func (uc *FcmUsecase) LocalizeNotification(
 	dto := &data.NotificationDto{}
 
 	if err := dto.ParseAndSetNotificationData(msg.Data); err == nil && dto.Type != nil {
-		// replace user name with contact name
 		if contactName != "" && len(dto.GetConvertedMap()) > 0 {
 			if userData, ok := dto.GetConvertedMap()["user"]; ok {
 				if userMap, ok := userData.(map[string]interface{}); ok {
@@ -472,7 +471,7 @@ func (uc *FcmUsecase) DispatchPushNotifications(
 			inactiveTokens = append(inactiveTokens, device.Token)
 		} else {
 			if deviceMessage.Notification != nil {
-				uc.log.Debugf("DispatchPushNotifications: sent successfully (%s)", deviceMessage.Notification.Body)
+				uc.log.Debugf("DispatchPushNotifications: sent successfully (%v)", deviceMessage.Notification)
 			} else {
 				uc.log.Debugf("DispatchPushNotifications: sent successfully (silent push)")
 			}
@@ -545,8 +544,7 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 	}
 
 	ctxWithUserID := auth.AppendAuthIds(ctx, receiverID, 0)
-
-	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, receiverID)
+	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, authorIDInt)
 	if err != nil {
 		uc.log.Debugf("failed to get contacts for user %d: %v", receiverID, err)
 		return authorName

@@ -109,7 +109,7 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 		return 0, err
 	}
 
-	// nolint:gosec // convertation to int32 is safe
+	//nolint:gosec // convertation to int32 is safe
 	return int32(created), err
 }
 

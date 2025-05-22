@@ -192,7 +192,7 @@ func (uc *FcmUsecase) SendUserNotifications(
 	for userID, devices := range userDevicesMap {
 		withSound, withVibration := uc.GetUserNotificationSettings(ctx, userID, userSettings)
 
-		badgeCount, badgeErr := uc.GetAndIncrementBadge(ctx, userID, msg.Type, isFirst)
+		badgeCount, badgeErr := uc.GetAndIncrementBadge(ctx, userID, msg.Type, msg.Data["type"], isFirst)
 
 		if badgeErr != nil && isFirst {
 			result[userID] = PushDispatchResult{NeedsReFetch: true}
@@ -266,7 +266,7 @@ func (uc *FcmUsecase) GetUserNotificationSettings(
 }
 
 func (uc *FcmUsecase) GetAndIncrementBadge(
-	ctx context.Context, userID int64, notifType u_struc.NotificationType, increment bool,
+	ctx context.Context, userID int64, notifType u_struc.NotificationType, dataType string, increment bool,
 ) (int, error) {
 	badges, err := uc.badgeClient.GetBadges(ctx, userID)
 	if err != nil {
@@ -278,7 +278,7 @@ func (uc *FcmUsecase) GetAndIncrementBadge(
 		totalBadges += count
 	}
 
-	if increment {
+	if increment && (notifType == u_struc.Chat || (notifType == u_struc.Event && dataType == "NEW_INVITE")) {
 		err = uc.badgeClient.IncrementBadge(ctx, userID, notifType)
 		if err != nil {
 			uc.log.Warnf("GetAndIncrementBadge: failed to increment badge for user %d: %v", userID, err)
@@ -672,14 +672,14 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 		return
 	}
 
+	// todo: Add notifications count from db notificationsRepo.GetUnreadNotificationsCount after adding read status
 	var (
-		eventsCountMap   = make(map[int64]int32)
-		chatsCountMap    = make(map[int64]int32)
-		contactsCountMap = make(map[int64]int32)
-		wg               sync.WaitGroup
+		eventsCountMap = make(map[int64]int32)
+		chatsCountMap  = make(map[int64]int32)
+		wg             sync.WaitGroup
 	)
 
-	wg.Add(3)
+	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
@@ -707,21 +707,6 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 		}
 	}()
 
-	go func() {
-		defer wg.Done()
-		contactsCount, err := uc.notificationsRepo.CountUnreadNotificationsByType(
-			ctx, userIDs, u_struc.Contact.Value(),
-		)
-		if err != nil {
-			uc.log.Errorf("fetchBadges: failed to get contacts count: %v", err)
-			return
-		}
-
-		for k, v := range contactsCount {
-			contactsCountMap[k] = v
-		}
-	}()
-
 	wg.Wait()
 
 	for _, userID := range userIDs {
@@ -733,10 +718,6 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 
 		if count, ok := chatsCountMap[userID]; ok {
 			badges[u_struc.Chat] = int64(count)
-		}
-
-		if count, ok := contactsCountMap[userID]; ok {
-			badges[u_struc.Contact] = int64(count)
 		}
 
 		err := uc.badgeClient.SetBadges(ctx, userID, badges)

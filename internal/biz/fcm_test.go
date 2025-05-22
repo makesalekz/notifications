@@ -20,7 +20,7 @@ import (
 	nats_mock "gitlab.calendaria.team/services/utils/v4/nats/mock"
 )
 
-// FCMMessageMatcher - пользовательский matcher для FCM сообщений
+// FCMMessageMatcher - пользовательский matcher для FCM сообщений.
 type FCMMessageMatcher struct {
 	expected messaging.Message
 }
@@ -102,7 +102,7 @@ func (m FCMMessageMatcher) String() string {
 	return "is a matching FCM message"
 }
 
-// Функция для создания FCM matcher
+// Функция для создания FCM matcher.
 func MatchesFCMMessage(expected messaging.Message) gomock.Matcher {
 	return FCMMessageMatcher{expected: expected}
 }
@@ -141,6 +141,8 @@ func TestFull(t *testing.T) {
 		iamRemote,
 		contactRemote,
 	)
+
+	assert.NoError(t, err)
 
 	userIDs := []int64{1, 2}
 

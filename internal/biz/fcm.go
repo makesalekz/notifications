@@ -594,8 +594,7 @@ func (uc *FcmUsecase) ExtractContactNameAndAvatar(
 
 	authorAvatar := uc.getAuthorAvatar(user)
 
-	contactName := ""
-	contactName = uc.getAuthorNameFromUser(ctx, user, receiverID)
+	contactName := uc.getAuthorNameFromUser(ctx, user, receiverID)
 
 	displayAuthorName := authorName
 	if contactName != "" {

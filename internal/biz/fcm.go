@@ -159,6 +159,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 type PushDispatchResult struct {
 	InactiveTokens []string
 	NeedsReFetch   bool
+	msg            PushDispatchContext
 }
 
 func (uc *FcmUsecase) SendUserNotifications(
@@ -182,14 +183,13 @@ func (uc *FcmUsecase) SendUserNotifications(
 	result := make(map[int64]PushDispatchResult)
 
 	processedMsg := msg
-	if msg.Type == u_struc.Chat {
-		for _, devices := range userDevicesMap {
-			uc.ProcessChatNotification(ctx, &msg, devices)
-			break
-		}
-	}
 
+	contactName, contactAvatar := "", ""
 	for userID, devices := range userDevicesMap {
+		if contactName == "" {
+			contactName, contactAvatar = uc.ExtractContactNameAndAvatar(ctx, &msg, userID)
+		}
+
 		withSound, withVibration := uc.GetUserNotificationSettings(ctx, userID, userSettings)
 
 		badgeCount, badgeErr := uc.GetAndIncrementBadge(ctx, userID, msg.Type, msg.Data["type"], isFirst)
@@ -202,7 +202,9 @@ func (uc *FcmUsecase) SendUserNotifications(
 
 		langDevicesMap := uc.GroupDevicesByLanguage(devices)
 		for lang, langDevices := range langDevicesMap {
-			localizedTitle, localizedBody := uc.LocalizeNotification(ctx, &processedMsg, lang)
+			localizedTitle, localizedBody, coverImage := uc.LocalizeNotification(
+				&processedMsg, contactName, contactAvatar, lang,
+			)
 
 			dispatchCtx := PushDispatchContext{
 				UserID:         userID,
@@ -213,13 +215,14 @@ func (uc *FcmUsecase) SendUserNotifications(
 				LocalizedTitle: localizedTitle,
 				LocalizedBody:  localizedBody,
 				MessageData:    processedMsg.Data,
-				ImageURL:       processedMsg.Image,
+				ImageURL:       coverImage,
 			}
 
 			inactiveTokens := uc.DispatchPushNotifications(ctx, dispatchCtx, processedMsg)
 
 			currentResult := result[userID]
 			currentResult.InactiveTokens = append(currentResult.InactiveTokens, inactiveTokens...)
+			currentResult.msg = dispatchCtx
 			result[userID] = currentResult
 		}
 	}
@@ -300,27 +303,107 @@ func (uc *FcmUsecase) GroupDevicesByLanguage(devices []*ent.Device) map[string][
 	return langDevicesMap
 }
 
-func (uc *FcmUsecase) LocalizeNotification(ctx context.Context, msg *u_struc.FirebaseNotification, lang string) (
-	string, string,
+func (uc *FcmUsecase) LocalizeNotification(
+	msg *u_struc.FirebaseNotification, contactName, contactAvatar, lang string,
+) (
+	string, string, string,
 ) {
 	if lang == "null" {
-		return msg.Title, msg.Body
+		return msg.Title, msg.Body, msg.Image
 	}
 
 	localizedTitle := msg.Title
 	localizedBody := msg.Body
+	imageURL := msg.Image
+
+	chatType := ""
 
 	dto := &data.NotificationDto{}
+
 	if err := dto.ParseAndSetNotificationData(msg.Data); err == nil && dto.Type != nil {
+		// replace user name with contact name
+		if contactName != "" && len(dto.GetConvertedMap()) > 0 {
+			if userData, ok := dto.GetConvertedMap()["user"]; ok {
+				if userMap, ok := userData.(map[string]interface{}); ok {
+					userMap["name"] = contactName
+				}
+			}
+		}
+
+		if chatJSON, ok := msg.Data["chat"]; ok {
+			var chat map[string]interface{}
+			err = json.Unmarshal([]byte(chatJSON), &chat)
+			if err != nil {
+				uc.log.Debugf("failed to parse chat json: %v", err)
+			}
+
+			chatType, _ = chat["type"].(string)
+			groupName, hasGroupName := chat["title"].(string)
+
+			if chatType == "GROUP" || chatType == "EVENT" {
+				if hasGroupName && groupName != "" {
+					localizedTitle = groupName
+				}
+
+				if cover, hasCover := chat["cover"].(string); hasCover && cover != "" {
+					imageURL = cover
+				}
+			} else if chatType == "DIRECT" {
+				if contactName != "" {
+					localizedTitle = contactName
+				}
+
+				if contactAvatar != "" {
+					imageURL = contactAvatar
+				}
+			}
+		}
+
+		if *dto.Type == "chat.update" || *dto.Type == "EVENT_UPDATED" {
+			if metadataRaw, ok := msg.Data["metadata"]; ok {
+				var translatedParts []string
+				parts := strings.Split(metadataRaw, ",")
+
+				for _, part := range parts {
+					part = normalizeKey(part)
+					key := ""
+					if *dto.Type == "chat.update" {
+						key = "chat.update_metadata." + part
+					} else if *dto.Type == "EVENT_UPDATED" {
+						key = "event.update_metadata." + part
+					}
+
+					translated, err := uc.localizer.GetLocalizedMessage(
+						lang, key, nil, nil,
+					)
+					if err != nil {
+						translated = part
+					}
+					translatedParts = append(translatedParts, translated)
+				}
+
+				metadataString := strings.Join(translatedParts, ", ")
+				dto.GetConvertedMap()["metadata"] = metadataString
+			}
+		}
+
 		body, err := uc.localizer.GetLocalizedMessage(
 			lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount,
 		)
 		if err == nil {
 			localizedBody = body
 		}
+		if err != nil {
+			uc.log.Debugf("failed to localize message: %v", err)
+		}
+
+		if (chatType == "GROUP" || chatType == "EVENT") &&
+			(*dto.Type == "message.new" || *dto.Type == "message.photo") {
+			localizedBody = contactName + ": " + localizedBody
+		}
 	}
 
-	return localizedTitle, localizedBody
+	return localizedTitle, localizedBody, imageURL
 }
 
 func (uc *FcmUsecase) BuildPushMessage(
@@ -427,12 +510,8 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 }
 
 func (uc *FcmUsecase) getAuthorNameFromUser(
-	ctx context.Context, user map[string]interface{}, userDevices []*ent.Device,
+	ctx context.Context, user map[string]interface{}, receiverID int64,
 ) string {
-	if user == nil || len(userDevices) == 0 {
-		return ""
-	}
-
 	authorID, ok := user["id"]
 	if !ok {
 		return ""
@@ -465,8 +544,6 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 		authorName = username
 	}
 
-	receiverID := userDevices[0].UserID
-
 	ctxWithUserID := auth.AppendAuthIds(ctx, receiverID, 0)
 
 	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, receiverID)
@@ -496,8 +573,8 @@ func (uc *FcmUsecase) getAuthorAvatar(user map[string]interface{}) string {
 	return ""
 }
 
-func (uc *FcmUsecase) ProcessChatNotification(
-	ctx context.Context, msg *u_struc.FirebaseNotification, userDevices []*ent.Device,
+func (uc *FcmUsecase) ExtractContactNameAndAvatar(
+	ctx context.Context, msg *u_struc.FirebaseNotification, receiverID int64,
 ) (string, string) {
 	var user map[string]interface{}
 	var authorName string
@@ -516,120 +593,16 @@ func (uc *FcmUsecase) ProcessChatNotification(
 	}
 
 	authorAvatar := uc.getAuthorAvatar(user)
-	imageURL := msg.Image
-	title := msg.Title
-	body := msg.Body
 
 	contactName := ""
-	if len(user) > 0 && len(userDevices) > 0 {
-		contactName = uc.getAuthorNameFromUser(ctx, user, userDevices)
-	}
+	contactName = uc.getAuthorNameFromUser(ctx, user, receiverID)
 
 	displayAuthorName := authorName
 	if contactName != "" {
 		displayAuthorName = contactName
 	}
 
-	if chatJSON, ok := msg.Data["chat"]; ok {
-		var chat map[string]interface{}
-		err := json.Unmarshal([]byte(chatJSON), &chat)
-		if err != nil {
-			uc.log.Debugf("failed to parse chat json: %v", err)
-			return title, imageURL
-		}
-
-		chatType, _ := chat["type"].(string)
-		groupName, hasGroupName := chat["title"].(string)
-
-		if chatType == "GROUP" || chatType == "EVENT" {
-			// Для групповых чатов и чатов событий
-			if hasGroupName && groupName != "" {
-				title = groupName
-			}
-
-			// Установка обложки группы/события как изображения
-			if cover, hasCover := chat["cover"].(string); hasCover && cover != "" {
-				imageURL = cover
-			}
-
-			// Добавляем имя автора в начало текста сообщения
-			if displayAuthorName != "" && !isSystemNotification(msg.Data) {
-				body = displayAuthorName + ": " + body
-			}
-		} else if chatType == "DIRECT" {
-			if displayAuthorName != "" {
-				title = displayAuthorName
-			}
-
-			if authorAvatar != "" {
-				imageURL = authorAvatar
-			}
-		}
-
-		if notificationType, hasNotificationType := msg.Data["type"]; hasNotificationType {
-			lang := "ru"
-			if len(userDevices) > 0 && userDevices[0].Language != "" {
-				lang = userDevices[0].Language
-			}
-
-			dto := &data.NotificationDto{}
-			if err := dto.ParseAndSetNotificationData(msg.Data); err == nil {
-				dto.Type = &notificationType
-
-				if contactName != "" && len(dto.GetConvertedMap()) > 0 {
-					if userData, ok := dto.GetConvertedMap()["user"]; ok {
-						if userMap, ok := userData.(map[string]interface{}); ok {
-							userMap["name"] = contactName
-						}
-					}
-				}
-
-				if oldTitle, ok := msg.Data["old_title"]; ok {
-					dto.GetConvertedMap()["oldTitle"] = oldTitle
-					dto.GetConvertedMap()["newTitle"] = chat["title"]
-				}
-
-				if notificationType == "chat.update" {
-					if metadataRaw, ok := msg.Data["metadata"]; ok {
-						var translatedParts []string
-						parts := strings.Split(metadataRaw, ",")
-
-						for _, part := range parts {
-							part = normalizeKey(part)
-							translated, err := uc.localizer.GetLocalizedMessage(
-								lang, "chat.update_metadata."+part, nil, nil,
-							)
-							if err != nil {
-								translated = part
-							}
-							translatedParts = append(translatedParts, translated)
-						}
-
-						metadataString := strings.Join(translatedParts, ", ")
-						dto.GetConvertedMap()["metadata"] = metadataString
-					}
-				}
-
-				localizedBody, err := uc.localizer.GetLocalizedMessage(
-					lang, notificationType, dto.GetConvertedMap(), dto.PluralCount,
-				)
-				if err == nil {
-					body = localizedBody
-				}
-
-				if (chatType == "GROUP" || chatType == "EVENT") &&
-					(notificationType == "message.new" || notificationType == "message.photo") {
-					body = displayAuthorName + ": " + localizedBody
-				}
-			}
-		}
-	}
-
-	msg.Title = title
-	msg.Body = body
-	msg.Image = imageURL
-
-	return title, imageURL
+	return displayAuthorName, authorAvatar
 }
 
 func normalizeKey(input string) string {

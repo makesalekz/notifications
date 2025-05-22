@@ -10,13 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
+	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/internal/data/mock"
 	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
 )
 
-func TestNotificationTextFormatting(t *testing.T) {
+func TestNotificationEventTextFormatting(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -33,6 +34,124 @@ func TestNotificationTextFormatting(t *testing.T) {
 		contacts            []*contacts_v1.Contact
 		shouldFormatMessage bool
 	}{
+		{
+			name:   "event_updated_full_log_case_without_metadata",
+			userId: 43,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 43, Token: "token43", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Тест",
+				Body:  "Dana  updated event's",
+				Type:  u_struc.Event,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+				Data: map[string]string{
+					"event": `{"id":5541,"title":"Тест","description":"Рдмдрсдрсдс","coverUrl":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg","startDateTime":"2025-05-22T08:15:00Z","endDateTime":"2025-05-22T09:15:00Z","noticeBefore":10,"chatId":1445,"type":"HOME","avatars":["https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg"],"membersCount":2,"ownerId":220,"publishedAt":"2025-05-22T05:13:09Z","isInvitationAvailable":true,"membership":{"id":7809,"status":"ACCEPTED","role":"OWNER","calendarId":560,"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}},"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}}`,
+					"type":  "EVENT_UPDATED",
+					"user":  `{"id":220,"phone":"+77076663503","username":"dana","name":"Dana ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg","lastLoginAt":"2025-05-22T05:19:43Z"}`,
+				},
+			},
+			expectedTitle: "Тест",
+			expectedBody:  "Dana из контактов изменил(а) данные события",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(220); return &id }(),
+					Label:  "Dana из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+		},
+		{
+			name:   "event_updated_full_log_case_with_metadata_title",
+			userId: 43,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 43, Token: "token43", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Тест",
+				Body:  "Dana  updated event's",
+				Type:  u_struc.Event,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+				Data: map[string]string{
+					"event":    `{"id":5541,"title":"Тест","description":"Рдмдрсдрсдс","coverUrl":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg","startDateTime":"2025-05-22T08:15:00Z","endDateTime":"2025-05-22T09:15:00Z","noticeBefore":10,"chatId":1445,"type":"HOME","avatars":["https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg"],"membersCount":2,"ownerId":220,"publishedAt":"2025-05-22T05:13:09Z","isInvitationAvailable":true,"membership":{"id":7809,"status":"ACCEPTED","role":"OWNER","calendarId":560,"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}},"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}}`,
+					"type":     "EVENT_UPDATED",
+					"metadata": "title",
+					"user":     `{"id":220,"phone":"+77076663503","username":"dana","name":"Dana ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg","lastLoginAt":"2025-05-22T05:19:43Z"}`,
+				},
+			},
+			expectedTitle: "Тест",
+			expectedBody:  "Dana из контактов изменил(а) данные события: название",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(220); return &id }(),
+					Label:  "Dana из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+		},
+		{
+			name:   "event_updated_full_log_case_with_metadatas",
+			userId: 43,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 43, Token: "token43", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Тест",
+				Body:  "Dana  updated event's",
+				Type:  u_struc.Event,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+				Data: map[string]string{
+					"event":    `{"id":5541,"title":"Тест","description":"Рдмдрсдрсдс","coverUrl":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg","startDateTime":"2025-05-22T08:15:00Z","endDateTime":"2025-05-22T09:15:00Z","noticeBefore":10,"chatId":1445,"type":"HOME","avatars":["https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg"],"membersCount":2,"ownerId":220,"publishedAt":"2025-05-22T05:13:09Z","isInvitationAvailable":true,"membership":{"id":7809,"status":"ACCEPTED","role":"OWNER","calendarId":560,"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}},"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}}`,
+					"type":     "EVENT_UPDATED",
+					"metadata": "title, details",
+					"user":     `{"id":220,"phone":"+77076663503","username":"dana","name":"Dana ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg","lastLoginAt":"2025-05-22T05:19:43Z"}`,
+				},
+			},
+			expectedTitle: "Тест",
+			expectedBody:  "Dana из контактов изменил(а) данные события: название, детали события",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(220); return &id }(),
+					Label:  "Dana из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+		},
+		{
+			name:   "event_updated_from_log",
+			userId: 43,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 43, Token: "token43", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "Тест",
+				Body:  "Dana  updated event's:  https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+				Type:  u_struc.Event,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+				Data: map[string]string{
+					"event": `{"id":5541,"title":"Тест","description":"Рдмдрсдрсдс","coverUrl":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg","startDateTime":"2025-05-22T08:15:00Z","endDateTime":"2025-05-22T09:15:00Z","noticeBefore":10,"chatId":1445,"type":"HOME","avatars":["https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg"],"membersCount":2,"ownerId":220,"publishedAt":"2025-05-22T05:13:09Z","isInvitationAvailable":true,"membership":{"id":7809,"status":"ACCEPTED","role":"OWNER","calendarId":560,"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}},"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}}`,
+					"type":  "EVENT_UPDATED",
+					"user":  `{"id":220,"phone":"+77076663503","username":"dana","name":"Dana ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg","lastLoginAt":"2025-05-22T05:19:43Z"}`,
+				},
+			},
+			expectedTitle: "Тест",
+			expectedBody:  "Dana из контактов изменил(а) данные события",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(220); return &id }(),
+					Label:  "Dana из контактов",
+				},
+			},
+			shouldFormatMessage: true,
+		},
 		{
 			name:   "group_chat_with_text_message",
 			userId: 137,
@@ -206,30 +325,66 @@ func TestNotificationTextFormatting(t *testing.T) {
 			tt.name, func(t *testing.T) {
 				mockContactsRemote := mock.NewMockIContactsRemote(ctrl)
 				mockLocalizer, err := data.NewLocalizerForTest()
+				mockDevicesRepo := mock.NewMockDevicesRepo(ctrl)
+				mockIamRepo := mock.NewMockIIamRemote(ctrl)
+				mockBadge := mock.NewMockIBadgeClient(ctrl)
+				mockFcmClient := mock.NewMockFcmClient(ctrl)
 				if err != nil {
 					t.Fatalf("Failed to create localizer: %v", err)
 					return
 				}
 
-				if tt.shouldFormatMessage && len(tt.contacts) > 0 {
-					mockContactsRemote.EXPECT().
-						GetContactsByUserId(gomock.Any(), tt.userId).
-						Return(tt.contacts, nil)
-				}
+				mockDevicesRepo.EXPECT().GetDevicesForUsers(gomock.Any(), gomock.Any()).
+					Return(tt.userDevices, nil).AnyTimes()
+
+				mockIamRepo.EXPECT().GetUsers(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(map[int64]*users_v1.UserShort{}, nil).AnyTimes()
+
+				mockIamRepo.EXPECT().GetUsersSettings(gomock.Any(), gomock.Any()).
+					Return(
+						map[int64]map[string]string{
+							tt.userId: {
+								"NOTIFICATION_SOUND_ENABLED": "true",
+								"NOTIFICATION_SOUND":         "default",
+							},
+						}, nil,
+					).AnyTimes()
+
+				mockBadge.EXPECT().GetBadges(gomock.Any(), gomock.Any()).
+					Return(map[u_struc.NotificationType]int64{}, nil).AnyTimes()
+
+				mockBadge.EXPECT().IncrementBadge(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil).AnyTimes()
+
+				mockContactsRemote.EXPECT().
+					GetContactsByUserId(gomock.Any(), tt.userId).
+					Return(tt.contacts, nil).AnyTimes()
+
+				mockFcmClient.EXPECT().
+					Send(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil).AnyTimes()
 
 				uc := &FcmUsecase{
 					log:            log.NewHelper(logger),
 					contactsRemote: mockContactsRemote,
 					localizer:      mockLocalizer,
+					devicesRepo:    mockDevicesRepo,
+					iam:            mockIamRepo,
+					badgeClient:    mockBadge,
+					fcmClient:      mockFcmClient,
 				}
 
 				message := tt.inputMessage
-				uc.ProcessChatNotification(context.Background(), message, tt.userDevices)
+				notification, err := uc.SendUserNotifications(context.Background(), *message, true)
+				if err != nil {
+					t.Fatalf("Failed to send notification: %v", err)
+					return
+				}
 
-				assert.Equal(t, tt.expectedTitle, message.Title, "Wrong title")
-				assert.Equal(t, tt.expectedBody, message.Body, "Wrong notification body")
+				assert.Equal(t, tt.expectedTitle, notification[tt.userId].msg.LocalizedTitle, "Wrong title")
+				assert.Equal(t, tt.expectedBody, notification[tt.userId].msg.LocalizedBody, "Wrong notification body")
 				if tt.expectedImage != "" {
-					assert.Equal(t, tt.expectedImage, message.Image, "Wrong image URL")
+					assert.Equal(t, tt.expectedImage, notification[tt.userId].msg.ImageURL, "Wrong image URL")
 				}
 			},
 		)

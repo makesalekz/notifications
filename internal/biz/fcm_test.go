@@ -205,7 +205,7 @@ func TestNotificationTextFormatting(t *testing.T) {
 		t.Run(
 			tt.name, func(t *testing.T) {
 				mockContactsRemote := mock.NewMockIContactsRemote(ctrl)
-				mockLocalizer, err := data.NewLocalizer()
+				mockLocalizer, err := data.NewLocalizerForTest()
 				if err != nil {
 					t.Fatalf("Failed to create localizer: %v", err)
 					return

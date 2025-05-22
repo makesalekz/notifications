@@ -14,7 +14,7 @@ type Localizer struct {
 	bundle *i18n.Bundle
 }
 
-func NewLocalizer() (*Localizer, error) {
+func NewLocalizerForTest() (*Localizer, error) {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Clean(filepath.Join(filepath.Dir(filename), "..", "..", "locales"))
 
@@ -28,6 +28,24 @@ func NewLocalizer() (*Localizer, error) {
 
 	for _, file := range files {
 		bundle.MustLoadMessageFile(filepath.Join(dir, file.Name()))
+	}
+
+	return &Localizer{
+		bundle: bundle,
+	}, nil
+}
+
+func NewLocalizer() (*Localizer, error) {
+	bundle := i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
+	files, err := os.ReadDir("locales/")
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range files {
+		bundle.MustLoadMessageFile("locales/" + file.Name())
 	}
 
 	return &Localizer{

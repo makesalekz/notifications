@@ -612,21 +612,6 @@ func normalizeKey(input string) string {
 	)
 }
 
-func isSystemNotification(data map[string]string) bool {
-	if notifType, ok := data["type"]; ok {
-		systemTypes := []string{
-			"chat.update", "member.added", "GROUP_ADDED", "GROUP_TITLE_CHANGED",
-			"GROUP_COVER_CHANGED", "MEMBER_ADDED", "TITLE_CHANGED", "COVER_CHANGED",
-		}
-		for _, t := range systemTypes {
-			if notifType == t {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string) {
 	if len(tokens) == 0 {
 		return

@@ -15,6 +15,7 @@ import (
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/internal/data/mock"
 	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	badge_mock "gitlab.calendaria.team/services/utils/v4/badge/mock"
 )
 
 func TestNotificationEventTextFormatting(t *testing.T) {
@@ -327,7 +328,7 @@ func TestNotificationEventTextFormatting(t *testing.T) {
 				mockLocalizer, err := data.NewLocalizerForTest()
 				mockDevicesRepo := mock.NewMockDevicesRepo(ctrl)
 				mockIamRepo := mock.NewMockIIamRemote(ctrl)
-				mockBadge := mock.NewMockIBadgeClient(ctrl)
+				mockBadge := badge_mock.NewMockIBadgeClient(ctrl)
 				mockFcmClient := mock.NewMockFcmClient(ctrl)
 				if err != nil {
 					t.Fatalf("Failed to create localizer: %v", err)

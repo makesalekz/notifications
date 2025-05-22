@@ -124,8 +124,8 @@ func (r *IamRemote) GetUsersSettings(ctx context.Context, userIDs []int64) (map[
 
 	usersSettings := make(map[int64]map[string]string)
 
-	for userID, settings := range reply.UsersSettings {
-		usersSettings[userID] = settings.Settings
+	for userID, settings := range reply.GetUsersSettings() {
+		usersSettings[userID] = settings.GetSettings()
 	}
 
 	return usersSettings, nil

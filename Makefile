@@ -172,7 +172,14 @@ cover:
 .PHONY: mock
 # generate mock - (example here)
 mock:
-	mockgen -source internal/data/teams.go -destination internal/data/mock/teams.go -package mock
+	mockgen -source internal/data/dialer/contacts.go -destination internal/data/mock/contacts.go -package mock
+	mockgen -source internal/data/dialer/iam.go -destination internal/data/mock/iam.go -package mock
+	mockgen -source internal/data/dialer/events.go -destination internal/data/mock/events.go -package mock
+	mockgen -source internal/data/dialer/chats.go -destination internal/data/mock/chats.go -package mock
+	mockgen -source internal/data/devices.go -destination internal/data/mock/devices.go -package mock
+	mockgen -source internal/data/fcm.go -destination internal/data/mock/fcm.go -package mock
+	mockgen -source internal/data/notifications.go -destination internal/data/mock/notifications.go -package mock
+	mockgen -source internal/data/badge.go -destination internal/data/mock/badge.go -package mock
 
 # show help
 help:

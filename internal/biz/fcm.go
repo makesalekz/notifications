@@ -175,7 +175,7 @@ func (uc *FcmUsecase) SendUserNotifications(
 
 	userSettings, err := uc.iam.GetUsersSettings(ctx, msg.UsersIds)
 	if err != nil {
-		uc.log.Warnf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
+		uc.log.Errorf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
 	}
 
 	result := make(map[int64]PushDispatchResult)
@@ -194,7 +194,7 @@ func (uc *FcmUsecase) SendUserNotifications(
 
 		if badgeErr != nil && isFirst {
 			result[userID] = PushDispatchResult{NeedsReFetch: true}
-			uc.log.Warnf("SendUserNotifications: failed to get badges for user %d: %v", userID, badgeErr)
+			uc.log.Errorf("SendUserNotifications: failed to get badges for user %d: %v", userID, badgeErr)
 			continue
 		}
 
@@ -465,7 +465,7 @@ func (uc *FcmUsecase) DispatchPushNotifications(
 
 		err := uc.fcmClient.Send(ctx, device.Token, &deviceMessage)
 		if err != nil {
-			uc.log.Debugf("DispatchPushNotifications: invalid token %s: %v", device.Token, err)
+			uc.log.Errorf("DispatchPushNotifications: invalid token %s: %v", device.Token, err)
 			inactiveTokens = append(inactiveTokens, device.Token)
 		} else {
 			if deviceMessage.Notification != nil {

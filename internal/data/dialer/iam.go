@@ -115,7 +115,7 @@ func (r *IamRemote) GetUsersSettings(ctx context.Context, userIDs []int64) (map[
 	}
 
 	if len(userIDs) == 0 {
-		return nil, nil
+		return map[int64]map[string]string{}, nil
 	}
 
 	ctx = auth.AppendAuthIds(ctx, userIDs[0], 0)

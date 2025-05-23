@@ -373,7 +373,8 @@ func (uc *FcmUsecase) LocalizeNotification(
 		}
 
 		if chatType == "GROUP" || chatType == "EVENT" {
-			subType, _ := msg.Data["type"]
+			subType := msg.Data["type"]
+
 			if subType == "message.new" || subType == "message.photo" {
 				localizedBody = contactName + ": " + localizedBody
 			}

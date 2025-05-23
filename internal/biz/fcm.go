@@ -525,18 +525,6 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 	return authorName
 }
 
-func (uc *FcmUsecase) getAuthorAvatar(user map[string]interface{}) string {
-	if user == nil {
-		return ""
-	}
-
-	if avatar, ok := user["avatar"].(string); ok && avatar != "" {
-		return avatar
-	}
-
-	return ""
-}
-
 func (uc *FcmUsecase) ExtractContactNameAndAvatar(
 	ctx context.Context, msg *u_struc.FirebaseNotification, receiverID int64,
 ) (string, string) {

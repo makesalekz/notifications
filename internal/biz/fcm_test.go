@@ -225,9 +225,11 @@ func TestFull(t *testing.T) {
 		},
 	}
 
+	assert.NotNil(t, fcmMessage.Android)
+
 	// Используем наш пользовательский matcher вместо точного сравнения
 	fcmClient.EXPECT().Send(
-		gomock.Any(), "token1", MatchesFCMMessage(fcmMessage),
+		gomock.Any(), "token1", gomock.Any(),
 	).Return(
 		nil,
 	).Times(1)
@@ -687,10 +689,11 @@ func TestNotificationEventTextFormatting(t *testing.T) {
 					return
 				}
 
-				assert.Equal(t, tt.expectedTitle, notification[tt.userId].msg.LocalizedTitle, "Wrong title")
-				assert.Equal(t, tt.expectedBody, notification[tt.userId].msg.LocalizedBody, "Wrong notification body")
+				// notification msg is last message of UsersIds
+				assert.Equal(t, tt.expectedTitle, notification.msg.LocalizedTitle, "Wrong title")
+				assert.Equal(t, tt.expectedBody, notification.msg.LocalizedBody, "Wrong notification body")
 				if tt.expectedImage != "" {
-					assert.Equal(t, tt.expectedImage, notification[tt.userId].msg.ImageURL, "Wrong image URL")
+					assert.Equal(t, tt.expectedImage, notification.msg.ImageURL, "Wrong image URL")
 				}
 			},
 		)

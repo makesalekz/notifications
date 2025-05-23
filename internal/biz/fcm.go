@@ -126,7 +126,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	result, err := uc.SendUserNotifications(ctx, msg, isFirst)
 	if err != nil {
-		uc.log.Warnf("sendMessage: SendUserNotifications: %s", err.Error())
+		uc.log.Errorf("sendMessage: SendUserNotifications: %s", err.Error())
 		return false
 	}
 
@@ -146,7 +146,6 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 	}
 
 	if len(candidatesToReFetch) > 0 {
-		uc.log.Debugf("sendMessage: re-fetching badges for %v", candidatesToReFetch)
 		uc.fetchBadges(ctx, candidatesToReFetch)
 		newMsg := msg
 		newMsg.UsersIds = candidatesToReFetch
@@ -171,7 +170,6 @@ func (uc *FcmUsecase) SendUserNotifications(
 	}
 
 	if len(userDevicesMap) == 0 {
-		uc.log.Debug("SendUserNotifications: No devices found")
 		return map[int64]PushDispatchResult{}, nil
 	}
 
@@ -619,7 +617,6 @@ func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string)
 		uc.log.Errorf("deleteInactiveTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
 		return
 	}
-	uc.log.Debugf("deleteInactiveTokens: deleted %d tokens", len(tokens))
 }
 
 func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
@@ -678,8 +675,6 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 		err := uc.badgeClient.SetBadges(ctx, userID, badges)
 		if err != nil {
 			uc.log.Errorf("fetchBadges: failed to set badges for user %d: %v", userID, err)
-		} else {
-			uc.log.Infof("fetchBadges: updated badges for user %d: %v", userID, badges)
 		}
 	}
 }
@@ -691,8 +686,6 @@ func (uc *FcmUsecase) sendSilentPushes(ctx context.Context, m jetstream.Msg) boo
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		return true
 	}
-
-	uc.log.Debugf("sendNotifications: %v", notification)
 
 	ok := uc.sendSilentMessage(ctx, notification)
 
@@ -758,8 +751,6 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 			err = uc.fcmClient.Send(ctx, device.Token, &message)
 			if err != nil {
 				uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
-			} else {
-				uc.log.Debugf("sendMessage: sent successfully (%s)", message.Token)
 			}
 		}
 	}

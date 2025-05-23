@@ -171,18 +171,9 @@ func (uc *FcmUsecase) SendUserNotifications(
 		NeedsReFetch:   make([]int64, 0),
 	}
 	processedMsg := msg
-	userContacts := make(map[int64]map[string]string)
 
 	for userID, devices := range userDevicesMap {
-		userContact, hasUserContact := userContacts[userID]
-		if !hasUserContact {
-			contactName, contactAvatar := uc.ExtractContactNameAndAvatar(ctx, &msg, userID)
-
-			userContact = map[string]string{
-				"name":   contactName,
-				"avatar": contactAvatar,
-			}
-		}
+		contactName, contactAvatar := uc.ExtractContactNameAndAvatar(ctx, &msg, userID)
 
 		withSound, withVibration := uc.GetUserNotificationSettings(ctx, userID, userSettings)
 
@@ -197,7 +188,7 @@ func (uc *FcmUsecase) SendUserNotifications(
 		langDevicesMap := uc.GroupDevicesByLanguage(devices)
 		for lang, langDevices := range langDevicesMap {
 			localizedTitle, localizedBody, coverImage := uc.LocalizeNotification(
-				&processedMsg, userContact["name"], userContact["avatar"], lang,
+				&processedMsg, contactName, contactAvatar, lang,
 			)
 
 			dispatchCtx := PushDispatchContext{

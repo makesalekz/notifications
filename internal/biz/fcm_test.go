@@ -176,7 +176,7 @@ func TestFull(t *testing.T) {
 				Label:  "Dana из контактов",
 			},
 		}, nil,
-	).Times(1)
+	).Times(2)
 
 	badgeClient.EXPECT().GetBadges(gomock.Any(), userIDs[0]).Return(
 		map[u_struc.NotificationType]int64{

@@ -322,15 +322,15 @@ func (uc *FcmUsecase) LocalizeNotification(
 		}
 
 		if chat := dto.GetChat(); chat != nil {
-			chatType = chat.Type
+			chatType = chat.GetType()
 
 			if chatType == "GROUP" || chatType == "EVENT" {
-				if chat.Title != nil && *chat.Title != "" {
-					localizedTitle = *chat.Title
+				if chat.Title != nil && chat.GetTitle() != "" {
+					localizedTitle = chat.GetTitle()
 				}
 
-				if chat.Cover != nil && *chat.Cover != "" {
-					imageURL = *chat.Cover
+				if chat.Cover != nil && chat.GetCover() != "" {
+					imageURL = chat.GetCover()
 				}
 			} else if chatType == "DIRECT" {
 				if contactName != "" {

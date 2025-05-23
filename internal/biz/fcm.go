@@ -11,6 +11,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/nats-io/nats.go/jetstream"
 
+	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
 	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
@@ -73,21 +74,21 @@ func NewFcmUsecase(
 		contactsRemote:    contactsRemote,
 	}
 
-	qm.AddConsumer(QueueFCM, uc.sendNotifications)
-	qm.AddConsumer(QueueFCMSilent, uc.sendSilentPushes)
+	qm.AddConsumer(QueueFCM, uc.handlePushNotifications)
+	qm.AddConsumer(QueueFCMSilent, uc.handleSilentPushNotifications)
 
 	return uc, nil
 }
 
-func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bool {
+func (uc *FcmUsecase) handlePushNotifications(ctx context.Context, m jetstream.Msg) bool {
 	notification := u_struc.FirebaseNotification{}
 	err := json.Unmarshal(m.Data(), &notification)
 	if err != nil {
-		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+		uc.log.Errorf("handlePushNotifications: json.Unmarshal: %s", err.Error())
 		return true
 	}
 
-	uc.log.WithContext(ctx).Debugf("sendNotifications: %v", notification)
+	uc.log.WithContext(ctx).Debugf("handlePushNotifications: %v", notification)
 
 	ok := uc.sendMessage(ctx, notification, true)
 	if ok {
@@ -108,7 +109,7 @@ func (uc *FcmUsecase) sendNotifications(ctx context.Context, m jetstream.Msg) bo
 		if notification.Type.IsValid() && notification.Title != "" && notification.Type != u_struc.Chat {
 			_, err2 := uc.notificationsRepo.CreateNotifications(ctx, listDto)
 			if err2 != nil {
-				uc.log.Errorf("sendNotifications: notificationsRepo.CreateNotifications: %s", err2.Error())
+				uc.log.Errorf("handlePushNotifications: notificationsRepo.CreateNotifications: %s", err2.Error())
 			}
 		}
 	}
@@ -130,47 +131,34 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 		return false
 	}
 
-	var inactiveTokens []string
-	for _, dispatchResult := range result {
-		if len(dispatchResult.InactiveTokens) > 0 {
-			inactiveTokens = append(inactiveTokens, dispatchResult.InactiveTokens...)
-		}
-	}
-	go uc.deleteInactiveTokens(ctx, inactiveTokens)
+	go uc.deleteInactiveTokens(ctx, result.InactiveTokens)
 
-	var candidatesToReFetch []int64
-	for userID, dispatchResult := range result {
-		if dispatchResult.NeedsReFetch {
-			candidatesToReFetch = append(candidatesToReFetch, userID)
-		}
-	}
-
-	if len(candidatesToReFetch) > 0 {
-		uc.fetchBadges(ctx, candidatesToReFetch)
+	if isFirst && len(result.NeedsReFetch) > 0 {
+		uc.fetchBadges(ctx, result.NeedsReFetch)
 		newMsg := msg
-		newMsg.UsersIds = candidatesToReFetch
-		uc.sendMessage(ctx, newMsg, false)
+		newMsg.UsersIds = result.NeedsReFetch
+		return uc.sendMessage(ctx, newMsg, false)
 	}
 
-	return err == nil
+	return true
 }
 
 type PushDispatchResult struct {
 	InactiveTokens []string
-	NeedsReFetch   bool
+	NeedsReFetch   []int64
 	msg            PushDispatchContext
 }
 
 func (uc *FcmUsecase) SendUserNotifications(
 	ctx context.Context, msg u_struc.FirebaseNotification, isFirst bool,
-) (map[int64]PushDispatchResult, error) {
+) (*PushDispatchResult, error) {
 	userDevicesMap, err := uc.GetUserDevices(ctx, msg.UsersIds)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(userDevicesMap) == 0 {
-		return map[int64]PushDispatchResult{}, nil
+		return &PushDispatchResult{}, nil
 	}
 
 	userSettings, err := uc.iam.GetUsersSettings(ctx, msg.UsersIds)
@@ -178,22 +166,21 @@ func (uc *FcmUsecase) SendUserNotifications(
 		uc.log.Errorf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
 	}
 
-	result := make(map[int64]PushDispatchResult)
-
+	result := &PushDispatchResult{
+		InactiveTokens: make([]string, 0),
+		NeedsReFetch:   make([]int64, 0),
+	}
 	processedMsg := msg
 
-	contactName, contactAvatar := "", ""
 	for userID, devices := range userDevicesMap {
-		if contactName == "" {
-			contactName, contactAvatar = uc.ExtractContactNameAndAvatar(ctx, &msg, userID)
-		}
+		contactName, contactAvatar := uc.ExtractContactNameAndAvatar(ctx, &msg, userID)
 
 		withSound, withVibration := uc.GetUserNotificationSettings(ctx, userID, userSettings)
 
 		badgeCount, badgeErr := uc.GetAndIncrementBadge(ctx, userID, msg.Type, msg.Data["type"], isFirst)
 
 		if badgeErr != nil && isFirst {
-			result[userID] = PushDispatchResult{NeedsReFetch: true}
+			result.NeedsReFetch = append(result.NeedsReFetch, userID)
 			uc.log.Errorf("SendUserNotifications: failed to get badges for user %d: %v", userID, badgeErr)
 			continue
 		}
@@ -218,10 +205,8 @@ func (uc *FcmUsecase) SendUserNotifications(
 
 			inactiveTokens := uc.DispatchPushNotifications(ctx, dispatchCtx, processedMsg)
 
-			currentResult := result[userID]
-			currentResult.InactiveTokens = append(currentResult.InactiveTokens, inactiveTokens...)
-			currentResult.msg = dispatchCtx
-			result[userID] = currentResult
+			result.InactiveTokens = append(result.InactiveTokens, inactiveTokens...)
+			result.msg = dispatchCtx
 		}
 	}
 
@@ -327,23 +312,16 @@ func (uc *FcmUsecase) LocalizeNotification(
 			}
 		}
 
-		if chatJSON, ok := msg.Data["chat"]; ok {
-			var chat map[string]interface{}
-			err = json.Unmarshal([]byte(chatJSON), &chat)
-			if err != nil {
-				uc.log.Debugf("failed to parse chat json: %v", err)
-			}
-
-			chatType, _ = chat["type"].(string)
-			groupName, hasGroupName := chat["title"].(string)
+		if chat := dto.GetChat(); chat != nil {
+			chatType = chat.GetType()
 
 			if chatType == "GROUP" || chatType == "EVENT" {
-				if hasGroupName && groupName != "" {
-					localizedTitle = groupName
+				if chat.Title != nil && chat.GetTitle() != "" {
+					localizedTitle = chat.GetTitle()
 				}
 
-				if cover, hasCover := chat["cover"].(string); hasCover && cover != "" {
-					imageURL = cover
+				if chat.Cover != nil && chat.GetCover() != "" {
+					imageURL = chat.GetCover()
 				}
 			} else if chatType == "DIRECT" {
 				if contactName != "" {
@@ -507,49 +485,30 @@ func (uc *FcmUsecase) UnregisterDevice(ctx context.Context, deviceKey data.Devic
 }
 
 func (uc *FcmUsecase) getAuthorNameFromUser(
-	ctx context.Context, user map[string]interface{}, receiverID int64,
+	ctx context.Context, user *users_v1.User, receiverID int64,
 ) string {
-	authorID, ok := user["id"]
-	if !ok {
-		return ""
-	}
-
-	var authorIDInt int64
-	switch id := authorID.(type) {
-	case int64:
-		authorIDInt = id
-	case float64:
-		authorIDInt = int64(id)
-	case int:
-		authorIDInt = int64(id)
-	case string:
-		parsed, err := strconv.ParseInt(id, 10, 64)
-		if err != nil {
-			uc.log.Debugf("failed to parse author id string: %v", err)
-			return ""
-		}
-		authorIDInt = parsed
-	default:
-		uc.log.Debugf("unexpected author id type: %T", id)
+	if user == nil {
 		return ""
 	}
 
 	authorName := ""
-	if name, ok := user["name"].(string); ok && name != "" {
-		authorName = name
-	} else if username, ok := user["username"].(string); ok && username != "" {
-		authorName = username
+	if user.GetName() != "" {
+		authorName = user.GetName()
+	} else if user.GetUsername() != "" {
+		authorName = user.GetUsername()
 	}
 
 	ctxWithUserID := auth.AppendAuthIds(ctx, receiverID, 0)
-	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, authorIDInt)
+	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, user.GetId())
 	if err != nil {
 		uc.log.Debugf("failed to get contacts for user %d: %v", receiverID, err)
 		return authorName
+	} else {
+		uc.log.Debugf("ReceverContacts: [%d]: %v", receiverID, contacts)
 	}
 
 	for _, contact := range contacts {
-		if contact.UserId != nil && contact.GetUserId() == authorIDInt && contact.GetLabel() != "" {
+		if contact.UserId != nil && contact.GetUserId() == user.GetId() && contact.GetLabel() != "" {
 			return contact.GetLabel()
 		}
 	}
@@ -557,47 +516,23 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 	return authorName
 }
 
-func (uc *FcmUsecase) getAuthorAvatar(user map[string]interface{}) string {
-	if user == nil {
-		return ""
-	}
-
-	if avatar, ok := user["avatar"].(string); ok && avatar != "" {
-		return avatar
-	}
-
-	return ""
-}
-
 func (uc *FcmUsecase) ExtractContactNameAndAvatar(
 	ctx context.Context, msg *u_struc.FirebaseNotification, receiverID int64,
 ) (string, string) {
-	var user map[string]interface{}
-	var authorName string
+	var user users_v1.User
 
 	if userJSON, ok := msg.Data["user"]; ok {
 		err := json.Unmarshal([]byte(userJSON), &user)
 		if err != nil {
 			uc.log.Debugf("failed to parse user json: %v", err)
-		} else {
-			if name, ok := user["name"].(string); ok && name != "" {
-				authorName = name
-			} else if username, ok := user["username"].(string); ok && username != "" {
-				authorName = username
-			}
+			return "", ""
 		}
 	}
 
-	authorAvatar := uc.getAuthorAvatar(user)
+	authorAvatar := user.GetAvatar()
+	contactName := uc.getAuthorNameFromUser(ctx, &user, receiverID)
 
-	contactName := uc.getAuthorNameFromUser(ctx, user, receiverID)
-
-	displayAuthorName := authorName
-	if contactName != "" {
-		displayAuthorName = contactName
-	}
-
-	return displayAuthorName, authorAvatar
+	return contactName, authorAvatar
 }
 
 func normalizeKey(input string) string {
@@ -679,11 +614,11 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 	}
 }
 
-func (uc *FcmUsecase) sendSilentPushes(ctx context.Context, m jetstream.Msg) bool {
+func (uc *FcmUsecase) handleSilentPushNotifications(ctx context.Context, m jetstream.Msg) bool {
 	notification := u_struc.FirebaseNotification{}
 	err := json.Unmarshal(m.Data(), &notification)
 	if err != nil {
-		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
+		uc.log.Errorf("handlePushNotifications: json.Unmarshal: %s", err.Error())
 		return true
 	}
 

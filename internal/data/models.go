@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	chats_v1 "gitlab.calendaria.team/services/chats/api/chats/v1"
 	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
 	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
 	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
@@ -266,4 +267,19 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 
 func (dto *NotificationDto) GetConvertedMap() map[string]interface{} {
 	return dto.convertedMap
+}
+
+func (dto *NotificationDto) GetChat() *chats_v1.Chat {
+	if dto.ChatJSON == nil {
+		return nil
+	}
+
+	var chat chats_v1.Chat
+
+	err := json.Unmarshal([]byte(*dto.ChatJSON), &chat)
+	if err != nil {
+		return nil
+	}
+
+	return &chat
 }

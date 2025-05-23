@@ -126,7 +126,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	result, err := uc.SendUserNotifications(ctx, msg, isFirst)
 	if err != nil {
-		uc.log.Warnf("sendMessage: SendUserNotifications: %s", err.Error())
+		uc.log.Errorf("sendMessage: SendUserNotifications: %s", err.Error())
 		return false
 	}
 
@@ -146,7 +146,6 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 	}
 
 	if len(candidatesToReFetch) > 0 {
-		uc.log.Debugf("sendMessage: re-fetching badges for %v", candidatesToReFetch)
 		uc.fetchBadges(ctx, candidatesToReFetch)
 		newMsg := msg
 		newMsg.UsersIds = candidatesToReFetch
@@ -171,13 +170,12 @@ func (uc *FcmUsecase) SendUserNotifications(
 	}
 
 	if len(userDevicesMap) == 0 {
-		uc.log.Debug("SendUserNotifications: No devices found")
 		return map[int64]PushDispatchResult{}, nil
 	}
 
 	userSettings, err := uc.iam.GetUsersSettings(ctx, msg.UsersIds)
 	if err != nil {
-		uc.log.Warnf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
+		uc.log.Errorf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
 	}
 
 	result := make(map[int64]PushDispatchResult)
@@ -196,7 +194,7 @@ func (uc *FcmUsecase) SendUserNotifications(
 
 		if badgeErr != nil && isFirst {
 			result[userID] = PushDispatchResult{NeedsReFetch: true}
-			uc.log.Warnf("SendUserNotifications: failed to get badges for user %d: %v", userID, badgeErr)
+			uc.log.Errorf("SendUserNotifications: failed to get badges for user %d: %v", userID, badgeErr)
 			continue
 		}
 
@@ -321,7 +319,6 @@ func (uc *FcmUsecase) LocalizeNotification(
 	dto := &data.NotificationDto{}
 
 	if err := dto.ParseAndSetNotificationData(msg.Data); err == nil && dto.Type != nil {
-		// replace user name with contact name
 		if contactName != "" && len(dto.GetConvertedMap()) > 0 {
 			if userData, ok := dto.GetConvertedMap()["user"]; ok {
 				if userMap, ok := userData.(map[string]interface{}); ok {
@@ -468,11 +465,11 @@ func (uc *FcmUsecase) DispatchPushNotifications(
 
 		err := uc.fcmClient.Send(ctx, device.Token, &deviceMessage)
 		if err != nil {
-			uc.log.Debugf("DispatchPushNotifications: invalid token %s: %v", device.Token, err)
+			uc.log.Errorf("DispatchPushNotifications: invalid token %s: %v", device.Token, err)
 			inactiveTokens = append(inactiveTokens, device.Token)
 		} else {
 			if deviceMessage.Notification != nil {
-				uc.log.Debugf("DispatchPushNotifications: sent successfully (%s)", deviceMessage.Notification.Body)
+				uc.log.Debugf("DispatchPushNotifications: sent successfully (%v)", deviceMessage.Notification)
 			} else {
 				uc.log.Debugf("DispatchPushNotifications: sent successfully (silent push)")
 			}
@@ -545,8 +542,7 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 	}
 
 	ctxWithUserID := auth.AppendAuthIds(ctx, receiverID, 0)
-
-	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, receiverID)
+	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, authorIDInt)
 	if err != nil {
 		uc.log.Debugf("failed to get contacts for user %d: %v", receiverID, err)
 		return authorName
@@ -621,7 +617,6 @@ func (uc *FcmUsecase) deleteInactiveTokens(ctx context.Context, tokens []string)
 		uc.log.Errorf("deleteInactiveTokens: devicesRepo.DeleteDevicesByTokens: %s", err.Error())
 		return
 	}
-	uc.log.Debugf("deleteInactiveTokens: deleted %d tokens", len(tokens))
 }
 
 func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
@@ -680,8 +675,6 @@ func (uc *FcmUsecase) fetchBadges(ctx context.Context, userIDs []int64) {
 		err := uc.badgeClient.SetBadges(ctx, userID, badges)
 		if err != nil {
 			uc.log.Errorf("fetchBadges: failed to set badges for user %d: %v", userID, err)
-		} else {
-			uc.log.Infof("fetchBadges: updated badges for user %d: %v", userID, badges)
 		}
 	}
 }
@@ -693,8 +686,6 @@ func (uc *FcmUsecase) sendSilentPushes(ctx context.Context, m jetstream.Msg) boo
 		uc.log.Errorf("sendNotifications: json.Unmarshal: %s", err.Error())
 		return true
 	}
-
-	uc.log.Debugf("sendNotifications: %v", notification)
 
 	ok := uc.sendSilentMessage(ctx, notification)
 
@@ -760,8 +751,6 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 			err = uc.fcmClient.Send(ctx, device.Token, &message)
 			if err != nil {
 				uc.log.Debugf("sendMessage: invalid token %s: %v", device.Token, err)
-			} else {
-				uc.log.Debugf("sendMessage: sent successfully (%s)", message.Token)
 			}
 		}
 	}

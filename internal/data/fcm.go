@@ -57,6 +57,7 @@ func (c *fcmClient) Send(ctx context.Context, token string, message *messaging.M
 			c.log.Debugf("Send: invalid token %s: %v", token, err)
 			return err
 		}
+
 		c.log.Errorf("Send: %v", err)
 		return nil
 	}

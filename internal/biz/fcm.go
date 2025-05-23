@@ -114,7 +114,7 @@ func (uc *FcmUsecase) handlePushNotifications(ctx context.Context, m jetstream.M
 		}
 	}
 
-	return ok
+	return true
 }
 
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotification, isFirst bool) bool {
@@ -137,7 +137,7 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 		uc.fetchBadges(ctx, result.NeedsReFetch)
 		newMsg := msg
 		newMsg.UsersIds = result.NeedsReFetch
-		return uc.sendMessage(ctx, newMsg, false)
+		uc.sendMessage(ctx, newMsg, false)
 	}
 
 	return true
@@ -372,9 +372,11 @@ func (uc *FcmUsecase) LocalizeNotification(
 			uc.log.Debugf("failed to localize message: %v", err)
 		}
 
-		if (chatType == "GROUP" || chatType == "EVENT") &&
-			(*dto.Type == "message.new" || *dto.Type == "message.photo") {
-			localizedBody = contactName + ": " + localizedBody
+		if chatType == "GROUP" || chatType == "EVENT" {
+			subType, _ := msg.Data["type"]
+			if subType == "message.new" || subType == "message.photo" {
+				localizedBody = contactName + ": " + localizedBody
+			}
 		}
 	}
 
@@ -447,7 +449,9 @@ func (uc *FcmUsecase) DispatchPushNotifications(
 			inactiveTokens = append(inactiveTokens, device.Token)
 		} else {
 			if deviceMessage.Notification != nil {
-				uc.log.Debugf("DispatchPushNotifications: sent successfully (%v)", deviceMessage.Notification)
+				uc.log.Debugf(
+					"DispatchPushNotifications: sent successfully userID=[%d] (%v)", dispatchCtx.UserID, deviceMessage,
+				)
 			} else {
 				uc.log.Debugf("DispatchPushNotifications: sent successfully (silent push)")
 			}

@@ -53,8 +53,8 @@ func (c *fcmClient) Send(ctx context.Context, token string, message *messaging.M
 
 	_, err := c.client.Send(ctx, message)
 	if err != nil {
-		if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) {
-			c.log.Debugf("Send: invalid token %s: %v", token, err)
+		// candidates to delete
+		if messaging.IsInvalidArgument(err) || messaging.IsUnregistered(err) || messaging.IsSenderIDMismatch(err) {
 			return err
 		}
 

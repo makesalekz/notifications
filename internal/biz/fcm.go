@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"firebase.google.com/go/v4/messaging"
 	"github.com/go-kratos/kratos/v2/log"
@@ -88,14 +89,28 @@ func NewFcmUsecase(
 }
 
 func (uc *FcmUsecase) handlePushNotifications(ctx context.Context, m jetstream.Msg) bool {
+	messageData := make([]byte, len(m.Data()))
+	copy(messageData, m.Data())
+
+	go func() {
+		processCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+
+		uc.processNotificationMessage(processCtx, messageData)
+	}()
+
+	return true
+}
+
+func (uc *FcmUsecase) processNotificationMessage(ctx context.Context, messageData []byte) {
 	notification := u_struc.FirebaseNotification{}
-	err := json.Unmarshal(m.Data(), &notification)
+	err := json.Unmarshal(messageData, &notification)
 	if err != nil {
-		uc.log.Errorf("handlePushNotifications: json.Unmarshal: %s", err.Error())
-		return true
+		uc.log.Errorf("processNotificationMessage: json.Unmarshal: %s", err.Error())
+		return
 	}
 
-	uc.log.WithContext(ctx).Debugf("handlePushNotifications: %v", notification)
+	uc.log.WithContext(ctx).Debugf("processNotificationMessage: %v", notification)
 
 	ok := uc.sendMessage(ctx, notification, true)
 	if ok {
@@ -116,12 +131,10 @@ func (uc *FcmUsecase) handlePushNotifications(ctx context.Context, m jetstream.M
 		if notification.Type.IsValid() && notification.Title != "" && notification.Type != u_struc.Chat {
 			_, err2 := uc.notificationsRepo.CreateNotifications(ctx, listDto)
 			if err2 != nil {
-				uc.log.Errorf("handlePushNotifications: notificationsRepo.CreateNotifications: %s", err2.Error())
+				uc.log.Errorf("processNotificationMessage: notificationsRepo.CreateNotifications: %s", err2.Error())
 			}
 		}
 	}
-
-	return true
 }
 
 func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotification, isFirst bool) bool {

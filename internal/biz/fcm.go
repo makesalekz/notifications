@@ -21,6 +21,13 @@ import (
 	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
 )
 
+// Chat type constants.
+const (
+	ChatTypeDirect = "DIRECT"
+	ChatTypeGroup  = "GROUP"
+	ChatTypeEvent  = "EVENT"
+)
+
 type PushDispatchContext struct {
 	UserID         int64
 	Devices        []*ent.Device
@@ -135,9 +142,14 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 
 	if isFirst && len(result.NeedsReFetch) > 0 {
 		uc.fetchBadges(ctx, result.NeedsReFetch)
-		newMsg := msg
-		newMsg.UsersIds = result.NeedsReFetch
-		uc.sendMessage(ctx, newMsg, false)
+		retryMsg := msg
+		retryMsg.UsersIds = result.NeedsReFetch
+		retryResult, retryErr := uc.SendUserNotifications(ctx, retryMsg, false)
+		if retryErr != nil {
+			uc.log.Errorf("sendMessage: retry SendUserNotifications: %s", retryErr.Error())
+		} else {
+			go uc.deleteInactiveTokens(ctx, retryResult.InactiveTokens)
+		}
 	}
 
 	return true
@@ -291,16 +303,7 @@ func (uc *FcmUsecase) LocalizeNotification(
 ) (
 	string, string, string,
 ) {
-	// Log incoming parameters
-	if msgDataJSON, err := json.Marshal(msg.Data); err == nil {
-		uc.log.Debugf(
-			"LocalizeNotification: Input params - lang=%s, contactName=%s, contactAvatar=%s, title=%s, body=%s, msgData=%s",
-			lang, contactName, contactAvatar, msg.Title, msg.Body, string(msgDataJSON),
-		)
-	}
-
 	if lang == "null" {
-		uc.log.Debugf("LocalizeNotification: Lang is null, returning original values")
 		return msg.Title, msg.Body, msg.Image
 	}
 
@@ -308,81 +311,56 @@ func (uc *FcmUsecase) LocalizeNotification(
 	localizedBody := msg.Body
 	imageURL := msg.Image
 
-	chatType := ""
-
 	dto := &data.NotificationDto{}
 
-	if err := dto.ParseAndSetNotificationData(msg.Data); err == nil && dto.Type != nil {
-		// Log parsed DTO
-		if dtoJSON, err := json.Marshal(dto); err == nil {
-			uc.log.Debugf("LocalizeNotification: Parsed DTO - %s", string(dtoJSON))
-		}
-
-		// Log converted map
-		if convertedMapJSON, err := json.Marshal(dto.GetConvertedMap()); err == nil {
-			uc.log.Debugf("LocalizeNotification: ConvertedMap - %s", string(convertedMapJSON))
-		}
-
+	if parseErr := dto.ParseAndSetNotificationData(msg.Data); parseErr == nil && dto.Type != nil {
 		if contactName != "" && len(dto.GetConvertedMap()) > 0 {
-			if userData, ok := dto.GetConvertedMap()["user"]; ok {
-				if userMap, ok := userData.(map[string]interface{}); ok {
+			if userData, exists := dto.GetConvertedMap()["user"]; exists {
+				if userMap, isMap := userData.(map[string]interface{}); isMap {
 					userMap["name"] = contactName
-					uc.log.Debugf("LocalizeNotification: Updated user name in convertedMap to: %s", contactName)
 				}
 			}
 		}
 
-		// Determine chat type with fallback logic
+		var chatType string
 		if chat := dto.GetChat(); chat != nil && chat.GetType() != "" {
 			chatType = chat.GetType()
 		} else {
-			// Fallback: try to determine chat type from context
 			if dto.GetChat() != nil {
-				// If chat has eventId, it's likely an EVENT chat
 				if dto.GetChat().EventId != nil && dto.GetChat().GetEventId() != 0 {
-					chatType = "EVENT"
+					chatType = ChatTypeEvent
 				} else if dto.GetChat().Title != nil && dto.GetChat().GetTitle() != "" {
-					// If chat has a title, it's likely a GROUP chat
-					chatType = "GROUP"
+					chatType = ChatTypeGroup
 				} else {
-					// Default to DIRECT chat
-					chatType = "DIRECT"
+					chatType = ChatTypeDirect
 				}
 			} else {
-				// Ultimate fallback: assume DIRECT chat
-				chatType = "DIRECT"
+				chatType = ChatTypeDirect
 			}
 		}
 
-		// Обрабатываем заголовок и изображение в зависимости от типа чата
 		if chat := dto.GetChat(); chat != nil {
-			if chatType == "GROUP" || chatType == "EVENT" {
+			if chatType == ChatTypeGroup || chatType == ChatTypeEvent {
 				if chat.Title != nil && chat.GetTitle() != "" {
 					localizedTitle = chat.GetTitle()
-					uc.log.Debugf("LocalizeNotification: Using chat title: %s", localizedTitle)
 				}
 
 				if chat.Cover != nil && chat.GetCover() != "" {
 					imageURL = chat.GetCover()
-					uc.log.Debugf("LocalizeNotification: Using chat cover: %s", imageURL)
 				}
-			} else if chatType == "DIRECT" {
+			} else if chatType == ChatTypeDirect {
 				if contactName != "" {
 					localizedTitle = contactName
-					uc.log.Debugf("LocalizeNotification: Using contact name as title: %s", localizedTitle)
 				}
 
 				if contactAvatar != "" {
 					imageURL = contactAvatar
-					uc.log.Debugf("LocalizeNotification: Using contact avatar: %s", imageURL)
 				}
 			}
 		}
 
 		if *dto.Type == "chat.update" || *dto.Type == "EVENT_UPDATED" {
-			uc.log.Debugf("LocalizeNotification: Processing metadata for type: %s", *dto.Type)
 			if metadataRaw, ok := msg.Data["metadata"]; ok {
-				uc.log.Debugf("LocalizeNotification: Raw metadata: %s", metadataRaw)
 				var translatedParts []string
 				parts := strings.Split(metadataRaw, ",")
 
@@ -395,67 +373,40 @@ func (uc *FcmUsecase) LocalizeNotification(
 						key = "event.update_metadata." + part
 					}
 
-					translated, err := uc.localizer.GetLocalizedMessage(
+					translated, localizeErr := uc.localizer.GetLocalizedMessage(
 						lang, key, nil, nil,
 					)
-					if err != nil {
+					if localizeErr != nil {
 						translated = part
-						uc.log.Debugf(
-							"LocalizeNotification: Failed to translate metadata part '%s', using original", part,
-						)
-					} else {
-						uc.log.Debugf("LocalizeNotification: Translated metadata part '%s' -> '%s'", part, translated)
 					}
 					translatedParts = append(translatedParts, translated)
 				}
 
 				metadataString := strings.Join(translatedParts, ", ")
 				dto.GetConvertedMap()["metadata"] = metadataString
-				uc.log.Debugf("LocalizeNotification: Final metadata string: %s", metadataString)
 			}
 		}
 
-		body, err := uc.localizer.GetLocalizedMessage(
+		body, localizeBodyErr := uc.localizer.GetLocalizedMessage(
 			lang, *dto.Type, dto.GetConvertedMap(), dto.PluralCount,
 		)
-		if err == nil {
+		if localizeBodyErr == nil {
 			localizedBody = body
-			uc.log.Debugf("LocalizeNotification: Localized body: %s", localizedBody)
 		}
-		if err != nil {
-			uc.log.Debugf("LocalizeNotification: Failed to localize message: %v", err)
+		if localizeBodyErr != nil {
+			uc.log.Debugf("LocalizeNotification: Failed to localize message: %v", localizeBodyErr)
 		}
 
-		if chatType == "GROUP" || chatType == "EVENT" {
+		if chatType == ChatTypeGroup || chatType == ChatTypeEvent {
 			subType := msg.Data["type"]
-			uc.log.Debugf(
-				"LocalizeNotification: Processing group/event message with chatType='%s', subType='%s'", chatType,
-				subType,
-			)
 
 			if subType == "message.new" || subType == "message.photo" {
 				if contactName != "" {
-					originalBody := localizedBody
 					localizedBody = contactName + ": " + localizedBody
-					uc.log.Debugf(
-						"LocalizeNotification: Added contact name prefix: '%s' -> '%s'", originalBody, localizedBody,
-					)
-				} else {
-					uc.log.Debugf("LocalizeNotification: Contact name is empty, cannot add prefix")
 				}
 			}
-		} else {
-			uc.log.Debugf("LocalizeNotification: Not a group/event message, chatType='%s', no prefix added", chatType)
 		}
-	} else {
-		uc.log.Debugf("LocalizeNotification: Failed to parse notification data or type is nil. Error: %v", err)
 	}
-
-	// Log final result
-	uc.log.Debugf(
-		"LocalizeNotification: Final result - title='%s', body='%s', imageURL='%s'",
-		localizedTitle, localizedBody, imageURL,
-	)
 
 	return localizedTitle, localizedBody, imageURL
 }

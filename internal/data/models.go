@@ -223,6 +223,13 @@ func (dto *NotificationDto) ParseAndSetNotificationData(notificationData map[str
 	if chatJSON, ok := notificationData["chat"]; ok && chatJSON != "" {
 		dto.ChatJSON = &chatJSON
 		dto.setConvertedMap("chat", chatJSON)
+	} else if chatIdStr, ok := notificationData["chatId"]; ok && chatIdStr != "" {
+		chatId, err := strconv.ParseInt(chatIdStr, 10, 64)
+		if err == nil {
+			chatJSON := fmt.Sprintf(`{"id":%d}`, chatId)
+			dto.ChatJSON = &chatJSON
+			dto.setConvertedMap("chat", chatJSON)
+		}
 	}
 	if messageJSON, ok := notificationData["message"]; ok && messageJSON != "" {
 		dto.MessageJSON = &messageJSON
@@ -282,4 +289,11 @@ func (dto *NotificationDto) GetChat() *chats_v1.Chat {
 	}
 
 	return &chat
+}
+
+func (dto *NotificationDto) GetChatId() int64 {
+	if chat := dto.GetChat(); chat != nil {
+		return chat.GetId()
+	}
+	return 0
 }

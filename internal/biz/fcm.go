@@ -355,6 +355,45 @@ func (uc *FcmUsecase) LocalizeNotification(
 					uc.log.Debugf("LocalizeNotification: Using contact avatar: %s", imageURL)
 				}
 			}
+		} else {
+			uc.log.Debugf("LocalizeNotification: Chat object is nil, checking if this is a chat message by chatId")
+
+			// Fallback: если нет chat объекта, но есть chatId, попробуем определить по контексту
+			if chatIdStr, hasChatId := msg.Data["chatId"]; hasChatId && chatIdStr != "" {
+				uc.log.Debugf("LocalizeNotification: Found chatId=%s but no chat object, determining chat type from context", chatIdStr)
+
+				// Проверяем есть ли у нас информация в ConvertedMap
+				chatData, hasChatData := dto.GetConvertedMap()["chat"]
+				if hasChatData {
+					if chatMap, ok := chatData.(map[string]interface{}); ok {
+						if chatTypeVal, hasType := chatMap["type"]; hasType {
+							if typeStr, ok := chatTypeVal.(string); ok {
+								chatType = typeStr
+								uc.log.Debugf("LocalizeNotification: Found chat type in data: %s", chatType)
+							}
+						}
+					}
+				}
+
+				// Если тип чата все еще не определен, используем эвристику
+				if chatType == "" {
+					// Если contactName отличается от title, скорее всего это групповой чат
+					// В личных чатах обычно title = имя собеседника
+					if contactName != "" && contactName != msg.Title {
+						chatType = "GROUP"
+						uc.log.Debugf("LocalizeNotification: Assuming GROUP chat because contactName='%s' differs from title='%s'", contactName, msg.Title)
+					} else {
+						chatType = "DIRECT"
+						uc.log.Debugf("LocalizeNotification: Assuming DIRECT chat, setting title to contactName")
+						if contactName != "" {
+							localizedTitle = contactName
+						}
+						if contactAvatar != "" {
+							imageURL = contactAvatar
+						}
+					}
+				}
+			}
 		}
 
 		if *dto.Type == "chat.update" || *dto.Type == "EVENT_UPDATED" {

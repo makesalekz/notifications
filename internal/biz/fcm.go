@@ -138,17 +138,18 @@ func (uc *FcmUsecase) sendMessage(ctx context.Context, msg u_struc.FirebaseNotif
 		return false
 	}
 
-	go uc.deleteInactiveTokens(ctx, result.InactiveTokens)
+	backgroundCtx := context.Background()
+	go uc.deleteInactiveTokens(backgroundCtx, result.InactiveTokens)
 
 	if isFirst && len(result.NeedsReFetch) > 0 {
-		uc.fetchBadges(ctx, result.NeedsReFetch)
+		uc.fetchBadges(backgroundCtx, result.NeedsReFetch)
 		retryMsg := msg
 		retryMsg.UsersIds = result.NeedsReFetch
 		retryResult, retryErr := uc.SendUserNotifications(ctx, retryMsg, false)
 		if retryErr != nil {
 			uc.log.Errorf("sendMessage: retry SendUserNotifications: %s", retryErr.Error())
 		} else {
-			go uc.deleteInactiveTokens(ctx, retryResult.InactiveTokens)
+			go uc.deleteInactiveTokens(backgroundCtx, retryResult.InactiveTokens)
 		}
 	}
 

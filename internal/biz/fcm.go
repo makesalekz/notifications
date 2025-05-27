@@ -373,12 +373,12 @@ func (uc *FcmUsecase) LocalizeNotification(
 			}
 		}
 
-		if *dto.Type == "chat.update" || *dto.Type == "EVENT_UPDATED" {
+		if dType, ok := msg.Data["type"]; ok && (dType == "chat.update" || dType == "EVENT_UPDATED") {
 			if metadataRaw, ok := msg.Data["metadata"]; ok {
 				var translatedParts []string
 				parts := strings.Split(metadataRaw, ",")
-
 				for _, part := range parts {
+					originalPart := part
 					part = normalizeKey(part)
 					key := ""
 					if *dto.Type == "chat.update" {
@@ -391,13 +391,20 @@ func (uc *FcmUsecase) LocalizeNotification(
 						lang, key, nil, nil,
 					)
 					if localizeErr != nil {
-						translated = part
+						uc.log.Debugf(
+							"LocalizeNotification: Failed to translate key '%s': %v, using original: '%s'", key,
+							localizeErr, originalPart,
+						)
+						translated = originalPart
 					}
+
 					translatedParts = append(translatedParts, translated)
 				}
 
 				metadataString := strings.Join(translatedParts, ", ")
 				dto.GetConvertedMap()["metadata"] = metadataString
+			} else {
+				uc.log.Debugf("LocalizeNotification: No metadata found for type='%s'", *dto.Type)
 			}
 		}
 

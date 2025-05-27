@@ -626,6 +626,40 @@ func TestNotificationEventTextFormatting(t *testing.T) {
 			},
 			shouldFormatMessage: true,
 		},
+		{
+			name:   "chat_update_with_metadata_from_real_logs",
+			userId: 21,
+			userDevices: []*ent.Device{
+				{ID: 1, UserID: 21, Token: "token21", Language: "ru"},
+			},
+			inputMessage: &u_struc.FirebaseNotification{
+				Title: "tesssss1",
+				Body:  "Title, Description, Cover image have been changed by Asd",
+				Type:  u_struc.Chat,
+				Image: "https://calendaria-test.s3.eu-north-1.amazonaws.com/491/2025/05/5bc66352-85b7-408c-971c-caabebf823d9.jpg",
+				Data: map[string]string{
+					"chat":         `{"id":1474,"type":"GROUP","title":"tesssss1","description":"qweqweqwe","cover":"https://calendaria-test.s3.eu-north-1.amazonaws.com/491/2025/05/5bc66352-85b7-408c-971c-caabebf823d9.jpg","membersCount":2,"createdAt":"2025-05-27T04:12:13Z","updatedAt":"2025-05-27T04:12:54Z","companionId":491,"membership":{"chatId":1474,"status":"ACTIVE","role":"OWNER","updatedAt":"2025-05-27T04:12:18Z","lastReadId":11210},"lastMessage":{"id":11213,"cid":"c3cbede0-2937-4745-bf09-cc581ba0450c","type":"SYSTEM","createdAt":"2025-05-27T04:12:54Z","updatedAt":"2025-05-27T04:12:54Z","userId":491,"action":{"type":"COVER_CHANGED","changedFrom":"","changedTo":"https://calendaria-test.s3.eu-north-1.amazonaws.com/491/2025/05/5bc66352-85b7-408c-971c-caabebf823d9.jpg"}}}`,
+					"chatId":       "1474",
+					"createdAt":    "2025-05-27T04:12:54Z",
+					"message":      `{"id":11213,"cid":"c3cbede0-2937-4745-bf09-cc581ba0450c","type":"SYSTEM","createdAt":"2025-05-27T04:12:54Z","updatedAt":"2025-05-27T04:12:54Z","userId":491,"action":{"type":"COVER_CHANGED","changedFrom":"","changedTo":"https://calendaria-test.s3.eu-north-1.amazonaws.com/491/2025/05/5bc66352-85b7-408c-971c-caabebf823d9.jpg"}}`,
+					"metadata":     "Title, Description, Cover image",
+					"plural_count": "3",
+					"type":         "chat.update",
+					"user":         `{"id":491,"phone":"+77012715505","username":"user491","name":"Asd","lastLoginAt":"2025-05-27T04:03:21Z"}`,
+				},
+			},
+			expectedTitle: "tesssss1",
+			expectedBody:  "Dev Mac: изменил(а) название, описание, обложку группы",
+			expectedImage: "https://calendaria-test.s3.eu-north-1.amazonaws.com/491/2025/05/5bc66352-85b7-408c-971c-caabebf823d9.jpg",
+			contacts: []*contacts_v1.Contact{
+				{
+					Id:     1,
+					UserId: func() *int64 { id := int64(491); return &id }(),
+					Label:  "Dev Mac",
+				},
+			},
+			shouldFormatMessage: true,
+		},
 	}
 
 	for _, tt := range tests {

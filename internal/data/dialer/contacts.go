@@ -60,5 +60,5 @@ func (c *ContactsRemote) GetContactsByUserId(ctx context.Context, userID int64) 
 		return nil, v1.ErrorGrpcConnection("contacts: %s", err.Error())
 	}
 
-	return contactsReply.Contacts, nil
+	return contactsReply.GetContacts(), nil
 }

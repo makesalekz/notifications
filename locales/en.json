@@ -7,7 +7,15 @@
     "MEMBER_MAYBE": "{{.user.name}} is thinking about the invitation",
     "MEMBER_ACCEPTED": "{{.user.name}} has accepted the invitation",
     "CALENDAR_DELETED": "{{.user.name}} has deleted the calendar containing events to which you were invited",
-    "EVENT_UPDATED": "{{.user.name}} has changed the event's data: {{.metadata}}",
+    "EVENT_UPDATED": "{{.user.name}} has changed the event's data{{if .metadata}}: {{.metadata}}{{end}}",
+    "event.update_metadata.title": "title",
+    "event.update_metadata.description": "description",
+    "event.update_metadata.start_time": "start time",
+    "event.update_metadata.end_time": "end time",
+    "event.update_metadata.location": "location",
+    "event.update_metadata.cover": "event cover",
+    "event.update_metadata.type": "event type",
+    "event.update_metadata.details": "event details",
     "EVENT_DELETED": "{{.user.name}} has deleted the event",
     "EVENT_STARTS_SOON": {
         "one": "The event will start in {{.event.noticeBefore}} minute",
@@ -32,10 +40,13 @@
     "RECAP_ADDED": "{{.user.name}} added a recap",
     "CONTACT_CREATED": "Your contact {{.contact.label}} has signed up for Calendaria",
     "chat.update": {
-        "one": "{{.metadata}} has been changed by {{.user.name}}",
-        "other": "{{.metadata}} have been changed by {{.user.name}}"
+        "one": "{{.user.name}} has changed {{.metadata}}",
+        "other": "{{.user.name}} has changed {{.metadata}}"
     },
-    "member.added": "Your were added to the group {{.chat.title}}",
+    "chat.update_metadata.title": "title",
+    "chat.update_metadata.description": "description",
+    "chat.update_metadata.cover_image": "cover image",
+    "member.added": "{{.user.name}} has added you to the group",
     "message.new": {
         "one": "{{.message.content.text}}",
         "other": "New message"
@@ -76,5 +87,7 @@
     "email.subject": {
         "invite": "You have been invited to the workspace",
         "confirm_email": "Авторизация коды"
-    }
+    },
+    "GROUP_ADDED": "{{.user.name}} has added you to the group",
+    "GROUP_TITLE_CHANGED": "{{.user.name}} has changed the group name from {{.oldTitle}} to {{.newTitle}}"
 }

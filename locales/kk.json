@@ -7,7 +7,15 @@
   "MEMBER_MAYBE": "{{.user.name}} шақыру туралы ойлануда",
   "MEMBER_ACCEPTED": "{{.user.name}} іс-шараға шақыруды қабылдады",
   "CALENDAR_DELETED": "{{.user.name}} сіз шақырылған іс-шараларды қамтитын күнтізбені жойды",
-  "EVENT_UPDATED": "{{.user.name}} іс-шараның деректерін өзгертті: {{.metadata}}",
+  "EVENT_UPDATED": "{{.user.name}} іс-шараның деректерін өзгертті{{if .metadata}}: {{.metadata}}{{end}}",
+  "event.update_metadata.title": "атауы",
+  "event.update_metadata.description": "сипаттамасы",
+  "event.update_metadata.start_time": "басталу уақыты",
+  "event.update_metadata.end_time": "аяқталу уақыты",
+  "event.update_metadata.location": "орналасқан жері",
+  "event.update_metadata.cover": "іс-шараның мұқабасы",
+  "event.update_metadata.type": "іс-шараның түрі",
+  "event.update_metadata.details": "іс-шараның егжей-тегжейлері",
   "EVENT_DELETED": "{{.user.name}} іс-шараны жойды",
   "EVENT_STARTS_SOON": {
     "one": "Іс-шара {{.event.noticeBefore}} минуттан кейін басталады",
@@ -32,10 +40,13 @@
   "RECAP_ADDED": "{{.user.name}} толықтыру қосты",
   "CONTACT_CREATED": "Сіздің контактіңіз {{.contact.label}} Calendaria-да тіркелді",
   "chat.update": {
-    "one": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}",
-    "other": "{{.user.name}} чат деректерін өзгертті: {{.metadata}}"
+    "one": "{{.metadata}} {{.user.name}} өзгерді",
+    "other": "{{.metadata}} {{.user.name}} өзгерді"
   },
-  "member.added": "Сізді {{.chat.title}} тобына қосты",
+  "chat.update_metadata.title": "атауы",
+  "chat.update_metadata.description": "сипаттамасы",
+  "chat.update_metadata.cover_image": "топтың мұқабасы",
+  "member.added": "{{.user.name}} сізді топқа қосты",
   "message.new": {
     "one": "{{.message.content.text}}",
     "other": "Жаңа хабарлама"
@@ -76,5 +87,7 @@
   "email.subject": {
     "invite": "Сізді жұмыс кеңістігіне шақырды",
     "confirm_email": "Код "
-  }
+  },
+  "GROUP_ADDED": "{{.user.name}} сізді топқа қосты",
+  "GROUP_TITLE_CHANGED": "{{.user.name}} топтың атауын {{.oldTitle}} {{.newTitle}} деп өзгертті"
 }

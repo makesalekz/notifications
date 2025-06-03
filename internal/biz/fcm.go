@@ -746,3 +746,16 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 
 	return err == nil
 }
+
+func (uc *FcmUsecase) SilentPushNotifications(ctx context.Context) {
+	userIds, err := uc.badgeClient.GetUsers(ctx)
+	if err != nil {
+		uc.log.Errorf("SilentPushNotifications: badgeClient.GetUsers: %s", err.Error())
+	}
+
+	uc.sendSilentMessage(
+		ctx, u_struc.FirebaseNotification{
+			UsersIds: userIds,
+		},
+	)
+}

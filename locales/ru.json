@@ -26,8 +26,18 @@
     "EVENT_STARTS_NOW": {
         "one": "Событие началось в {{.event.location.address}}",
         "few": "Событие началось в {{.event.location.address}}",
-        "many": "Событие началось",
-        "other": "Событие началось"
+        "many": "Событие началось в {{.event.location.address}}",
+        "other": "Событие началось в {{.event.location.address}}"
+    },
+    "EVENT_STARTS_IN_DAYS": {
+        "one": "Событие начнется через 1 день",
+        "few": "Событие начнется через {{.plural_count}} дня"
+    },
+    "EVENT_STARTS_IN_WEEK": {
+      "one":"Событие начнется через неделю",
+      "few":"Событие начнется через неделю",
+      "many":"Событие начнется через неделю",
+      "other":"Событие начнется через неделю"
     },
     "EVENT_PENDING_INVITES": {
         "one": "1 участник не ответил на приглашение",

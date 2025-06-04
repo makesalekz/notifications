@@ -23,7 +23,15 @@
   },
   "EVENT_STARTS_NOW": {
     "one": "Іс-шара басталды {{.event.location.address}}",
-    "other": "Іс-шара басталды"
+    "other": "Іс-шара басталды {{.event.location.address}}"
+  },
+  "EVENT_STARTS_IN_DAYS": {
+    "one": "Іс-шара 1 күннен кейін басталады",
+    "other": "Іс-шара {{.plural_count}} күннен кейін басталады"
+  },
+  "EVENT_STARTS_IN_WEEK": {
+    "one": "Іс-шара бір аптадан кейін басталады",
+    "other": "Іс-шара бір аптадан кейін басталады"
   },
   "EVENT_PENDING_INVITES": {
     "one": "1 қатысушы шақыртуға жауап берген жоқ",

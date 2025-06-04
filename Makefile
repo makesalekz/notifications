@@ -40,7 +40,12 @@ doc:
 .PHONY: run
 # run locally
 run:	
-	GOFLAGS='-mod=readonly' kratos run -w ./configs
+	GOFLAGS='-mod=readonly' kratos run -w ./configs ../cmd/app
+
+.PHONY: scripts
+# run scripts locally
+scripts:
+	GOFLAGS='-mod=readonly' kratos run -w ./configs ../cmd/scripts
 
 .PHONY: db
 # create db
@@ -126,19 +131,8 @@ generate:
 
 .PHONY: all
 # generate all
-all:
-	make api;
-	make config;
-	make generate;
+all: api config generate
 	go mod tidy;
-
-.PHONY: total
-# generate and check all
-total:
-	make all;
-	make lint;
-	#make test;
-	make run DIR=./cmd/app;
 
 .PHONY: hooks
 # install hooks

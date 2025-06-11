@@ -29,7 +29,7 @@ require (
 	gitlab.calendaria.team/services/iam v1.8.16-dev
 	gitlab.calendaria.team/services/pms/projects v0.1.0-dev
 	gitlab.calendaria.team/services/pms/tasks v0.1.1
-	gitlab.calendaria.team/services/utils v0.3.22
+	gitlab.calendaria.team/services/utils v0.3.23-upd
 	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d
 	golang.org/x/text v0.25.0

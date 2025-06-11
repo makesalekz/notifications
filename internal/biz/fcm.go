@@ -110,7 +110,12 @@ func (uc *FcmUsecase) processNotificationMessage(ctx context.Context, messageDat
 		return
 	}
 
-	uc.log.WithContext(ctx).Debugf("processNotificationMessage: %v", notification)
+	// Alternative: For even prettier JSON output, you can marshal it:
+	if jsonBytes, err := json.MarshalIndent(notification, "", "  "); err == nil {
+		uc.log.WithContext(ctx).Debugf("processNotificationMessage:\n%s", string(jsonBytes))
+	} else {
+		uc.log.WithContext(ctx).Debugf("processNotificationMessage: %v", notification)
+	}
 
 	ok := uc.sendMessage(ctx, notification, true)
 	if ok {

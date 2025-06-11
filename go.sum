@@ -467,8 +467,8 @@ gitlab.calendaria.team/services/pms/projects v0.1.0-dev h1:tInkcS/gl39uRiGJ9P5Oe
 gitlab.calendaria.team/services/pms/projects v0.1.0-dev/go.mod h1:SoseXgEwGurO0UoUZ0afv/wCaMSHv2haXXVX5UePhBs=
 gitlab.calendaria.team/services/pms/tasks v0.1.1 h1:K/YwK/dNJGERX/R9H//vDchFOcs20RtuARQEkUZ6D4g=
 gitlab.calendaria.team/services/pms/tasks v0.1.1/go.mod h1:zn5V/CI3fO5sSit2TXIgK4YCGXapYiKjJmy4SXMK2qw=
-gitlab.calendaria.team/services/utils v0.3.22 h1:t6oDJBIwL8AwHIFaHMALf6bFA0e+gVGfqUSIbwpHLvk=
-gitlab.calendaria.team/services/utils v0.3.22/go.mod h1:JxcErnmQ4mvL1MtPps+3z2HdyLXGWJFar3JebhBYzL4=
+gitlab.calendaria.team/services/utils v0.3.23-upd h1:6VCbhHV+lG6RZQjdTj2Bb8mSf7C24J/5C1/9XDIw1u8=
+gitlab.calendaria.team/services/utils v0.3.23-upd/go.mod h1:JxcErnmQ4mvL1MtPps+3z2HdyLXGWJFar3JebhBYzL4=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
 go.opencensus.io v0.24.0/go.mod h1:vNK8G9p7aAivkbmorf4v+7Hgx+Zs0yY+0fOtgBfjQKo=
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 h1:4Pp6oUg3+e/6M4C0A/3kJ2VYa++dsWVTtGgLVj5xtHg=

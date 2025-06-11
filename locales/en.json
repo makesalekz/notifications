@@ -23,7 +23,15 @@
     },
     "EVENT_STARTS_NOW": {
         "one": "The event started at {{.event.location.address}}",
-        "other": "The event started"
+        "other": "The event started at {{.event.location.address}}"
+    },
+    "EVENT_STARTS_IN_DAYS": {
+        "one": "The event will start in 1 day",
+        "other": "The event will start in {{.plural_count}} days"
+    },
+    "EVENT_STARTS_IN_WEEK": {
+        "one":"The event starts in a week",
+        "other":"The event starts in a week"
     },
     "EVENT_PENDING_INVITES": {
         "one": "1 participant did not respond to the invitation",

@@ -24,7 +24,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.10.0
 	gitlab.calendaria.team/services/chats v1.4.9-dev
-	gitlab.calendaria.team/services/contacts v1.8.0
+	gitlab.calendaria.team/services/contacts v1.8.5-dev.2
 	gitlab.calendaria.team/services/events v1.10.0-dev
 	gitlab.calendaria.team/services/iam v1.8.16-dev
 	gitlab.calendaria.team/services/pms/projects v0.1.0-dev

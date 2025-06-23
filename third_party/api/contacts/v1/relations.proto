@@ -15,6 +15,9 @@ service Relations {
   rpc GetRelations(GetRelationsRequest) returns (UserRelationsReply);
   rpc GetIncomingRelations(GetRelationsRequest) returns (UserRelationsReply);
   rpc GetBlockingUsers(UserRequest) returns (UsersReply);
+  
+  // used for s2s communication
+  rpc GetBatchRelations(GetBatchRelationsRequest) returns (GetBatchRelationsReply);
 }
 
 message RelationUserRequest {
@@ -36,4 +39,13 @@ message GetRelationsRequest {
 
 message UserRelationsReply {
   repeated Relation relations = 1;
+}
+
+message GetBatchRelationsRequest {
+  repeated int64 ownerIds = 1;
+  repeated int64 userIds = 2;
+}
+
+message GetBatchRelationsReply {
+  map<int64, UserRelationsReply> relations = 1;
 }

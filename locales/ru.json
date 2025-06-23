@@ -8,6 +8,7 @@
     "MEMBER_ACCEPTED": "{{.user.name}} принял приглашение на событие",
     "CALENDAR_DELETED": "{{.user.name}} удалил календарь, содержащий мероприятия, на которые вы были приглашены",
     "EVENT_UPDATED": "{{.user.name}} изменил(а) данные события{{if .metadata}}: {{.metadata}}{{end}}",
+    "EVENT_RESCHEDULED": "{{.user.name}} перенес событие на: {{.metadata}}",
     "event.update_metadata.title": "название",
     "event.update_metadata.description": "описание",
     "event.update_metadata.start_time": "время начала",

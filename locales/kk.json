@@ -8,6 +8,7 @@
   "MEMBER_ACCEPTED": "{{.user.name}} іс-шараға шақыруды қабылдады",
   "CALENDAR_DELETED": "{{.user.name}} сіз шақырылған іс-шараларды қамтитын күнтізбені жойды",
   "EVENT_UPDATED": "{{.user.name}} іс-шараның деректерін өзгертті{{if .metadata}}: {{.metadata}}{{end}}",
+  "EVENT_RESCHEDULED": "{{.user.name}} іс-шараны {{.metadata}} кейінге қалдырды",
   "event.update_metadata.title": "атауы",
   "event.update_metadata.description": "сипаттамасы",
   "event.update_metadata.start_time": "басталу уақыты",

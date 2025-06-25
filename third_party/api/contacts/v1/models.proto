@@ -36,7 +36,7 @@ message Relation {
   int64 userId = 1;
   bool isMuted = 2;
   bool isBlocked = 3;
-  bool isExistInContacts = 4;
+  optional bool isExistInContacts = 4;
 }
 
 message GetContactsReply {

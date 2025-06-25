@@ -413,8 +413,6 @@ github.com/prometheus/procfs v0.12.0 h1:jluTpSng7V9hY0O2R9DzzJHYb2xULk9VTR1V1R/k
 github.com/prometheus/procfs v0.12.0/go.mod h1:pcuDEFsWDnvcgNzo4EEweacyhjeA9Zk3cnaOZAZEfOo=
 github.com/redis/go-redis/v9 v9.7.3 h1:YpPyAayJV+XErNsatSElgRZZVCwXX9QzkKYNvO7x0wM=
 github.com/redis/go-redis/v9 v9.7.3/go.mod h1:bGUrSggJ9X9GUmZpZNEOQKaANxSGgOEBRltRTZHSvrA=
-github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
-github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/fastuuid v1.2.0/go.mod h1:jVj6XXZzXRy/MSR5jhDC/2q6DgLz+nrA6LYCDYWNEvQ=
 github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=
 github.com/rogpeppe/go-internal v1.10.0/go.mod h1:UQnix2H7Ngw/k4C5ijL5+65zddjncjaFoBhdsK/akog=
@@ -455,8 +453,8 @@ github.com/zclconf/go-cty-yaml v1.1.0 h1:nP+jp0qPHv2IhUVqmQSzjvqAWcObN0KBkUl2rWB
 github.com/zclconf/go-cty-yaml v1.1.0/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
 gitlab.calendaria.team/services/chats v1.4.9-dev h1:bWrxyEs7tt2SRsfLOCxg9qaVPG4r70xroJoz6FGhn8c=
 gitlab.calendaria.team/services/chats v1.4.9-dev/go.mod h1:qY8aQEzyDGc5V0LIXCqGZ3gOQ28kcH4j18ejGRzKrIc=
-gitlab.calendaria.team/services/contacts v1.8.0 h1:HBc9yg7MnNRWk3ygVY/fgmxbYHLSCBIyIQAR+4EYp2I=
-gitlab.calendaria.team/services/contacts v1.8.0/go.mod h1:CNo3exZmnyNfPkp0Hy4PITkEais/P1oMaGyVsKJ0eg4=
+gitlab.calendaria.team/services/contacts v1.8.5-dev.2 h1:6CbdvHshKnBTAxsy4l4wT9xEIVNUnLzjfD3pwpPXaRk=
+gitlab.calendaria.team/services/contacts v1.8.5-dev.2/go.mod h1:jmZLmVKweA4j81Lt4rboXj9sQn52sinHdW02KyaIHYA=
 gitlab.calendaria.team/services/events v1.10.0-dev h1:SpDR+jbMzX2lzbIUJCnojg/9gFP1u1ov9vNxzPzQgdQ=
 gitlab.calendaria.team/services/events v1.10.0-dev/go.mod h1:Dgbyde/d6YaQPp8eQxopU2YuDxSn+PcEHnpW7mXaCFM=
 gitlab.calendaria.team/services/iam v1.8.16-dev h1:/QpU6SiB1jznimcZgY3lhxVySYWEX4F6zwtofMAcZW4=

@@ -24,7 +24,7 @@
     },
     "EVENT_STARTS_NOW": {
         "one": "The event started at {{.event.location.address}}",
-        "other": "The event started at {{.event.location.address}}"
+        "other": "The event started"
     },
     "EVENT_STARTS_IN_DAYS": {
         "one": "The event will start in 1 day",

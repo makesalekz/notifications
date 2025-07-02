@@ -27,8 +27,8 @@
     "EVENT_STARTS_NOW": {
         "one": "Событие началось в {{.event.location.address}}",
         "few": "Событие началось в {{.event.location.address}}",
-        "many": "Событие началось в {{.event.location.address}}",
-        "other": "Событие началось в {{.event.location.address}}"
+        "many": "Событие началось",
+        "other": "Событие началось"
     },
     "EVENT_STARTS_IN_DAYS": {
         "one": "Событие начнется через 1 день",

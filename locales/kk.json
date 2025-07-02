@@ -24,7 +24,7 @@
   },
   "EVENT_STARTS_NOW": {
     "one": "Іс-шара басталды {{.event.location.address}}",
-    "other": "Іс-шара басталды {{.event.location.address}}"
+    "other": "Іс-шара басталды"
   },
   "EVENT_STARTS_IN_DAYS": {
     "one": "Іс-шара 1 күннен кейін басталады",

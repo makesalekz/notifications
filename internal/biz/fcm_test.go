@@ -115,7 +115,7 @@ func TestFull(t *testing.T) {
 
 	qm := nats_mock.NewMockIQueueManager(ctrl)
 
-	qm.EXPECT().AddConsumer(gomock.Any(), gomock.Any()).Return().Times(2)
+	qm.EXPECT().AddConsumer(gomock.Any(), gomock.Any()).Return().Times(3)
 
 	uc, err := NewFcmUsecase(
 		logger,

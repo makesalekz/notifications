@@ -80,6 +80,21 @@ func (mr *MockDevicesRepoMockRecorder) DeleteDevicesByTokens(ctx, tokens interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDevicesByTokens", reflect.TypeOf((*MockDevicesRepo)(nil).DeleteDevicesByTokens), ctx, tokens)
 }
 
+// DeleteUserDevicesTokens mocks base method.
+func (m *MockDevicesRepo) DeleteUserDevicesTokens(ctx context.Context, userID int64) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserDevicesTokens", ctx, userID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteUserDevicesTokens indicates an expected call of DeleteUserDevicesTokens.
+func (mr *MockDevicesRepoMockRecorder) DeleteUserDevicesTokens(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserDevicesTokens", reflect.TypeOf((*MockDevicesRepo)(nil).DeleteUserDevicesTokens), ctx, userID)
+}
+
 // GetDevice mocks base method.
 func (m *MockDevicesRepo) GetDevice(ctx context.Context, deviceKey data.DeviceKey) (*ent.Device, error) {
 	m.ctrl.T.Helper()

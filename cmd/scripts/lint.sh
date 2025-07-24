@@ -11,6 +11,10 @@ do
     continue
   fi
 
+  if [[ ! -d "$dir" ]]; then
+    continue
+  fi
+
   FILES_TO_LINT=$(grep "$dir" <<< "$UPDATED_FILES"  | tr '\n' ' ')
   FILES_IN_DIR=$(ls $dir)
   FILES_TO_EXCLUDE=""
@@ -24,6 +28,10 @@ do
     FILES_TO_EXCLUDE="${FILES_TO_EXCLUDE:1}"
     golangci-lint run --fix -c .golangci-lint.yml --exclude-files "$FILES_TO_EXCLUDE" "$dir"
   else
-    golangci-lint run --fix -c .golangci-lint.yml "$FILES_TO_LINT"
+    # Use array to properly handle files with spaces
+    if [[ -n "$FILES_TO_LINT" ]]; then
+      read -ra FILES_ARRAY <<< "$FILES_TO_LINT"
+      golangci-lint run --fix -c .golangci-lint.yml "${FILES_ARRAY[@]}"
+    fi
   fi
 done

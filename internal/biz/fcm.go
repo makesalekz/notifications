@@ -89,6 +89,7 @@ func NewFcmUsecase(
 
 	qm.AddConsumer(QueueFCM, uc.handlePushNotifications)
 	qm.AddConsumer(QueueFCMSilent, uc.handleSilentPushNotifications)
+	qm.AddConsumer(QueueDeleteDeviceTokens, uc.deleteDeviceTokens)
 
 	return uc, nil
 }
@@ -828,4 +829,20 @@ func (uc *FcmUsecase) SilentPushNotifications(ctx context.Context) {
 			UsersIds: userIds,
 		},
 	)
+}
+
+func (uc *FcmUsecase) deleteDeviceTokens(ctx context.Context, m jetstream.Msg) bool {
+	var userID int64
+	err := json.Unmarshal(m.Data(), &userID)
+	if err != nil {
+		uc.log.Errorf("handlePushNotifications: json.Unmarshal: %s", err.Error())
+		return true
+	}
+
+	_, err = uc.devicesRepo.DeleteUserDevicesTokens(ctx, userID)
+	if err != nil {
+		uc.log.Errorf("user device tokens deletion failed: %s", err.Error())
+	}
+
+	return true
 }

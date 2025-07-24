@@ -10,6 +10,7 @@ import (
 const QueueFCM = "fcm"
 const QueueFCMSilent = "fcm_silent"
 const QueueEmail = "email"
+const QueueDeleteDeviceTokens = "delete_tokens"
 
 var DefaultLanguage = "en"
 

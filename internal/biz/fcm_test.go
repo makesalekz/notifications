@@ -696,7 +696,6 @@ func TestNotificationEventTextFormatting(t *testing.T) {
 				batchContacts := make(map[int64]*contacts_v1.Contact)
 				for _, contact := range tt.contacts {
 					if contact.UserId != nil {
-
 						batchContacts[tt.userId] = contact
 					}
 				}

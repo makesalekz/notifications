@@ -98,5 +98,6 @@
         "confirm_email": "Авторизация коды"
     },
     "GROUP_ADDED": "{{.user.name}} has added you to the group",
-    "GROUP_TITLE_CHANGED": "{{.user.name}} has changed the group name from {{.oldTitle}} to {{.newTitle}}"
+    "GROUP_TITLE_CHANGED": "{{.user.name}} has changed the group name from {{.oldTitle}} to {{.newTitle}}",
+    "ACCOUNT_DELETION": "Your account has been deleted"
 }

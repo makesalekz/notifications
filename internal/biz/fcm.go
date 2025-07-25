@@ -839,6 +839,45 @@ func (uc *FcmUsecase) deleteDeviceTokens(ctx context.Context, m jetstream.Msg) b
 		return true
 	}
 
+	devices, err := uc.devicesRepo.GetDevicesForUser(ctx, userID)
+	if err != nil {
+		uc.log.Errorf("failed to get user devices: %s", err)
+		return false
+	}
+
+	if len(devices) == 0 {
+		return true
+	}
+
+	notification := u_struc.FirebaseNotification{
+		Type:  u_struc.Common,
+		Body:  "Your account has been deleted",
+		Title: "Account deletion",
+		Data: map[string]string{
+			"type": AccountDeletion,
+		},
+	}
+
+	langDevicesMap := uc.GroupDevicesByLanguage(devices)
+	for lang, langDevices := range langDevicesMap {
+		localizedTitle, localizedBody, coverImage := uc.LocalizeNotification(
+			&notification, "", "", lang,
+		)
+
+		dispatchCtx := PushDispatchContext{
+			UserID:         userID,
+			Devices:        langDevices,
+			BadgeCount:     0,
+			WithSound:      false,
+			WithVibration:  false,
+			LocalizedTitle: localizedTitle,
+			LocalizedBody:  localizedBody,
+			ImageURL:       coverImage,
+		}
+
+		_ = uc.DispatchPushNotifications(ctx, dispatchCtx)
+	}
+
 	_, err = uc.devicesRepo.DeleteUserDevicesTokens(ctx, userID)
 	if err != nil {
 		uc.log.Errorf("user device tokens deletion failed: %s", err.Error())

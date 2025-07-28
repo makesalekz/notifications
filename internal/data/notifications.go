@@ -109,7 +109,6 @@ func (r *notificationsRepo) CreateNotifications(ctx context.Context, data []*Not
 		return 0, err
 	}
 
-	//nolint:gosec // convertation to int32 is safe
 	return int32(created), err
 }
 
@@ -133,7 +132,9 @@ func (r *notificationsRepo) ListNotifications(
 	filter *FilterNotificationsDto,
 	paginate *utils_v1.PaginateRequest,
 ) ([]*ent.Notification, error) {
-	query := r.db.Notification.Query().Where(notification.UserID(filter.UserID))
+	query := r.db.Notification.Query().
+		Where(notification.UserID(filter.UserID)).
+		WithNotificationData()
 
 	if u_struc.NotificationType(filter.Type).IsValid() {
 		query.Where(notification.Type(u_struc.NotificationType(filter.Type)))

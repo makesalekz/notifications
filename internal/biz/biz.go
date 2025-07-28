@@ -7,9 +7,14 @@ import (
 	"gitlab.calendaria.team/services/utils/v4/nats"
 )
 
-const QueueFCM = "fcm"
-const QueueFCMSilent = "fcm_silent"
-const QueueEmail = "email"
+const (
+	QueueFCM                = "fcm"
+	QueueFCMSilent          = "fcm_silent"
+	QueueEmail              = "email"
+	QueueDeleteDeviceTokens = "delete_tokens"
+
+	AccountDeletion = "ACCOUNT_DELETION"
+)
 
 var DefaultLanguage = "en"
 

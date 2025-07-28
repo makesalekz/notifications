@@ -64,7 +64,10 @@ func (c *ContactsRemote) GetContactsByUserID(ctx context.Context, userID int64) 
 	return contactsReply.GetContacts(), nil
 }
 
-func (c *ContactsRemote) GetBatchContactLabels(ctx context.Context, ownerIDs, userIDs []int64) (map[int64]*contacts_v1.Contact, error) {
+func (c *ContactsRemote) GetBatchContactLabels(
+	ctx context.Context,
+	ownerIDs, userIDs []int64,
+) (map[int64]*contacts_v1.Contact, error) {
 	client, err := c.getContactsClient(ctx)
 	if err != nil {
 		return nil, err

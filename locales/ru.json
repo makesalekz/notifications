@@ -126,5 +126,6 @@
         "confirm_email": "Код авторизации"
     },
     "GROUP_ADDED": "{{.user.name}} добавил вас в группу",
-    "GROUP_TITLE_CHANGED": "{{.user.name}} изменил название группы с {{.oldTitle}} на {{.newTitle}}"
+    "GROUP_TITLE_CHANGED": "{{.user.name}} изменил название группы с {{.oldTitle}} на {{.newTitle}}",
+    "ACCOUNT_DELETION": "Сіздің пайдаланушы тіркелгіңіз жойылды"
 }

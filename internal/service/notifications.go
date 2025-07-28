@@ -2,11 +2,10 @@ package service
 
 import (
 	"context"
-	"time"
 
 	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
 	"gitlab.calendaria.team/services/notifications/internal/biz"
+	"gitlab.calendaria.team/services/notifications/internal/biz/reply"
 	"gitlab.calendaria.team/services/notifications/internal/data"
 	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
 	"gitlab.calendaria.team/services/utils/v2/auth"
@@ -24,35 +23,6 @@ func NewNotificationsService(
 	return &NotificationsService{
 		nu: nu,
 	}
-}
-
-func replyNotifications(notifications []*ent.Notification) []*v1.Notification {
-	reply := make([]*v1.Notification, len(notifications))
-
-	for i, notification := range notifications {
-		n := &v1.Notification{
-			Id:        notification.ID,
-			Type:      string(notification.Type),
-			Title:     notification.Title,
-			Text:      notification.Text,
-			CreatedAt: notification.CreatedAt.Format(time.RFC3339),
-		}
-		if notification.EventID != nil {
-			n.EventId = *notification.EventID
-		}
-		if notification.ContactID != nil {
-			n.ContactId = *notification.ContactID
-		}
-		if notification.TaskID != nil {
-			n.TaskId = *notification.TaskID
-		}
-		if notification.ProjectID != nil {
-			n.ProjectId = *notification.ProjectID
-		}
-		reply[i] = n
-	}
-
-	return reply
 }
 
 func (s *NotificationsService) CreateNotifications(
@@ -97,7 +67,7 @@ func (s *NotificationsService) ListNotifications(
 	}
 
 	return &v1.ListNotificationsReply{
-		Notifications: replyNotifications(list.Notifications),
+		Notifications: reply.MapNotifications(list.Notifications),
 		Paginate:      list.Paginate,
 	}, nil
 }

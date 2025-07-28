@@ -7,6 +7,7 @@
 package notifications_v1
 
 import (
+	v1 "gitlab.calendaria.team/services/events/api/events/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -32,6 +33,7 @@ type Notification struct {
 	TaskId        int64                  `protobuf:"varint,8,opt,name=taskId,proto3" json:"taskId,omitempty"`
 	ProjectId     int64                  `protobuf:"varint,9,opt,name=projectId,proto3" json:"projectId,omitempty"`
 	CreatedAt     string                 `protobuf:"bytes,7,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	Event         *v1.Event              `protobuf:"bytes,10,opt,name=event,proto3,oneof" json:"event,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -127,6 +129,13 @@ func (x *Notification) GetCreatedAt() string {
 		return x.CreatedAt
 	}
 	return ""
+}
+
+func (x *Notification) GetEvent() *v1.Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
 }
 
 type NotificationDto struct {
@@ -225,7 +234,7 @@ var File_api_notifications_v1_models_proto protoreflect.FileDescriptor
 
 const file_api_notifications_v1_models_proto_rawDesc = "" +
 	"\n" +
-	"!api/notifications/v1/models.proto\x12\x10notifications.v1\"\xe8\x01\n" +
+	"!api/notifications/v1/models.proto\x12\x10notifications.v1\x1a\x1aapi/events/v1/models.proto\"\x9f\x02\n" +
 	"\fNotification\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x14\n" +
@@ -235,7 +244,10 @@ const file_api_notifications_v1_models_proto_rawDesc = "" +
 	"\tcontactId\x18\x06 \x01(\x03R\tcontactId\x12\x16\n" +
 	"\x06taskId\x18\b \x01(\x03R\x06taskId\x12\x1c\n" +
 	"\tprojectId\x18\t \x01(\x03R\tprojectId\x12\x1c\n" +
-	"\tcreatedAt\x18\a \x01(\tR\tcreatedAt\"\xc1\x01\n" +
+	"\tcreatedAt\x18\a \x01(\tR\tcreatedAt\x12+\n" +
+	"\x05event\x18\n" +
+	" \x01(\v2\x10.events.v1.EventH\x00R\x05event\x88\x01\x01B\b\n" +
+	"\x06_event\"\xc1\x01\n" +
 	"\x0fNotificationDto\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\x03R\x06userId\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
@@ -262,13 +274,15 @@ var file_api_notifications_v1_models_proto_msgTypes = make([]protoimpl.MessageIn
 var file_api_notifications_v1_models_proto_goTypes = []any{
 	(*Notification)(nil),    // 0: notifications.v1.Notification
 	(*NotificationDto)(nil), // 1: notifications.v1.NotificationDto
+	(*v1.Event)(nil),        // 2: events.v1.Event
 }
 var file_api_notifications_v1_models_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: notifications.v1.Notification.event:type_name -> events.v1.Event
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_api_notifications_v1_models_proto_init() }
@@ -276,6 +290,7 @@ func file_api_notifications_v1_models_proto_init() {
 	if File_api_notifications_v1_models_proto != nil {
 		return
 	}
+	file_api_notifications_v1_models_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

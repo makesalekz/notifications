@@ -8,13 +8,13 @@ func replyPaginate(paginate *utils_v1.PaginateRequest, length int, total int32, 
 	}
 
 	// default descending order, updates / reverse pagination by FromId
-	if paginate.ToId == 0 || paginate.FromId != 0 || paginate.AroundId != 0 {
+	if paginate.GetToId() == 0 || paginate.GetFromId() != 0 || paginate.GetAroundId() != 0 {
 		if fromId != nil {
 			paginateReply.FromId = fromId
 		}
 	}
 	// pagination by ToId
-	if (paginate.FromId == 0 || paginate.AroundId != 0) && length == int(paginate.Limit) {
+	if (paginate.GetFromId() == 0 || paginate.GetAroundId() != 0) && length == int(paginate.GetLimit()) {
 		if toId != nil {
 			paginateReply.ToId = toId
 		}

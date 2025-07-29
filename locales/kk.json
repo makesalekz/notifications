@@ -99,5 +99,5 @@
   },
   "GROUP_ADDED": "{{.user.name}} сізді топқа қосты",
   "GROUP_TITLE_CHANGED": "{{.user.name}} топтың атауын {{.oldTitle}} {{.newTitle}} деп өзгертті",
-  "ACCOUNT_DELETION": "Ваша учетная запись была удалена"
+  "ACCOUNT_DELETION": "Сіздің пайдаланушы тіркелгіңіз жойылды"
 }

@@ -127,5 +127,5 @@
     },
     "GROUP_ADDED": "{{.user.name}} добавил вас в группу",
     "GROUP_TITLE_CHANGED": "{{.user.name}} изменил название группы с {{.oldTitle}} на {{.newTitle}}",
-    "ACCOUNT_DELETION": "Сіздің пайдаланушы тіркелгіңіз жойылды"
+    "ACCOUNT_DELETION": "Ваша учетная запись была удалена"
 }

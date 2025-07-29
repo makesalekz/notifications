@@ -850,9 +850,8 @@ func (uc *FcmUsecase) deleteDeviceTokens(ctx context.Context, m jetstream.Msg) b
 	}
 
 	notification := u_struc.FirebaseNotification{
-		Type:  u_struc.Common,
-		Body:  "Your account has been deleted",
-		Title: "Account deletion",
+		Type: u_struc.Common,
+		Body: "Your account has been deleted",
 		Data: map[string]string{
 			"type": AccountDeletion,
 		},

@@ -32,6 +32,7 @@ type DevicesRepo interface {
 	GetDevicesForUser(ctx context.Context, userID int64) ([]*ent.Device, error)
 	GetDevicesForUsers(ctx context.Context, usersIDs []int64) ([]*ent.Device, error)
 	DeleteDevicesByTokens(ctx context.Context, tokens []string) (int, error)
+	DeleteUserDevicesTokens(ctx context.Context, userID int64) (int, error)
 }
 
 type devicesRepo struct {
@@ -88,5 +89,11 @@ func (r *devicesRepo) GetDevicesForUsers(ctx context.Context, usersIDs []int64) 
 func (r *devicesRepo) DeleteDevicesByTokens(ctx context.Context, tokens []string) (int, error) {
 	return r.db.Device.Delete().
 		Where(device.TokenIn(tokens...)).
+		Exec(ctx)
+}
+
+func (r *devicesRepo) DeleteUserDevicesTokens(ctx context.Context, userID int64) (int, error) {
+	return r.db.Device.Delete().
+		Where(device.UserID(userID)).
 		Exec(ctx)
 }

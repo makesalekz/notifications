@@ -8,6 +8,7 @@
     "MEMBER_ACCEPTED": "{{.user.name}} принял приглашение на событие",
     "CALENDAR_DELETED": "{{.user.name}} удалил календарь, содержащий мероприятия, на которые вы были приглашены",
     "EVENT_UPDATED": "{{.user.name}} изменил(а) данные события{{if .metadata}}: {{.metadata}}{{end}}",
+    "EVENT_RESCHEDULED": "{{.user.name}} перенес событие на: {{.metadata}}",
     "event.update_metadata.title": "название",
     "event.update_metadata.description": "описание",
     "event.update_metadata.start_time": "время начала",
@@ -28,6 +29,16 @@
         "few": "Событие началось в {{.event.location.address}}",
         "many": "Событие началось",
         "other": "Событие началось"
+    },
+    "EVENT_STARTS_IN_DAYS": {
+        "one": "Событие начнется через 1 день",
+        "few": "Событие начнется через {{.plural_count}} дня"
+    },
+    "EVENT_STARTS_IN_WEEK": {
+      "one":"Событие начнется через неделю",
+      "few":"Событие начнется через неделю",
+      "many":"Событие начнется через неделю",
+      "other":"Событие начнется через неделю"
     },
     "EVENT_PENDING_INVITES": {
         "one": "1 участник не ответил на приглашение",
@@ -115,5 +126,6 @@
         "confirm_email": "Код авторизации"
     },
     "GROUP_ADDED": "{{.user.name}} добавил вас в группу",
-    "GROUP_TITLE_CHANGED": "{{.user.name}} изменил название группы с {{.oldTitle}} на {{.newTitle}}"
+    "GROUP_TITLE_CHANGED": "{{.user.name}} изменил название группы с {{.oldTitle}} на {{.newTitle}}",
+    "ACCOUNT_DELETION": "Ваша учетная запись была удалена"
 }

@@ -23,12 +23,12 @@ require (
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/stretchr/testify v1.10.0
 	gitlab.calendaria.team/services/chats v1.4.9-dev
-	gitlab.calendaria.team/services/contacts v1.8.0
+	gitlab.calendaria.team/services/contacts v1.8.5-dev.2
 	gitlab.calendaria.team/services/events v1.10.0-dev
 	gitlab.calendaria.team/services/iam v1.8.16-dev
 	gitlab.calendaria.team/services/pms/projects v0.1.0-dev
 	gitlab.calendaria.team/services/pms/tasks v0.1.1
-	gitlab.calendaria.team/services/utils v0.3.20
+	gitlab.calendaria.team/services/utils v0.3.23-upd
 	go.uber.org/automaxprocs v1.6.0
 	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d
 	golang.org/x/text v0.25.0

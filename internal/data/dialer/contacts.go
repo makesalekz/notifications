@@ -10,7 +10,8 @@ import (
 )
 
 type IContactsRemote interface {
-	GetContactsByUserId(ctx context.Context, userID int64) ([]*contacts_v1.Contact, error)
+	GetContactsByUserID(ctx context.Context, userID int64) ([]*contacts_v1.Contact, error)
+	GetBatchContactLabels(ctx context.Context, ownerIDs, userIDs []int64) (map[int64]*contacts_v1.Contact, error)
 }
 
 type ContactsRemote struct {
@@ -44,7 +45,7 @@ func (c *ContactsRemote) getContactsClient(ctx context.Context) (contacts_v1.Con
 	return contacts_v1.NewContactsClient(conn), nil
 }
 
-func (c *ContactsRemote) GetContactsByUserId(ctx context.Context, userID int64) ([]*contacts_v1.Contact, error) {
+func (c *ContactsRemote) GetContactsByUserID(ctx context.Context, userID int64) ([]*contacts_v1.Contact, error) {
 	client, err := c.getContactsClient(ctx)
 	if err != nil {
 		return nil, err
@@ -61,4 +62,27 @@ func (c *ContactsRemote) GetContactsByUserId(ctx context.Context, userID int64) 
 	}
 
 	return contactsReply.GetContacts(), nil
+}
+
+func (c *ContactsRemote) GetBatchContactLabels(
+	ctx context.Context,
+	ownerIDs, userIDs []int64,
+) (map[int64]*contacts_v1.Contact, error) {
+	client, err := c.getContactsClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	batchReply, err := client.GetBatchContactLabels(
+		ctx, &contacts_v1.GetBatchContactLabelsRequest{
+			OwnerIds: ownerIDs,
+			UserIds:  userIDs,
+		},
+	)
+
+	if err != nil {
+		return nil, v1.ErrorGrpcConnection("contacts: %s", err.Error())
+	}
+
+	return batchReply.GetContactsByOwner(), nil
 }

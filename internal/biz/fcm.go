@@ -29,6 +29,11 @@ const (
 	ChatTypeEvent  = "EVENT"
 )
 
+type ContactInfo struct {
+	Name   string
+	Avatar string
+}
+
 type PushDispatchContext struct {
 	UserID         int64
 	Devices        []*ent.Device
@@ -84,6 +89,7 @@ func NewFcmUsecase(
 
 	qm.AddConsumer(QueueFCM, uc.handlePushNotifications)
 	qm.AddConsumer(QueueFCMSilent, uc.handleSilentPushNotifications)
+	qm.AddConsumer(QueueDeleteDeviceTokens, uc.deleteDeviceTokens)
 
 	return uc, nil
 }
@@ -110,7 +116,12 @@ func (uc *FcmUsecase) processNotificationMessage(ctx context.Context, messageDat
 		return
 	}
 
-	uc.log.WithContext(ctx).Debugf("processNotificationMessage: %v", notification)
+	// Alternative: For even prettier JSON output, you can marshal it:
+	if jsonBytes, err := json.MarshalIndent(notification, "", "  "); err == nil {
+		uc.log.WithContext(ctx).Debugf("processNotificationMessage:\n%s", string(jsonBytes))
+	} else {
+		uc.log.WithContext(ctx).Debugf("processNotificationMessage: %v", notification)
+	}
 
 	ok := uc.sendMessage(ctx, notification, true)
 	if ok {
@@ -192,6 +203,12 @@ func (uc *FcmUsecase) SendUserNotifications(
 		uc.log.Errorf("SendUserNotifications: iam.GetUsersSettings: %s", err.Error())
 	}
 
+	contactsMap, err := uc.getContactsInfo(ctx, &msg, msg.UsersIds)
+	if err != nil {
+		uc.log.Errorf("SendUserNotifications: getContactsInfo: %s", err.Error())
+		contactsMap = make(map[int64]ContactInfo)
+	}
+
 	result := &PushDispatchResult{
 		InactiveTokens: make([]string, 0),
 		NeedsReFetch:   make([]int64, 0),
@@ -199,7 +216,9 @@ func (uc *FcmUsecase) SendUserNotifications(
 	processedMsg := msg
 
 	for userID, devices := range userDevicesMap {
-		contactName, contactAvatar := uc.ExtractContactNameAndAvatar(ctx, &msg, userID)
+		contactInfo := contactsMap[userID]
+		contactName := contactInfo.Name
+		contactAvatar := contactInfo.Avatar
 
 		withSound, withVibration := uc.GetUserNotificationSettings(ctx, userID, userSettings)
 
@@ -553,7 +572,7 @@ func (uc *FcmUsecase) getAuthorNameFromUser(
 	}
 
 	ctxWithUserID := auth.AppendAuthIds(ctx, receiverID, 0)
-	contacts, err := uc.contactsRemote.GetContactsByUserId(ctxWithUserID, user.GetId())
+	contacts, err := uc.contactsRemote.GetContactsByUserID(ctxWithUserID, user.GetId())
 	if err != nil {
 		uc.log.Debugf("failed to get contacts for user %d: %v", receiverID, err)
 		return authorName
@@ -587,6 +606,58 @@ func (uc *FcmUsecase) ExtractContactNameAndAvatar(
 	contactName := uc.getAuthorNameFromUser(ctx, &user, receiverID)
 
 	return contactName, authorAvatar
+}
+
+func (uc *FcmUsecase) getContactsInfo(
+	ctx context.Context, msg *u_struc.FirebaseNotification, receiverIDs []int64,
+) (map[int64]ContactInfo, error) {
+	var user users_v1.User
+	if userJSON, ok := msg.Data["user"]; ok {
+		err := json.Unmarshal([]byte(userJSON), &user)
+		if err != nil {
+			uc.log.Debugf("getContactsInfo: failed to parse user json: %v", err)
+			return make(map[int64]ContactInfo), nil
+		}
+	}
+
+	if user.GetId() == 0 {
+		return make(map[int64]ContactInfo), nil
+	}
+
+	userIDs := []int64{user.GetId()}
+
+	contactsMap, err := uc.contactsRemote.GetBatchContactLabels(ctx, receiverIDs, userIDs)
+	if err != nil {
+		uc.log.Debugf("getContactsInfo: failed to get batch contacts: %v", err)
+		return make(map[int64]ContactInfo), err
+	}
+
+	result := make(map[int64]ContactInfo)
+	authorAvatar := user.GetAvatar()
+
+	for _, receiverID := range receiverIDs {
+		contactInfo := ContactInfo{
+			Avatar: authorAvatar,
+		}
+
+		if contact, exists := contactsMap[receiverID]; exists && contact != nil {
+			if contact.UserId != nil && contact.GetUserId() == user.GetId() && contact.GetLabel() != "" {
+				contactInfo.Name = contact.GetLabel()
+			}
+		}
+
+		if contactInfo.Name == "" {
+			if user.GetName() != "" {
+				contactInfo.Name = user.GetName()
+			} else if user.GetUsername() != "" {
+				contactInfo.Name = user.GetUsername()
+			}
+		}
+
+		result[receiverID] = contactInfo
+	}
+
+	return result, nil
 }
 
 func normalizeKey(input string) string {
@@ -745,4 +816,71 @@ func (uc *FcmUsecase) sendSilentMessage(ctx context.Context, notification u_stru
 	}
 
 	return err == nil
+}
+
+func (uc *FcmUsecase) SilentPushNotifications(ctx context.Context) {
+	userIds, err := uc.badgeClient.GetUsers(ctx)
+	if err != nil {
+		uc.log.Errorf("SilentPushNotifications: badgeClient.GetUsers: %s", err.Error())
+	}
+
+	uc.sendSilentMessage(
+		ctx, u_struc.FirebaseNotification{
+			UsersIds: userIds,
+		},
+	)
+}
+
+func (uc *FcmUsecase) deleteDeviceTokens(ctx context.Context, m jetstream.Msg) bool {
+	var userID int64
+	err := json.Unmarshal(m.Data(), &userID)
+	if err != nil {
+		uc.log.Errorf("handlePushNotifications: json.Unmarshal: %s", err.Error())
+		return true
+	}
+
+	devices, err := uc.devicesRepo.GetDevicesForUser(ctx, userID)
+	if err != nil {
+		uc.log.Errorf("failed to get user devices: %s", err)
+		return false
+	}
+
+	if len(devices) == 0 {
+		return true
+	}
+
+	notification := u_struc.FirebaseNotification{
+		Type: u_struc.Common,
+		Body: "Your account has been deleted",
+		Data: map[string]string{
+			"type": AccountDeletion,
+		},
+	}
+
+	langDevicesMap := uc.GroupDevicesByLanguage(devices)
+	for lang, langDevices := range langDevicesMap {
+		localizedTitle, localizedBody, coverImage := uc.LocalizeNotification(
+			&notification, "", "", lang,
+		)
+
+		dispatchCtx := PushDispatchContext{
+			UserID:         userID,
+			Devices:        langDevices,
+			BadgeCount:     0,
+			WithSound:      false,
+			WithVibration:  false,
+			LocalizedTitle: localizedTitle,
+			LocalizedBody:  localizedBody,
+			ImageURL:       coverImage,
+		}
+
+		_ = uc.DispatchPushNotifications(ctx, dispatchCtx)
+	}
+
+	_, err = uc.devicesRepo.DeleteUserDevicesTokens(ctx, userID)
+	if err != nil {
+		uc.log.Errorf("user device tokens deletion failed: %s", err.Error())
+	}
+
+	return true
 }

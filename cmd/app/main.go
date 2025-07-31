@@ -53,8 +53,18 @@ func newApp(logger log.Logger, c config.IConfig, gs *grpc.Server, hs *http.Serve
 
 func main() {
 	flag.Parse()
+
+	// Default logger
+	var getLogger log.Logger
+	getLogger = u_log.NewStdLogger()
+
+	// Custom Pretty logger for local run
+	if os.Getenv("APP_ENV") == "local" {
+		getLogger = u_log.NewJSONPrettyLogger()
+	}
+
 	logger := log.With(
-		u_log.NewStdLogger(),
+		getLogger,
 		"ts", log.DefaultTimestamp,
 		"caller", log.DefaultCaller,
 		"service.id", id,

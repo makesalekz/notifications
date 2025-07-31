@@ -20,7 +20,6 @@ import (
 	nats_mock "gitlab.calendaria.team/services/utils/v4/nats/mock"
 )
 
-// FCMMessageMatcher - пользовательский matcher для FCM сообщений.
 type FCMMessageMatcher struct {
 	expected messaging.Message
 }
@@ -31,12 +30,10 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 		return false
 	}
 
-	// Проверяем основные поля сообщения
 	if m.expected.Token != actual.Token {
 		return false
 	}
 
-	// Проверяем данные
 	if len(m.expected.Data) != len(actual.Data) {
 		return false
 	}
@@ -46,7 +43,6 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 		}
 	}
 
-	// Проверяем уведомление если оно есть
 	if (m.expected.Notification == nil) != (actual.Notification == nil) {
 		return false
 	}
@@ -58,7 +54,6 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 		}
 	}
 
-	// Проверяем Android-конфигурацию если она есть
 	if (m.expected.Android == nil) != (actual.Android == nil) {
 		return false
 	}
@@ -66,7 +61,7 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 		if m.expected.Android.Notification.Sound != actual.Android.Notification.Sound {
 			return false
 		}
-		// Проверяем NotificationCount если он установлен
+
 		if m.expected.Android.Notification.NotificationCount != nil && actual.Android.Notification.NotificationCount != nil {
 			if *m.expected.Android.Notification.NotificationCount != *actual.Android.Notification.NotificationCount {
 				return false
@@ -74,7 +69,6 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 		}
 	}
 
-	// Проверяем APNS-конфигурацию если она есть
 	if (m.expected.APNS == nil) != (actual.APNS == nil) {
 		return false
 	}
@@ -83,7 +77,7 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 			if m.expected.APNS.Payload.Aps.Sound != actual.APNS.Payload.Aps.Sound {
 				return false
 			}
-			// Проверяем Badge если он установлен
+
 			if m.expected.APNS.Payload.Aps.Badge != nil && actual.APNS.Payload.Aps.Badge != nil {
 				if *m.expected.APNS.Payload.Aps.Badge != *actual.APNS.Payload.Aps.Badge {
 					return false
@@ -100,11 +94,6 @@ func (m FCMMessageMatcher) Matches(x interface{}) bool {
 
 func (m FCMMessageMatcher) String() string {
 	return "is a matching FCM message"
-}
-
-// Функция для создания FCM matcher.
-func MatchesFCMMessage(expected messaging.Message) gomock.Matcher {
-	return FCMMessageMatcher{expected: expected}
 }
 
 func TestFull(t *testing.T) {
@@ -126,7 +115,7 @@ func TestFull(t *testing.T) {
 
 	qm := nats_mock.NewMockIQueueManager(ctrl)
 
-	qm.EXPECT().AddConsumer(gomock.Any(), gomock.Any()).Return().Times(2)
+	qm.EXPECT().AddConsumer(gomock.Any(), gomock.Any()).Return().Times(3)
 
 	uc, err := NewFcmUsecase(
 		logger,
@@ -168,15 +157,18 @@ func TestFull(t *testing.T) {
 		).AnyTimes()
 
 	authorID := int64(220)
-	contactRemote.EXPECT().GetContactsByUserId(gomock.Any(), authorID).Return(
-		[]*contacts_v1.Contact{
-			{
-				Id:     1,
-				UserId: &authorID,
-				Label:  "Dana из контактов",
-			},
-		}, nil,
-	).Times(2)
+	batchContactsResult := make(map[int64]*contacts_v1.Contact)
+	for _, userID := range userIDs {
+		batchContactsResult[userID] = &contacts_v1.Contact{
+			Id:     1,
+			UserId: &authorID,
+			Label:  "Dana из контактов",
+		}
+	}
+
+	contactRemote.EXPECT().GetBatchContactLabels(gomock.Any(), gomock.Any(), gomock.Any()).Return(
+		batchContactsResult, nil,
+	).Times(1)
 
 	badgeClient.EXPECT().GetBadges(gomock.Any(), userIDs[0]).Return(
 		map[u_struc.NotificationType]int64{
@@ -198,15 +190,15 @@ func TestFull(t *testing.T) {
 
 	fcmMessage := messaging.Message{
 		Data: map[string]string{
-			"event": `{"id":5541,"title":"Тест","description":"Рдмдрсдрсдс","coverUrl":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg","startDateTime":"2025-05-22T08:15:00Z","endDateTime":"2025-05-22T09:15:00Z","noticeBefore":10,"chatId":1445,"type":"HOME","avatars":["https://calendaria-test.s3.eu-north-1.amazonaws.com/43/2025/02/2d42197f-7e3b-43a8-aa87-2b1a0d4d7bc2.jpg","https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg"],"membersCount":2,"ownerId":220,"publishedAt":"2025-05-22T05:13:09Z","isInvitationAvailable":true,"membership":{"id":7809,"status":"ACCEPTED","role":"OWNER","calendarId":560,"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}},"calendar":{"id":560,"title":"Work","color":"2196F3","isPrimary":true,"isSelected":true,"ownerId":220,"provider":"CALENDARIA","externalId":"dana.levinte@gmail.com","credentialId":74}}`,
+			"event": `{"id":5541,"title":"Тест","description":"Рдмдрсдрсдс","coverUrl":"https://example.com"}`,
 			"type":  "EVENT_UPDATED",
-			"user":  `{"id":220,"phone":"+77076663503","username":"dana","name":"Dana ","avatar":"https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/04/14bdd005-0c4f-475c-a62c-ba10e3e948c4.jpg","lastLoginAt":"2025-05-22T05:19:43Z"}`,
+			"user":  `{"id":220,"phone":"+77076663503","username":"dana","name":"Dana ","avatar":"https://example.com"}`,
 		},
 		Token: "token1",
 		Notification: &messaging.Notification{
 			Title:    "Тест",
 			Body:     "Dana из контактов изменил(а) данные события",
-			ImageURL: "https://calendaria-test.s3.eu-north-1.amazonaws.com/220/2025/05/94967573-71c4-4d87-9ac1-1b480a1ee80c.jpg",
+			ImageURL: "https://example.com",
 		},
 		Android: &messaging.AndroidConfig{
 			Notification: &messaging.AndroidNotification{
@@ -227,7 +219,6 @@ func TestFull(t *testing.T) {
 
 	assert.NotNil(t, fcmMessage.Android)
 
-	// Используем наш пользовательский matcher вместо точного сравнения
 	fcmClient.EXPECT().Send(
 		gomock.Any(), "token1", gomock.Any(),
 	).Return(
@@ -699,8 +690,18 @@ func TestNotificationEventTextFormatting(t *testing.T) {
 					Return(nil).AnyTimes()
 
 				mockContactsRemote.EXPECT().
-					GetContactsByUserId(gomock.Any(), gomock.Any()).
+					GetContactsByUserID(gomock.Any(), gomock.Any()).
 					Return(tt.contacts, nil).AnyTimes()
+
+				batchContacts := make(map[int64]*contacts_v1.Contact)
+				for _, contact := range tt.contacts {
+					if contact.UserId != nil {
+						batchContacts[tt.userId] = contact
+					}
+				}
+				mockContactsRemote.EXPECT().
+					GetBatchContactLabels(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(batchContacts, nil).AnyTimes()
 
 				mockFcmClient.EXPECT().
 					Send(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -717,13 +718,16 @@ func TestNotificationEventTextFormatting(t *testing.T) {
 				}
 
 				message := tt.inputMessage
+				// Заполняем UsersIds если не заполнен
+				if len(message.UsersIds) == 0 {
+					message.UsersIds = []int64{tt.userId}
+				}
 				notification, err := uc.SendUserNotifications(context.Background(), *message, true)
 				if err != nil {
 					t.Fatalf("Failed to send notification: %v", err)
 					return
 				}
 
-				// notification msg is last message of UsersIds
 				assert.Equal(t, tt.expectedTitle, notification.msg.LocalizedTitle, "Wrong title")
 				assert.Equal(t, tt.expectedBody, notification.msg.LocalizedBody, "Wrong notification body")
 				if tt.expectedImage != "" {

@@ -1,29 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-UPDATED_FILES=$(git diff --name-only origin/main . | grep "internal/.*\.go$")
-UPDATED_DIRS=$(git diff --dirstat=files,0 origin/main . | grep internal | sed -En "s/^[ 0-9.]+\% //p")
+# go to repo root
+cd "$(git rev-parse --show-toplevel)" || exit 1
 
-DIRS_TO_IGNORE="(.*mock.*)|(.*ent.*)"
+echo "🔍 Finding changed internal Go files since origin/main…"
 
-for dir in $UPDATED_DIRS
-do
-  if [[ $dir =~ $DIRS_TO_IGNORE ]]; then
-    continue
-  fi
+# Collect changed .go files under internal/, excluding mocks/ent/pb-generated
+changed_files=()
+while IFS= read -r file; do
+  changed_files+=("$file")
+done < <(
+  git diff --name-only origin/main -- 'internal/**/*.go' \
+    | grep -vE '(/mock/|/ent/|\.pb\.go$)'
+)
 
-  FILES_TO_LINT=$(grep "$dir" <<< "$UPDATED_FILES"  | tr '\n' ' ')
-  FILES_IN_DIR=$(ls $dir)
-  FILES_TO_EXCLUDE=""
-  for file in $FILES_IN_DIR
-  do
-    if ! [[ $FILES_TO_LINT =~ $file ]]; then
-      FILES_TO_EXCLUDE="$FILES_TO_EXCLUDE|((^|/)$file.*)"
-    fi
-  done
-  if [[ ${#FILES_TO_EXCLUDE} -ge 1 ]]; then
-    FILES_TO_EXCLUDE="${FILES_TO_EXCLUDE:1}"
-    golangci-lint run --fix -c .golangci-lint.yml --exclude-files "$FILES_TO_EXCLUDE" "$dir"
-  else
-    golangci-lint run --fix -c .golangci-lint.yml "$FILES_TO_LINT"
-  fi
+if [ "${#changed_files[@]}" -eq 0 ]; then
+  echo "✅ No internal Go files to lint"
+  exit 0
+fi
+
+# Derive unique package dirs
+packages=($(printf "%s\n" "${changed_files[@]}" \
+  | xargs -n1 dirname \
+  | sort -u))
+
+echo "🔎 Will lint the following packages:"
+for pkg in "${packages[@]}"; do
+  echo "  - $pkg"
 done
+
+# Single lint pass on all affected packages
+echo "📦 Running golangci-lint on changed packages…"
+if ! golangci-lint run --fix -c .golangci-lint.yml "${packages[@]}"; then
+  echo "❌ Linting found issues"
+  exit 1
+fi
+
+echo "✅ Linting completed successfully"

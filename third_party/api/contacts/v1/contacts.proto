@@ -30,6 +30,15 @@ service Contacts {
   rpc GetContactsByUserId(UserIdRequest) returns (GetContactsReply);
   rpc GetContactsByUserIds(UserIdsRequest) returns (GetContactsReply);
   rpc DeleteUsersData(DeleteUsersDataRequest) returns (utils.v1.EmptyReply);
+
+  // GetBatchContactLabels used for s2s
+  // Request: batch of ownerIds and userIds
+  // Returns: contact labels info for performance optimization
+  rpc GetBatchContactLabels(GetBatchContactLabelsRequest) returns (GetBatchContactLabelsReply);
+
+  rpc SyncContacts(SyncContactsRequest) returns (SyncContactsReply);
+  rpc GetContactsUpdatedAt(utils.v1.EmptyRequest)
+      returns (GetContactsUpdatedAtReply);
 }
 
 message CreateContactRequest {
@@ -94,4 +103,27 @@ message GetLabelsByUserIdResponse {
 
 message DeleteUsersDataRequest {
   repeated int64 userIds = 1;
+}
+
+message SyncContactsRequest {
+  string syncAt = 1;
+}
+
+message SyncContactsReply {
+  repeated Contact updated = 1;
+  repeated int64 deleted = 2;
+  repeated Relation relations = 3;
+}
+
+message GetContactsUpdatedAtReply {
+  string updatedAt = 1;
+}
+
+message GetBatchContactLabelsRequest {
+  repeated int64 ownerIds = 1;
+  repeated int64 userIds = 2;
+}
+
+message GetBatchContactLabelsReply {
+  map<int64, Contact> contactsByOwner = 1;
 }

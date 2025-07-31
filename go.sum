@@ -453,8 +453,8 @@ github.com/zclconf/go-cty-yaml v1.1.0 h1:nP+jp0qPHv2IhUVqmQSzjvqAWcObN0KBkUl2rWB
 github.com/zclconf/go-cty-yaml v1.1.0/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
 gitlab.calendaria.team/services/chats v1.4.9-dev h1:bWrxyEs7tt2SRsfLOCxg9qaVPG4r70xroJoz6FGhn8c=
 gitlab.calendaria.team/services/chats v1.4.9-dev/go.mod h1:qY8aQEzyDGc5V0LIXCqGZ3gOQ28kcH4j18ejGRzKrIc=
-gitlab.calendaria.team/services/contacts v1.8.0 h1:HBc9yg7MnNRWk3ygVY/fgmxbYHLSCBIyIQAR+4EYp2I=
-gitlab.calendaria.team/services/contacts v1.8.0/go.mod h1:CNo3exZmnyNfPkp0Hy4PITkEais/P1oMaGyVsKJ0eg4=
+gitlab.calendaria.team/services/contacts v1.8.5-dev.2 h1:6CbdvHshKnBTAxsy4l4wT9xEIVNUnLzjfD3pwpPXaRk=
+gitlab.calendaria.team/services/contacts v1.8.5-dev.2/go.mod h1:jmZLmVKweA4j81Lt4rboXj9sQn52sinHdW02KyaIHYA=
 gitlab.calendaria.team/services/events v1.10.0-dev h1:SpDR+jbMzX2lzbIUJCnojg/9gFP1u1ov9vNxzPzQgdQ=
 gitlab.calendaria.team/services/events v1.10.0-dev/go.mod h1:Dgbyde/d6YaQPp8eQxopU2YuDxSn+PcEHnpW7mXaCFM=
 gitlab.calendaria.team/services/iam v1.8.16-dev h1:/QpU6SiB1jznimcZgY3lhxVySYWEX4F6zwtofMAcZW4=
@@ -465,8 +465,8 @@ gitlab.calendaria.team/services/pms/projects v0.1.0-dev h1:tInkcS/gl39uRiGJ9P5Oe
 gitlab.calendaria.team/services/pms/projects v0.1.0-dev/go.mod h1:SoseXgEwGurO0UoUZ0afv/wCaMSHv2haXXVX5UePhBs=
 gitlab.calendaria.team/services/pms/tasks v0.1.1 h1:K/YwK/dNJGERX/R9H//vDchFOcs20RtuARQEkUZ6D4g=
 gitlab.calendaria.team/services/pms/tasks v0.1.1/go.mod h1:zn5V/CI3fO5sSit2TXIgK4YCGXapYiKjJmy4SXMK2qw=
-gitlab.calendaria.team/services/utils v0.3.20 h1:3hKd5A8ggaePHKh0IppP8QIBdYoucbQhagCCSUh7EPU=
-gitlab.calendaria.team/services/utils v0.3.20/go.mod h1:JxcErnmQ4mvL1MtPps+3z2HdyLXGWJFar3JebhBYzL4=
+gitlab.calendaria.team/services/utils v0.3.23-upd h1:6VCbhHV+lG6RZQjdTj2Bb8mSf7C24J/5C1/9XDIw1u8=
+gitlab.calendaria.team/services/utils v0.3.23-upd/go.mod h1:JxcErnmQ4mvL1MtPps+3z2HdyLXGWJFar3JebhBYzL4=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=
 go.opencensus.io v0.24.0/go.mod h1:vNK8G9p7aAivkbmorf4v+7Hgx+Zs0yY+0fOtgBfjQKo=
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 h1:4Pp6oUg3+e/6M4C0A/3kJ2VYa++dsWVTtGgLVj5xtHg=

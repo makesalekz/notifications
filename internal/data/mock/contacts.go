@@ -35,17 +35,32 @@ func (m *MockIContactsRemote) EXPECT() *MockIContactsRemoteMockRecorder {
 	return m.recorder
 }
 
-// GetContactsByUserId mocks base method.
-func (m *MockIContactsRemote) GetContactsByUserId(ctx context.Context, userID int64) ([]*contacts_v1.Contact, error) {
+// GetBatchContactLabels mocks base method.
+func (m *MockIContactsRemote) GetBatchContactLabels(ctx context.Context, ownerIDs, userIDs []int64) (map[int64]*contacts_v1.Contact, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetContactsByUserId", ctx, userID)
+	ret := m.ctrl.Call(m, "GetBatchContactLabels", ctx, ownerIDs, userIDs)
+	ret0, _ := ret[0].(map[int64]*contacts_v1.Contact)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBatchContactLabels indicates an expected call of GetBatchContactLabels.
+func (mr *MockIContactsRemoteMockRecorder) GetBatchContactLabels(ctx, ownerIDs, userIDs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBatchContactLabels", reflect.TypeOf((*MockIContactsRemote)(nil).GetBatchContactLabels), ctx, ownerIDs, userIDs)
+}
+
+// GetContactsByUserID mocks base method.
+func (m *MockIContactsRemote) GetContactsByUserID(ctx context.Context, userID int64) ([]*contacts_v1.Contact, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetContactsByUserID", ctx, userID)
 	ret0, _ := ret[0].([]*contacts_v1.Contact)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetContactsByUserId indicates an expected call of GetContactsByUserId.
-func (mr *MockIContactsRemoteMockRecorder) GetContactsByUserId(ctx, userID interface{}) *gomock.Call {
+// GetContactsByUserID indicates an expected call of GetContactsByUserID.
+func (mr *MockIContactsRemoteMockRecorder) GetContactsByUserID(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContactsByUserId", reflect.TypeOf((*MockIContactsRemote)(nil).GetContactsByUserId), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetContactsByUserID", reflect.TypeOf((*MockIContactsRemote)(nil).GetContactsByUserID), ctx, userID)
 }

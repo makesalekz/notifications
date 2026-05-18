@@ -2,7 +2,7 @@ package data
 
 import (
 	"github.com/nats-io/nats.go"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
+	"github.com/makesalekz/notifications/internal/conf"
 )
 
 // NewNatsClient .

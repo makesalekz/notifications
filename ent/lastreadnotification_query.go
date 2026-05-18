@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
-	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"github.com/makesalekz/notifications/ent/lastreadnotification"
+	"github.com/makesalekz/notifications/ent/predicate"
 )
 
 // LastReadNotificationQuery is the builder for querying LastReadNotification entities.

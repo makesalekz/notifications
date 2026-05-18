@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/device"
-	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"github.com/makesalekz/notifications/ent/device"
+	"github.com/makesalekz/notifications/ent/predicate"
 )
 
 // DeviceDelete is the builder for deleting a Device entity.

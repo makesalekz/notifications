@@ -2,10 +2,10 @@
 package server
 
 import (
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	u_metrics "gitlab.calendaria.team/services/utils/v1/middlewares/metrics"
-	u_jwt "gitlab.calendaria.team/services/utils/v4/jwt"
-	u_auth "gitlab.calendaria.team/services/utils/v4/middlewares/auth"
+	"github.com/makesalekz/notifications/internal/conf"
+	u_metrics "github.com/makesalekz/utils/v1/middlewares/metrics"
+	u_jwt "github.com/makesalekz/utils/v4/jwt"
+	u_auth "github.com/makesalekz/utils/v4/middlewares/auth"
 
 	prom "github.com/go-kratos/kratos/contrib/metrics/prometheus/v2"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"

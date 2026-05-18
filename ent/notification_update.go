@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
-	"gitlab.calendaria.team/services/notifications/ent/predicate"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
+	"github.com/makesalekz/notifications/ent/predicate"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 // NotificationUpdate is the builder for updating Notification entities.

@@ -4,9 +4,9 @@ import (
 	"flag"
 	"os"
 
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	u_log "gitlab.calendaria.team/services/utils/v1/log"
-	"gitlab.calendaria.team/services/utils/v4/config"
+	"github.com/makesalekz/notifications/internal/conf"
+	u_log "github.com/makesalekz/utils/v1/log"
+	"github.com/makesalekz/utils/v4/config"
 
 	"github.com/go-kratos/kratos/v2"
 	kconfig "github.com/go-kratos/kratos/v2/config"
@@ -60,7 +60,7 @@ func main() {
 
 	// Custom Pretty logger for local run
 	if os.Getenv("APP_ENV") == "local" {
-		getLogger = u_log.NewJSONPrettyLogger()
+		getLogger = u_log.NewStdLogger()
 	}
 
 	logger := log.With(

@@ -1,13 +1,13 @@
 package server
 
 import (
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	"gitlab.calendaria.team/services/notifications/internal/service"
-	u_metrics "gitlab.calendaria.team/services/utils/v1/middlewares/metrics"
-	u_jwt "gitlab.calendaria.team/services/utils/v4/jwt"
-	u_auth "gitlab.calendaria.team/services/utils/v4/middlewares/auth"
-	u_tracing "gitlab.calendaria.team/services/utils/v4/tracing"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/conf"
+	"github.com/makesalekz/notifications/internal/service"
+	u_metrics "github.com/makesalekz/utils/v1/middlewares/metrics"
+	u_jwt "github.com/makesalekz/utils/v4/jwt"
+	u_auth "github.com/makesalekz/utils/v4/middlewares/auth"
+	u_tracing "github.com/makesalekz/utils/v4/tracing"
 
 	prom "github.com/go-kratos/kratos/contrib/metrics/prometheus/v2"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"

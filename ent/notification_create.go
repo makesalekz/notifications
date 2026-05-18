@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 // NotificationCreate is the builder for creating a Notification entity.

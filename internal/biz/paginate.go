@@ -1,6 +1,6 @@
 package biz
 
-import utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+import utils_v1 "github.com/makesalekz/utils/api/utils/v1"
 
 func replyPaginate(paginate *utils_v1.PaginateRequest, length int, total int32, fromId, toId *int64) *utils_v1.PaginateReply {
 	paginateReply := utils_v1.PaginateReply{

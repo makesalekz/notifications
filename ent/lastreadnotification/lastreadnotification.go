@@ -4,7 +4,7 @@ package lastreadnotification
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 const (

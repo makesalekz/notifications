@@ -3,8 +3,8 @@ package biz
 import (
 	"context"
 
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/data"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/data"
 
 	"github.com/go-kratos/kratos/v2/log"
 )

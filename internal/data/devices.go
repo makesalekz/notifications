@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
-	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/ent/device"
+	"github.com/makesalekz/notifications/ent"
+	"github.com/makesalekz/notifications/ent/device"
 )
 
 type DeviceDto struct {

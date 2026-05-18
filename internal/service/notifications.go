@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/biz"
-	"gitlab.calendaria.team/services/notifications/internal/biz/reply"
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
-	"gitlab.calendaria.team/services/utils/v2/auth"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/biz"
+	"github.com/makesalekz/notifications/internal/biz/reply"
+	"github.com/makesalekz/notifications/internal/data"
+	utils_v1 "github.com/makesalekz/utils/api/utils/v1"
+	"github.com/makesalekz/utils/v2/auth"
 )
 
 type NotificationsService struct {

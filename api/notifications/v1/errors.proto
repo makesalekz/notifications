@@ -4,7 +4,7 @@ package notifications.v1;
 
 import "errors/errors.proto";
 
-option go_package = "gitlab.calendaria.team/services/notifications/api/notifications/v1;notifications_v1";
+option go_package = "github.com/makesalekz/notifications/api/notifications/v1;notifications_v1";
 option java_multiple_files = true;
 option java_package = "notifications.v1";
 

@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
+	contacts_v1 "github.com/makesalekz/notifications/internal/stub/contacts_v1"
 )
 
 // MockIContactsRemote is a mock of IContactsRemote interface.

@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"os"
 
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
-	"gitlab.calendaria.team/services/utils/v4/config"
-	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/data"
+	u_struc "github.com/makesalekz/utils/v2/struc"
+	"github.com/makesalekz/utils/v4/config"
+	u_nats "github.com/makesalekz/utils/v4/nats"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"

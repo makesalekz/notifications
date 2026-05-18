@@ -8,7 +8,7 @@ package notifications_v1
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+	v1 "github.com/makesalekz/utils/api/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
-	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"github.com/makesalekz/notifications/ent/notificationdata"
+	"github.com/makesalekz/notifications/ent/predicate"
 )
 
 // NotificationDataDelete is the builder for deleting a NotificationData entity.

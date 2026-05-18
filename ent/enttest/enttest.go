@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"gitlab.calendaria.team/services/notifications/ent"
+	"github.com/makesalekz/notifications/ent"
 	// required by schema hooks.
-	_ "gitlab.calendaria.team/services/notifications/ent/runtime"
+	_ "github.com/makesalekz/notifications/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"gitlab.calendaria.team/services/notifications/ent/migrate"
+	"github.com/makesalekz/notifications/ent/migrate"
 )
 
 type (

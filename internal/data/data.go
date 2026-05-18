@@ -9,14 +9,14 @@ import (
 	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
 
-	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
-	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
-	u_config "gitlab.calendaria.team/services/utils/v4/config"
-	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
-	u_jwtp "gitlab.calendaria.team/services/utils/v4/jwt"
-	u_tracing "gitlab.calendaria.team/services/utils/v4/tracing"
+	"github.com/makesalekz/notifications/ent"
+	"github.com/makesalekz/notifications/internal/conf"
+	"github.com/makesalekz/notifications/internal/data/dialer"
+	u_badge "github.com/makesalekz/utils/v4/badge"
+	u_config "github.com/makesalekz/utils/v4/config"
+	u_dialer "github.com/makesalekz/utils/v4/dialer"
+	u_jwtp "github.com/makesalekz/utils/v4/jwt"
+	u_tracing "github.com/makesalekz/utils/v4/tracing"
 
 	_ "github.com/lib/pq"
 )

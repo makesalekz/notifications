@@ -3,11 +3,11 @@
 package ent
 
 import (
-	"gitlab.calendaria.team/services/notifications/ent/device"
-	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
-	"gitlab.calendaria.team/services/notifications/ent/predicate"
+	"github.com/makesalekz/notifications/ent/device"
+	"github.com/makesalekz/notifications/ent/lastreadnotification"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
+	"github.com/makesalekz/notifications/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

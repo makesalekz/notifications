@@ -3,11 +3,11 @@ package dialer
 import (
 	"context"
 
-	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
-	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	"gitlab.calendaria.team/services/utils/v2/auth"
-	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
+	users_v1 "github.com/makesalekz/iam/api/iam/v1"
+	notifications_v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/conf"
+	"github.com/makesalekz/utils/v2/auth"
+	u_dialer "github.com/makesalekz/utils/v4/dialer"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/exp/maps"

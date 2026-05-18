@@ -3,10 +3,10 @@ package dialer
 import (
 	"context"
 
-	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
+	events_v1 "github.com/makesalekz/notifications/internal/stub/events_v1"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/conf"
+	u_dialer "github.com/makesalekz/utils/v4/dialer"
 )
 
 type IEventsRemote interface {

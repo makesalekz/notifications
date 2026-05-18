@@ -12,14 +12,14 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/nats-io/nats.go/jetstream"
 
-	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
-	"gitlab.calendaria.team/services/utils/v2/auth"
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
-	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
-	u_nats "gitlab.calendaria.team/services/utils/v4/nats"
+	users_v1 "github.com/makesalekz/iam/api/iam/v1"
+	"github.com/makesalekz/notifications/ent"
+	"github.com/makesalekz/notifications/internal/data"
+	"github.com/makesalekz/notifications/internal/data/dialer"
+	"github.com/makesalekz/utils/v2/auth"
+	u_struc "github.com/makesalekz/utils/v2/struc"
+	u_badge "github.com/makesalekz/utils/v4/badge"
+	u_nats "github.com/makesalekz/utils/v4/nats"
 )
 
 // Chat type constants.

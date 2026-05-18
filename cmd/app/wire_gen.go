@@ -9,17 +9,17 @@ package main
 import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
-	"gitlab.calendaria.team/services/notifications/internal/biz"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	dialer2 "gitlab.calendaria.team/services/notifications/internal/data/dialer"
-	"gitlab.calendaria.team/services/notifications/internal/server"
-	"gitlab.calendaria.team/services/notifications/internal/service"
-	"gitlab.calendaria.team/services/utils/v4/config"
-	"gitlab.calendaria.team/services/utils/v4/dialer"
-	"gitlab.calendaria.team/services/utils/v4/jwt"
-	"gitlab.calendaria.team/services/utils/v4/nats"
-	"gitlab.calendaria.team/services/utils/v4/tracing"
+	"github.com/makesalekz/notifications/internal/biz"
+	"github.com/makesalekz/notifications/internal/conf"
+	"github.com/makesalekz/notifications/internal/data"
+	dialer2 "github.com/makesalekz/notifications/internal/data/dialer"
+	"github.com/makesalekz/notifications/internal/server"
+	"github.com/makesalekz/notifications/internal/service"
+	"github.com/makesalekz/utils/v4/config"
+	"github.com/makesalekz/utils/v4/dialer"
+	"github.com/makesalekz/utils/v4/jwt"
+	"github.com/makesalekz/utils/v4/nats"
+	"github.com/makesalekz/utils/v4/tracing"
 )
 
 import (

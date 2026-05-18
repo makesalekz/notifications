@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
 )
 
 // NotificationDataCreate is the builder for creating a NotificationData entity.

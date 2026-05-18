@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
+	events_v1 "github.com/makesalekz/notifications/internal/stub/events_v1"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/ent"
 
 	"github.com/go-kratos/kratos/v2/log"
 )

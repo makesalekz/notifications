@@ -4,14 +4,14 @@ package biz
 import (
 	"context"
 
-	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/notifications/internal/data/dialer"
-	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
-	u_badge "gitlab.calendaria.team/services/utils/v4/badge"
+	iam_v1 "github.com/makesalekz/iam/api/iam/v1"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/ent"
+	"github.com/makesalekz/notifications/internal/data"
+	"github.com/makesalekz/notifications/internal/data/dialer"
+	utils_v1 "github.com/makesalekz/utils/api/utils/v1"
+	u_struc "github.com/makesalekz/utils/v2/struc"
+	u_badge "github.com/makesalekz/utils/v4/badge"
 
 	"github.com/go-kratos/kratos/v2/log"
 )

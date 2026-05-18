@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strconv"
 
-	chats_v1 "gitlab.calendaria.team/services/chats/api/chats/v1"
-	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
-	events_v1 "gitlab.calendaria.team/services/events/api/events/v1"
-	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
-	projects_v1 "gitlab.calendaria.team/services/pms/projects/api/projects/v1"
-	tasks_v1 "gitlab.calendaria.team/services/pms/tasks/api/tasks/v1"
+	chats_v1 "github.com/makesalekz/notifications/internal/stub/chats_v1"
+	contacts_v1 "github.com/makesalekz/notifications/internal/stub/contacts_v1"
+	events_v1 "github.com/makesalekz/notifications/internal/stub/events_v1"
+	iam_v1 "github.com/makesalekz/iam/api/iam/v1"
+	"github.com/makesalekz/notifications/ent"
+	projects_v1 "github.com/makesalekz/notifications/internal/stub/projects_v1"
+	tasks_v1 "github.com/makesalekz/notifications/internal/stub/tasks_v1"
 )
 
 type FilterNotificationsDto struct {

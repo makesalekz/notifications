@@ -10,14 +10,14 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
-	users_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/internal/data"
-	"gitlab.calendaria.team/services/notifications/internal/data/mock"
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
-	badge_mock "gitlab.calendaria.team/services/utils/v4/badge/mock"
-	nats_mock "gitlab.calendaria.team/services/utils/v4/nats/mock"
+	contacts_v1 "github.com/makesalekz/notifications/internal/stub/contacts_v1"
+	users_v1 "github.com/makesalekz/iam/api/iam/v1"
+	"github.com/makesalekz/notifications/ent"
+	"github.com/makesalekz/notifications/internal/data"
+	"github.com/makesalekz/notifications/internal/data/mock"
+	u_struc "github.com/makesalekz/utils/v2/struc"
+	badge_mock "github.com/makesalekz/utils/v4/badge/mock"
+	nats_mock "github.com/makesalekz/utils/v4/nats/mock"
 )
 
 type FCMMessageMatcher struct {

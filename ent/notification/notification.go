@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 const (

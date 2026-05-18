@@ -3,7 +3,7 @@ package schema
 import (
 	"time"
 
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	u_struc "github.com/makesalekz/utils/v2/struc"
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"

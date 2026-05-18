@@ -8,8 +8,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
 )
 
 // NotificationData is the model entity for the NotificationData schema.

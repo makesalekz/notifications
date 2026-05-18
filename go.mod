@@ -1,8 +1,6 @@
-module gitlab.calendaria.team/services/notifications
+module github.com/makesalekz/notifications
 
-go 1.23.1
-
-toolchain go1.23.2
+go 1.26.0
 
 require (
 	entgo.io/ent v0.14.4
@@ -15,23 +13,18 @@ require (
 	github.com/go-kratos/kratos/contrib/metrics/prometheus/v2 v2.0.0-20240322155018-41971ffa647a
 	github.com/go-kratos/kratos/v2 v2.7.3
 	github.com/golang/mock v1.6.0
-	github.com/google/wire v0.6.0
+	github.com/google/wire v0.7.0
 	github.com/lib/pq v1.10.9
+	github.com/makesalekz/iam v1.8.16-dev
+	github.com/makesalekz/utils v0.3.23-upd
 	github.com/nats-io/nats.go v1.36.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/stretchr/testify v1.10.0
-	gitlab.calendaria.team/services/chats v1.4.9-dev
-	gitlab.calendaria.team/services/contacts v1.8.5-dev.2
-	gitlab.calendaria.team/services/events v1.10.0-dev
-	gitlab.calendaria.team/services/iam v1.8.16-dev
-	gitlab.calendaria.team/services/pms/projects v0.1.0-dev
-	gitlab.calendaria.team/services/pms/tasks v0.1.1
-	gitlab.calendaria.team/services/utils v0.3.23-upd
 	go.uber.org/automaxprocs v1.6.0
-	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d
-	golang.org/x/text v0.25.0
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
+	golang.org/x/text v0.27.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.1
 )
@@ -123,7 +116,6 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
-	gitlab.calendaria.team/services/media v1.5.0-pre // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
@@ -136,13 +128,13 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.1.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/crypto v0.38.0 // indirect
-	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/net v0.40.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
+	golang.org/x/crypto v0.40.0 // indirect
+	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
-	golang.org/x/sync v0.14.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/api v0.169.0 // indirect
 	google.golang.org/appengine/v2 v2.0.2 // indirect
@@ -153,7 +145,7 @@ require (
 )
 
 replace (
-	gitlab.calendaria.team/services/iam => ../iam
-	gitlab.calendaria.team/services/media => ../media
-	gitlab.calendaria.team/services/utils => ../utils
+	github.com/makesalekz/iam => ../iam
+	github.com/makesalekz/media => ../media
+	github.com/makesalekz/utils => ../utils
 )

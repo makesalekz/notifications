@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	iam_v1 "gitlab.calendaria.team/services/iam/api/iam/v1"
+	iam_v1 "github.com/makesalekz/iam/api/iam/v1"
 )
 
 // MockIIamRemote is a mock of IIamRemote interface.

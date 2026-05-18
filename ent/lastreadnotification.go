@@ -8,8 +8,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/notifications/ent/lastreadnotification"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 // LastReadNotification is the model entity for the LastReadNotification schema.

@@ -5,7 +5,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	u_struc "github.com/makesalekz/utils/v2/struc"
 )
 
 // LastReadNotification holds the schema definition for the LastReadNotification entity.

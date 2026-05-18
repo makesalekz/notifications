@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"gitlab.calendaria.team/services/notifications/ent/device"
-	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
+	"github.com/makesalekz/notifications/ent/device"
+	"github.com/makesalekz/notifications/ent/lastreadnotification"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
 )
 
 // ent aliases to avoid import conflicts in user's code.

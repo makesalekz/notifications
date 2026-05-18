@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gitlab.calendaria.team/services/utils/v4/config"
+	"github.com/makesalekz/utils/v4/config"
 
 	"github.com/go-kratos/kratos/v2/log"
 )

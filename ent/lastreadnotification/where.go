@@ -4,8 +4,8 @@ package lastreadnotification
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/predicate"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/notifications/ent/predicate"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 // ID filters vertices based on their ID field.

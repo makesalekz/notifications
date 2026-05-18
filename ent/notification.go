@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	"gitlab.calendaria.team/services/notifications/ent/notificationdata"
-	"gitlab.calendaria.team/services/utils/v2/struc"
+	"github.com/makesalekz/notifications/ent/notification"
+	"github.com/makesalekz/notifications/ent/notificationdata"
+	"github.com/makesalekz/utils/v2/struc"
 )
 
 // Notification is the model entity for the Notification schema.

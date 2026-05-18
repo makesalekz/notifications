@@ -3,12 +3,12 @@ package data
 import (
 	"context"
 
-	notifications_v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/ent"
-	"gitlab.calendaria.team/services/notifications/ent/lastreadnotification"
-	"gitlab.calendaria.team/services/notifications/ent/notification"
-	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
-	u_struc "gitlab.calendaria.team/services/utils/v2/struc"
+	notifications_v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/ent"
+	"github.com/makesalekz/notifications/ent/lastreadnotification"
+	"github.com/makesalekz/notifications/ent/notification"
+	utils_v1 "github.com/makesalekz/utils/api/utils/v1"
+	u_struc "github.com/makesalekz/utils/v2/struc"
 
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/lib/pq"

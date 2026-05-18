@@ -3,10 +3,10 @@ package dialer
 import (
 	"context"
 
-	contacts_v1 "gitlab.calendaria.team/services/contacts/api/contacts/v1"
-	v1 "gitlab.calendaria.team/services/notifications/api/notifications/v1"
-	"gitlab.calendaria.team/services/notifications/internal/conf"
-	u_dialer "gitlab.calendaria.team/services/utils/v4/dialer"
+	contacts_v1 "github.com/makesalekz/notifications/internal/stub/contacts_v1"
+	v1 "github.com/makesalekz/notifications/api/notifications/v1"
+	"github.com/makesalekz/notifications/internal/conf"
+	u_dialer "github.com/makesalekz/utils/v4/dialer"
 )
 
 type IContactsRemote interface {

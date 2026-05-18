@@ -9,9 +9,9 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	ent "gitlab.calendaria.team/services/notifications/ent"
-	data "gitlab.calendaria.team/services/notifications/internal/data"
-	utils_v1 "gitlab.calendaria.team/services/utils/api/utils/v1"
+	ent "github.com/makesalekz/notifications/ent"
+	data "github.com/makesalekz/notifications/internal/data"
+	utils_v1 "github.com/makesalekz/utils/api/utils/v1"
 )
 
 // MockNotificationsRepo is a mock of NotificationsRepo interface.

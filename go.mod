@@ -151,3 +151,9 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace (
+	gitlab.calendaria.team/services/iam => ../iam
+	gitlab.calendaria.team/services/media => ../media
+	gitlab.calendaria.team/services/utils => ../utils
+)

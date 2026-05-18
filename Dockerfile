@@ -10,6 +10,7 @@ RUN apk add --no-cache ca-certificates ffmpeg
 COPY --from=builder /src/bin/app /app/app
 COPY --from=builder /src/configs/ /app/configs/
 COPY --from=builder /src/locales/ /app/locales/
+COPY --from=builder /src/templates/ /app/templates/
 WORKDIR /app
 EXPOSE 8000 9000
 CMD ["./app", "-conf", "configs/config.dev.yaml"]

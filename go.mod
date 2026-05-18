@@ -15,8 +15,8 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/lib/pq v1.10.9
-	github.com/makesalekz/iam v1.8.16-dev
-	github.com/makesalekz/utils v0.3.23-upd
+	github.com/makesalekz/iam v1.99.0
+	github.com/makesalekz/utils v0.4.0
 	github.com/nats-io/nats.go v1.36.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/prometheus/client_golang v1.18.0
@@ -142,10 +142,4 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-replace (
-	github.com/makesalekz/iam => ../iam
-	github.com/makesalekz/media => ../media
-	github.com/makesalekz/utils => ../utils
 )

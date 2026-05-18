@@ -1,37 +1,16 @@
 services:
-  service:
-    image: ${REGISTRY_IMAGE}
-    container_name: ${SERVICE_NAME}_service
-    networks:
-      - backend
+  notifications:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV: dev
+    container_name: notifications
     restart: unless-stopped
     environment:
-      - DEBUG=1
-      - SERVICE_NAME=${SERVICE_NAME}
-      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/credentials
-      - FIREBASE_CONFIG=/run/secrets/firebase
+      - SERVICE_NAME=notifications
       - CONSUL_ADDRESS=${CONSUL_ADDRESS}
       - VAULT_ADDRESS=${VAULT_ADDRESS}
-      - VAULT_ROLE_ID=${VAULT_ROLE_ID}
-      - VAULT_SECRET_ID_PATH=/run/secrets/vault_secret_id
-      - AWS_REGION=${AWS_REGION}
-      - OTLP_GRPC_ADDRESS=${OTLP_GRPC_ADDRESS}
-    secrets:
-      - credentials
-      - firebase
-      - vault_secret_id
-    command: ["./app","-conf","config.yaml"]
-
-networks:
-  backend:
-    name: ${NETWORK}
-    driver: bridge
-    external: true
-
-secrets:
-  credentials:
-    environment: 'GOOGLE_APPLICATION_CREDENTIALS_FILE'
-  firebase:
-    environment: 'FIREBASE_CONFIG_FILE'
-  vault_secret_id:
-    environment: 'VAULT_SECRET_ID'
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_DEV_ROOT_TOKEN_ID}
+      - DEBUG=true
+      - AUTOMIGRATE=true
